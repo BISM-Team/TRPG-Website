@@ -21,6 +21,7 @@ There could be Submodules: Repositories that are kept separate from the root Rep
 
 ```
 git clone https://github.com/BISM-Team/TRPG-Website
+cd TRPG-Website
 git submodule init
 git submodule update
 git checkout dev

@@ -7,8 +7,8 @@ The Homebrew system is designed to make adding new classes, races, spells, ecc..
 Team's Drive: https://drive.google.com/drive/folders/16ZKj4r6NB8rz4NL2uv2Qp9gLF_x1gesp?usp=sharing
 
 How to get this repo:
-`
-git clone https://github.com/BISM-Team/TRPG-Website
+
+`git clone https://github.com/BISM-Team/TRPG-Website
 
 git submodule init
 git submodule update
@@ -17,8 +17,8 @@ git checkout dev
 `
 
 Before doing anything: create and publish a branch for your changes:
-`
-git branch my_changes
+
+`git branch my_changes
 git checkout my_changes
 git push --set-upstream my_changes
 
@@ -26,8 +26,8 @@ git push --set-upstream my_changes
 `
 
 When you are finished with your changes open a pull request from 'my_changes' to 'dev'
-`
-Go to https://github.com/BISM-Team/TRPG-Website/pulls
+
+`Go to https://github.com/BISM-Team/TRPG-Website/pulls
 New Pull Request
 base 'dev', compare 'my_changes'
 `

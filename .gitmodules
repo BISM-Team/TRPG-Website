@@ -1,4 +1,4 @@
 [submodule "dnd-battlemap"]
 	path = dnd-battlemap
 	url = https://github.com/BISM-Team/dnd-battlemap
-	branch = mater
+	branch = master

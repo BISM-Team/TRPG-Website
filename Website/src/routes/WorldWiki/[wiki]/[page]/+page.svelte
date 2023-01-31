@@ -1,7 +1,6 @@
-<svelte:head><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script></svelte:head>
 <script lang="ts">
     import { capitalizeFirstLetter } from '$lib/utils';
-     import type { PageData } from './$types';
+    import type { PageData } from './$types';
     
     export let data: PageData;
 

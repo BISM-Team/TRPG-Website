@@ -1,5 +1,6 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse'
+import remarkDirective from 'remark-directive'
 import remarkRehype from 'remark-rehype'
 import rehypeSanitize from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
@@ -7,7 +8,7 @@ import remarkStringify from 'remark-stringify'
 import inject from 'mdast-util-inject';
 import type { Root } from 'rehype-sanitize';
 import type { PageServerLoad, RouteParams } from './$types';
-import { capitalizeFirstLetter } from '$lib/utils';
+import { capitalizeFirstLetter, myRemarkPlugin } from '$lib/utils';
 
 function inject_tree(tree: any, content: string) {
     let tree_to_inject = unified().use(remarkParse).parse(content);
@@ -31,7 +32,8 @@ interface Page {
 
 const pages : Page[] = [
     {title: 'index', content: '# Tag 1\n[title1](./title1)'},
-    {title: 'title1', content: '# Title 1 \n## Section 1 \ndajlbvlabdvla \n\n## Section 2 \ncvpijbòdkgnmhlwirhdajgvs \n\nend \n'}
+    {title: 'title1', content: '# Title 1 \n## Section 1 \ndajlbvlabdvla \n\n## Section 2 \ncvpijbòdkgnmhlwirhdajgvs \n\nend \n\n::youtube[Video of a cat in a box]{#01ab2cd3efg}'},
+    {title: 'test', content: '# Cat videos \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw}'}
 ]
 
 export const load = (async ({params}) => {
@@ -41,11 +43,9 @@ export const load = (async ({params}) => {
     }
     let page = pages.find(page => {return params.page===page.title;})
     if(page) {
-        let tree = unified().use(remarkParse).parse(page.content);
+        let tree = unified().use(remarkParse).use(remarkDirective).parse(page.content);
         inject_tag(tree, 'NPCs', '- [Npc1]');
-        let content_back = unified().use(remarkStringify).stringify(tree);
-        console.log(content_back);
-        let mod_tree : Root = await unified().use(remarkRehype).run(tree);
+        let mod_tree : Root = await unified().use(myRemarkPlugin).use(remarkRehype).run(tree);
         out.page = {title: page.title, content: String(unified().use(rehypeSanitize).use(rehypeStringify).stringify(mod_tree)) }
     }
     return out;

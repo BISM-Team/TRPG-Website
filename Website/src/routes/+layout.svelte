@@ -24,8 +24,4 @@
         width: 100%;
         justify-content: space-evenly;
     }
-
-    nav > * {
-        background-color: rgba(0, 255, 255, 0.363);
-    }
 </style>

@@ -13,8 +13,17 @@
             });
 
             // Ready
-            player.addListener('ready', ({ device_id }) => {
+            player.addListener('ready', async ({ device_id }) => {
                 console.log('Ready with Device ID', device_id);
+                let request = new Request('https://api.spotify.com/v1/me/player', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'TODO Bearer Auth',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 'device_ids': [device_id] })
+                });
+                console.log(await fetch(request));
             });
 
             // Not Ready

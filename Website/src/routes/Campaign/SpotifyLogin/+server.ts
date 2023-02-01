@@ -2,8 +2,8 @@ import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from '../$types';
 import crypto from 'crypto'
 
-const client_id = '57961fde5fd8420eb16938f7931cc45e';
-const client_secret = '29fa74abc8c1401b98390a850fd3151c';
+const client_id = '';
+const client_secret = '';
 let access_token_birth : number | null = null;
 let access_token: string | null = null;
 let refresh_token: string | null = null;
@@ -66,7 +66,7 @@ export const GET: RequestHandler = async ({ url }) => {
         throw redirect(301, new URL('..', url.origin+url.pathname).toString());
     } else if(access_token === null && refresh_token === null) {
         let state = crypto.randomBytes(8).toString('hex')
-        var scope = 'user-read-private user-read-email user-modify-playback-state';
+        var scope = 'user-read-private user-read-email user-modify-playback-state streaming';
     
         let req_url = new URL('https://accounts.spotify.com/authorize');
         req_url.searchParams.append('response_type', 'code');

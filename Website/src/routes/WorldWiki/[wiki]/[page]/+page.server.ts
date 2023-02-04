@@ -1,5 +1,6 @@
 import type { PageServerLoad, RouteParams } from './$types';
-import { renderTree, parseSource, inject_tag } from '$lib/tree';
+import { renderTree, parseSource, inject_tag, filterOutTree } from '$lib/tree';
+import { logWholeObject } from '$lib/utils';
 
 interface Page {
     title: string,
@@ -9,7 +10,7 @@ interface Page {
 const pages : Page[] = [
     {title: 'index', content: '# Tag 1\n[title1](./title1)'},
     {title: 'title1', content: '# Title 1 \n## Section 1 \ndajlbvlabdvla \n\n## Section 2 \ncvpijbòdkgnmhlwirhdajgvs \n\nend \n\n::youtube[Video of a cat in a box]{#01ab2cd3efg}'},
-    {title: 'test', content: '# Cat videos \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw}\n:visibility[GM ; Player 1 ; Player 2]'}
+    {title: 'test', content: '# Page title \n\n:visibility[all] \n\n## Visible to GM only \n\n:visibility[GM] \n\nparahraph with some content \n\nanother paragraph \n\n## Visible to all \n\n:visibility[all] \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw} \n\nparagraph with more content'}
 ]
 
 export const load = (async ({ params }) => {
@@ -20,6 +21,8 @@ export const load = (async ({ params }) => {
     let page = pages.find(page => {return params.page===page.title;})
     if(page) {
         let tree = parseSource(page.content);
+        logWholeObject(tree);
+        await filterOutTree(tree, 'gm');
         inject_tag('NPCs', tree, parseSource('- [NPC](test)'));
         out.page = {title: page.title, content: (await renderTree(tree)) }
     }

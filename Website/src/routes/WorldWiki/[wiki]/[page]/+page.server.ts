@@ -1,5 +1,6 @@
 import type { PageServerLoad, RouteParams } from './$types';
-import { renderTree, parseSource, inject_tag, filterOutTree, stringifyTree } from '$lib/tree/tree';
+import { renderTree, parseSource, filterOutTree, stringifyTree } from '$lib/tree/tree';
+import { inject_tag } from '$lib/tree/modifications'
 import { logWholeObject } from '$lib/utils';
 
 interface Page {

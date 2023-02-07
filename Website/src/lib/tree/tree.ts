@@ -5,13 +5,13 @@ import remarkRehype from 'remark-rehype'
 import rehypeSanitize from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
 import remarkStringify from 'remark-stringify'
-import { remarkHeadingId } from 'remark-custom-heading-id'
-import inject from 'mdast-util-inject'
+import remarkHeadingId from 'remark-custom-heading-id'
 import { remove } from 'unist-util-remove'
 import { visit } from 'unist-util-visit'
 import type { Root } from 'mdast'
-import { capitalizeFirstLetter, includes, logWholeObject } from '$lib/utils'
-import { isNodeVisible, isHeaderVisible, isVisibilityDirective, isModifiersDirective } from '$lib/tree/visibility'
+import { includes, logWholeObject } from '$lib/utils'
+import { isNodeVisible, isHeaderVisible, isVisibilityDirective } from '$lib/tree/visibility'
+import { isModifiersDirective } from '$lib/tree/modifications'
 import crypto from 'crypto'
 
 export function stringifyTree(tree: Root) : string {
@@ -20,7 +20,7 @@ export function stringifyTree(tree: Root) : string {
 
 export async function parseSource(src: string) : Promise<Root> {
   let tree = unified().use(remarkDirective).use(remarkParse).use(remarkHeadingId).parse(src);
-  return await unified().use(addHeaderIds, { randomizer: () => { return crypto.randomBytes(4).toString('hex'); }}).run(tree);
+  return await unified().use(addHeaderIds).run(tree);
 }
 
 export async function filterOutTree(tree: Root, username: string) : Promise<Root> {
@@ -33,16 +33,6 @@ export async function prepareTree(tree: Root) {
 
 export async function renderTree(tree: Root) : Promise<string> {
   return unified().use(rehypeSanitize).use(rehypeStringify).stringify(await prepareTree(tree));
-}
-
-export async function inject_tag(tag_name: string, tree: Root, to_inject: Root) {
-  if(!inject(capitalizeFirstLetter(tag_name), tree, to_inject)) {
-      inject('', tree, await parseSource(`# ${capitalizeFirstLetter(tag_name)}\n `));
-      if(!inject(capitalizeFirstLetter(tag_name), tree, to_inject)) {
-        //logWholeObject(tree);
-        throw new Error('Did you submit an empty Tree ?');
-      }
-  }
 }
 
 function resolveCustomElements() {
@@ -90,15 +80,11 @@ function filterOutNonVisible(options?: {username: string} | void) {
   }
 }
 
-function addHeaderIds(options?: { randomizer: () => string} | void) {
-  if(!options) {
-    throw new Error('Missing options.randomizer');
-  }
-
+function addHeaderIds(options?: { randomizer?: () => string} | void) {
   return function(tree: Root) {
     visit(tree, 'heading', node => {
       const ids = node.children.filter(child => child.type === 'idString');
-      if(ids.length==0 && options.randomizer) node.children.push({ type: 'idString', value: options.randomizer() });
+      if(ids.length==0) node.children.push({ type: 'idString', value: ( (options ? options.randomizer : undefined) || (() => {return crypto.randomBytes(4).toString('hex')}) )() });
     });
   }
 }

@@ -7,12 +7,6 @@ export function isVisibilityDirective(node: any) {
         && node.children[0].children[0].type === 'text')
 }
 
-export function isModifiersDirective(node: any) {
-    return (node.type === 'paragraph' && node.children 
-        && node.children[0].type === 'textDirective' && node.children[0].name === 'modifiers' && node.children[0].children 
-        && node.children[0].children[0].type === 'text')
-}
-
 function getVisibility(node: any, username: string) : boolean | null {
     if(isVisibilityDirective(node)) { 
         let viewers: string[] = node.children[0].children[0].value.split(';').map((viewer: string) => { return viewer.trim().toLowerCase(); });

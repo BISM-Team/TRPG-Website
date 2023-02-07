@@ -2,7 +2,7 @@ import type { Root } from 'mdast';
 import { includes } from '$lib/utils'
 import { remove } from 'unist-util-remove'
 
-function isVisibilityDirective(node: any) {
+export function isVisibilityDirective(node: any) {
     return (node.type === 'paragraph' && node.children 
         && node.children[0].type === 'textDirective' && node.children[0].name === 'visibility' && node.children[0].children 
         && node.children[0].children[0].type === 'text')
@@ -42,7 +42,7 @@ function isNodeVisible(tree: Root, index: number, username: string, startingDept
     return true;
 }
 
-function isHeaderVisible(tree: Root, index: number, username: string) : boolean {
+function isHeadingVisible(tree: Root, index: number, username: string) : boolean {
     let node = tree.children[index];
     if(node.type !== 'heading') return true;
     if(!isNodeVisible(tree, index, username, node.depth)) return false;
@@ -65,16 +65,10 @@ export function filterOutNonVisible(options?: {username: string} | void) {
         if(parent===null || parent===undefined || i===null || i===undefined) return false;
         if(child.type === 'root' || parent.type !== 'root') return false;
         switch (child.type) {
-          case 'heading':
-            return !isHeaderVisible(tree, i, options.username);
-          case 'paragraph': 
-            if(!isVisibilityDirective(child)) {
-              !isNodeVisible(tree, i, options.username);
-            } else {
-              return true;
-            }
-          default:
-            return !isNodeVisible(tree, i, options.username);
+            case 'heading':
+                return !isHeadingVisible(tree, i, options.username);
+            default:
+                return !isNodeVisible(tree, i, options.username);
         }
       });
     }

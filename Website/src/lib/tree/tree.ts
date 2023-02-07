@@ -10,7 +10,7 @@ import remarkHeadingId from 'remark-custom-heading-id'
 import { visit } from 'unist-util-visit'
 import { logWholeObject } from '$lib/utils'
 import { filterOutNonVisible } from '$lib/tree/visibility'
-import { integrateModifiersInfo } from './modifications'
+import { integrateDirectiveInfo } from './modifications'
 import crypto from 'crypto'
 
 export function stringifyTree(tree: Root) : string {
@@ -19,7 +19,7 @@ export function stringifyTree(tree: Root) : string {
 
 export async function parseSource(src: string) : Promise<Root> {
   let tree = unified().use(remarkDirective).use(remarkParse).use(remarkHeadingId).parse(src);
-  return await unified().use(addHeaderIds).run(tree);
+  return await unified().use(addHeadingIds).run(tree);
 }
 
 export async function filterOutTree(tree: Root, username: string) : Promise<Root> {
@@ -27,7 +27,7 @@ export async function filterOutTree(tree: Root, username: string) : Promise<Root
 }
 
 export async function prepareTree(tree: Root, username: string) {
-  return await unified().use(remarkHeadingId).use(integrateModifiersInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
+  return await unified().use(remarkHeadingId).use(integrateDirectiveInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
 }
 
 export async function renderTree(tree: Root, username: string) : Promise<string> {
@@ -54,7 +54,7 @@ function resolveCustomElements() {
   }
 }
 
-function addHeaderIds(options?: { randomizer?: () => string} | void) {
+function addHeadingIds(options?: { randomizer?: () => string} | void) {
   return function(tree: Root) {
     visit(tree, 'heading', node => {
       const ids = node.children.filter(child => child.type === 'idString');

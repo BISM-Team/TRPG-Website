@@ -2,6 +2,8 @@ import type { PageServerLoad, RouteParams } from './$types';
 import { renderTree, parseSource, filterOutTree, stringifyTree } from '$lib/tree/tree';
 import { inject_tag } from '$lib/tree/modifications'
 import { logWholeObject } from '$lib/utils';
+import { getHeadingModifiers, getHeadingViewers, searchHeadingIndex } from '$lib/tree/heading';
+import { includesMatcher } from 'mdast-util-inject';
 
 interface Page {
     title: string,
@@ -21,11 +23,11 @@ export const load = (async ({ params }) => {
     }
     let page = pages.find(page => {return params.page===page.title;})
     if(page) {
-        const username = 'Gm';
+        const username = 'Player1';
         let tree = await parseSource(stringifyTree(await parseSource(page.content)));
         logWholeObject(stringifyTree(tree));
-        await filterOutTree(tree, username);
         await inject_tag('NPCs', tree, await parseSource('- [NPC](test)'));
+        await filterOutTree(tree, username);
         out.page = {title: page.title, content: (await renderTree(tree, username)) }
     }
     return out;

@@ -24,6 +24,7 @@
 		"hastscript": "^7.2.0",
 		"mdast": "^3.0.0",
 		"mdast-heading-id": "../../md-heading-id/packages/mdast-heading-id",
+		"mdast-util-directive": "github:BISM-Team/mdast-util-directive",
 		"mdast-util-inject": "github:BISM-Team/mdast-util-inject",
 		"micromark-heading-id": "../../md-heading-id/packages/micromark-heading-id",
 		"rehype": "^12.0.1",

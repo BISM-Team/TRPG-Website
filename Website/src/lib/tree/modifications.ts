@@ -3,56 +3,34 @@ import { parseSource } from '$lib/tree/tree'
 import type { Root } from 'mdast'
 import inject from 'mdast-util-inject'
 import { includesMatcher } from 'mdast-util-inject'
-import { remove } from 'unist-util-remove'
-import { isVisibilityDirective } from './visibility'
+import { visit } from 'unist-util-visit'
+import type { AdvancedHeading } from './heading'
 
-export function isModifiersDirective(node: any) {
-    return (node.type === 'paragraph' && node.children 
-        && node.children[0].type === 'textDirective' && node.children[0].name === 'modifiers' && node.children[0].children 
-        && node.children[0].children[0].type === 'text')
-}
-
-function getModifiability(node: any, username: string) : boolean | null {
-    if(isModifiersDirective(node)) { 
-        let modifiers: string[] = node.children[0].children[0].value.split(';').map((modifier: string) => { return modifier.trim().toLowerCase(); });
-        const low_username = username.trim().toLowerCase();
-        return low_username===('gm') || includes(modifiers, low_username) || includes(modifiers, 'all');
+function getModifiability(node: AdvancedHeading, username: string) : boolean {
+    const low_username = username.trim().toLowerCase();
+    if(low_username===('gm')) return true;
+    if(node.attributes && node.attributes.modifiers) {
+        let modifiers: string[] = node.attributes.modifiers.split(';').map((modifier: string) => { return modifier.trim().toLowerCase(); });
+        return includes(modifiers, low_username) || includes(modifiers, 'all');
     }
-    else { return null; }
+    else return false;
 }
 
 function isNodeModifiable(tree: Root, index: number, username: string) : boolean {
     let current_depth=7;
-    let last_mod=false;
-    for (let i=index-1; 0<i; i-=1) {
+    for (let i=index; 0<=i && current_depth>1; i-=1) {
         let child = tree.children[i];
-        let modifiability = getModifiability(child, username);
-        if(modifiability != null) last_mod=modifiability;
         
         if(child.type === 'heading') {
+            let heading = child as AdvancedHeading;
             if(child.depth >= current_depth) {
-                last_mod=false;
                 continue;
             }
-            if(!last_mod) { 
-                return false; 
+            if(getModifiability(heading, username)) { 
+                return true; 
             }
-            else {
-                current_depth=child.depth;
-            }
-            if(child.depth===1) break;
+            current_depth=child.depth;
         }
-    }
-    return true;
-}
-
-function isHeadingModifiable(tree: Root, index: number, username: string) : boolean {
-    if(!isNodeModifiable(tree, index, username)) return false;
-
-    for (let i=index+1; i<tree.children.length && tree.children[i].type !== 'heading'; i+=1) {
-        let child = tree.children[i];
-        let modifiability = getModifiability(child, username);
-        if(modifiability != null) return modifiability;
     }
     return false;
 }
@@ -63,17 +41,15 @@ export function integrateDirectiveInfo(options?: {username: string} | void) {
     }
 
     return function(tree: Root) {
-        remove(tree, { cascade: false }, (child, i, parent) => {
-            if(isVisibilityDirective(child)) return true;
-            if(isModifiersDirective(child)) return true;
-
-            if(parent===null || parent===undefined || i===null || i===undefined) return false;
-            if(child.type === 'root' || parent.type !== 'root') return false;
-            if(child.type === 'heading' && (isHeadingModifiable(tree, i, options.username) || options.username.trim().toLowerCase()==='gm')) {
-                const node_data_ref = child.data || (child.data = {});
-                (node_data_ref.hProperties as any).class = ((node_data_ref.hProperties as any).class || '') + 'modifiable';
+        visit(tree, 'heading', (child, i) => {
+            if(i===null) return;
+            const node_data_ref = child.data || (child.data = { hProperties: {}});
+            const hProperties_ref = (node_data_ref.hProperties as any);
+            if(isNodeModifiable(tree, i, options.username)) {
+                hProperties_ref.class = (hProperties_ref.class || '') + 'modifiable';
             }
-            return false;
+            let advHeading = child as AdvancedHeading;
+            if(advHeading.attributes && advHeading.attributes.id) hProperties_ref.id = advHeading.attributes.id;
         });
     }
 }

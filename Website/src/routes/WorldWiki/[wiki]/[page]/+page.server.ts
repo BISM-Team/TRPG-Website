@@ -26,7 +26,7 @@ export const load = (async ({ params }) => {
         const username = 'player1';
         let tree = await parseSource(await stringifyTree(await parseSource(page.content)));
         logWholeObject(tree);
-        await inject_tag('NPCs', tree, await parseSource('- [NPC](test)'));
+        await inject_tag('NPCs', tree, await parseSource('- [NPC](test)'), {id: 'ciao', viewers: 'Player1;Player3', modifiers: 'Player3'});
         await filterOutTree(tree, username);
         out.page = {title: page.title, content: (await renderTree(tree, username)) }
     }

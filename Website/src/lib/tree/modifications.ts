@@ -54,11 +54,18 @@ export function integrateDirectiveInfo(options?: {username: string} | void) {
     }
 }
 
-export async function inject_tag(tag_name: string, tree: Root, to_inject: Root) {
+function makeDirective(tagName: string, attributes?: any) {
+    let id = attributes && attributes.id ? '#'+attributes.id+' ' : '';
+    let viewers = attributes && attributes.viewers ? 'viewers=\''+attributes.viewers+'\' ' : '';
+    let modifiers = attributes && attributes.modifiers ? 'modifiers=\''+attributes.modifiers+'\' ' : '';
+    let attributes_str = id || viewers || modifiers ? '{'+id+viewers+modifiers+'}' : '';
+    return `::heading[# ${capitalizeFirstLetter(tagName)}]${attributes_str}`;
+}
+
+export async function inject_tag(tag_name: string, tree: Root, to_inject: Root, attributes?: any) {
     if(!inject(capitalizeFirstLetter(tag_name), tree, to_inject, includesMatcher)) {
-        inject('', tree, await parseSource(`# ${capitalizeFirstLetter(tag_name)}\n `));
+        inject('', tree, await parseSource(makeDirective(tag_name, attributes)));
         if(!inject(capitalizeFirstLetter(tag_name), tree, to_inject, includesMatcher)) {
-            //logWholeObject(tree);
             throw new Error('Did you submit an empty Tree ?');
         }
     }

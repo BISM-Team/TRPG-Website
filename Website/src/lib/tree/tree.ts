@@ -6,20 +6,20 @@ import remarkRehype from 'remark-rehype'
 import rehypeSanitize from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
 import remarkStringify from 'remark-stringify'
-import remarkHeadingId from 'remark-custom-heading-id'
 import { visit } from 'unist-util-visit'
 import { logWholeObject } from '$lib/utils'
 import { filterOutNonVisible } from '$lib/tree/visibility'
 import { integrateDirectiveInfo } from './modifications'
-import crypto from 'crypto'
+import { directiveToHeading, headingToDirective, addHeadingIds } from './heading'
 
-export function stringifyTree(tree: Root) : string {
-  return unified().use(remarkHeadingId).use(remarkDirective).use(remarkStringify).stringify(tree);
+export async function stringifyTree(tree: Root) : Promise<string> {
+  await unified().use(headingToDirective).run(tree);
+  return unified().use(remarkDirective).use(remarkStringify).stringify(tree);
 }
 
 export async function parseSource(src: string) : Promise<Root> {
-  let tree = unified().use(remarkDirective).use(remarkParse).use(remarkHeadingId).parse(src);
-  return await unified().use(addHeadingIds).run(tree);
+  let tree = unified().use(remarkDirective).use(remarkParse).parse(src);
+  return await unified().use(headingToDirective).use(directiveToHeading).use(addHeadingIds).run(tree);
 }
 
 export async function filterOutTree(tree: Root, username: string) : Promise<Root> {
@@ -27,7 +27,7 @@ export async function filterOutTree(tree: Root, username: string) : Promise<Root
 }
 
 export async function prepareTree(tree: Root, username: string) {
-  return await unified().use(remarkHeadingId).use(integrateDirectiveInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
+  return await unified().use(integrateDirectiveInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
 }
 
 export async function renderTree(tree: Root, username: string) : Promise<string> {
@@ -51,14 +51,5 @@ function resolveCustomElements() {
         }
       }
     })
-  }
-}
-
-function addHeadingIds(options?: { randomizer?: () => string} | void) {
-  return function(tree: Root) {
-    visit(tree, 'heading', node => {
-      const ids = node.children.filter(child => child.type === 'idString');
-      if(ids.length==0) node.children.push({ type: 'idString', value: ( (options ? options.randomizer : undefined) || (() => {return crypto.randomBytes(4).toString('hex')}) )() });
-    });
   }
 }

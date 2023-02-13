@@ -3,6 +3,7 @@ import { renderTree, parseSource, filterOutTree, stringifyTree } from '$lib/tree
 import { inject_tag } from '$lib/tree/heading'
 import { logWholeObject } from '$lib/utils';
 import { includesMatcher } from 'mdast-util-inject';
+import { mergeTrees } from '$lib/tree/merge';
 
 interface Page {
     title: string,
@@ -16,18 +17,18 @@ const pages : Page[] = [
 ]
 
 export const load = (async ({ params }) => {
-    let out: {params: RouteParams, index: boolean, page: Page|undefined} = {params: params, index: false, page: undefined};
+    const out: {params: RouteParams, index: boolean, page: Page|undefined} = {params: params, index: false, page: undefined};
     if(params.page==='index') {
         out.index=true;
     }
-    let page = pages.find(page => {return params.page===page.title;})
+    const page = pages.find(page => {return params.page===page.title;})
     if(page) {
-        const username = 'player1';
-        let tree = await parseSource(await stringifyTree(await parseSource(page.content)));
+        const username = 'gm';
+        const tree = await parseSource(await stringifyTree(await parseSource(page.content)));
         await inject_tag('NPCs', tree, await parseSource('- [NPC](test) \n\n - [NPC2](test#section)'), {id: 'ciao', viewers: 'Player1;Player3', modifiers: 'Player3'});
-        logWholeObject(tree);
         await filterOutTree(tree, username);
-        out.page = {title: page.title, content: (await renderTree(tree, username)) }
+        const left = await parseSource(page.content);
+        out.page = {title: page.title, content: (await renderTree(mergeTrees(left, tree, username), username)) }
     }
     return out;
 }) satisfies PageServerLoad;

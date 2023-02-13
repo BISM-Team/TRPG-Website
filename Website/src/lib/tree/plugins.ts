@@ -27,12 +27,12 @@ export function directiveToHeading() {
     return function(tree: Root) {
         visit(tree, 'leafDirective', node => {
             if(node.name === 'heading' && node.children && node.children[0]) {
-                let child=node.children[0];
+                const child=node.children[0];
                 if(child.type === 'text') {
                     delete (node as any).name;
-                    let advHeading = (node as unknown) as AdvancedHeading;
+                    const advHeading = (node as unknown) as AdvancedHeading;
                     advHeading.type='heading';
-                    let res = stripHash(child.value);
+                    const res = stripHash(child.value);
                     child.value = res.result;
                     advHeading.depth = res.depth;
                 }
@@ -45,9 +45,9 @@ export function headingToDirective() {
     return function(tree: Root) {
         visit(tree, 'heading', node => {
             if(node.children && node.children[0]) {
-                let child=node.children[0];
+                const child=node.children[0];
                 if(child.type === 'text') {
-                    let directive = (node as unknown) as LeafDirective;
+                    const directive = (node as unknown) as LeafDirective;
                     directive.type='leafDirective';
                     directive.name='heading';
                     directive.attributes = directive.attributes || {}
@@ -62,9 +62,9 @@ export function headingToDirective() {
 export function addHeadingIds(options?: { randomizer?: () => string} | void) {
     return function(tree: Root) {
         visit(tree, 'heading', node => {
-        let advHeading = node as AdvancedHeading;
-        advHeading.attributes = advHeading.attributes || {};
-        if(!advHeading.attributes.id) advHeading.attributes.id = ((options ? options.randomizer : undefined) || (() => {return crypto.randomBytes(4).toString('hex')}))();
+            const advHeading = node as AdvancedHeading;
+            advHeading.attributes = advHeading.attributes || {};
+            if(!advHeading.attributes.id) advHeading.attributes.id = ((options ? options.randomizer : undefined) || (() => {return crypto.randomBytes(4).toString('hex')}))();
         });
     }
 }
@@ -91,14 +91,13 @@ export function filterOutNonVisibleLinks(options?: {username: string} | void) {
     return function(tree: Root) {
         remove(tree, { cascade: true }, (child, i, parent) => {
             if(parent===null || parent===undefined || i===null || i===undefined) return false;
-            if(child.type==='link' && child.url) {
+            if(child.type==='link' && (child as any).url) {
                 try {
-                    let targets = child.url.split('/');
+                    let targets = (child as any).url.split('/');
                     targets = targets[targets.length-1].split('#');
-                    let header_text = targets[targets.length-1];
+                    const header_text = targets[targets.length-1];
                     return !isTreeVisible(header_text, tree, options.username);
                 } catch(exc: any) {
-                    console.error('invalid url destination');
                     return false;
                 }
             }
@@ -120,7 +119,7 @@ export function integrateDirectiveInfo(options?: {username: string} | void) {
             if(isNodeModifiable(tree, i, options.username)) {
                 hProperties_ref.class = (hProperties_ref.class || '') + 'modifiable';
             }
-            let advHeading = child as AdvancedHeading;
+            const advHeading = child as AdvancedHeading;
             if(advHeading.attributes && advHeading.attributes.id) hProperties_ref.id = advHeading.attributes.id;
         });
     }

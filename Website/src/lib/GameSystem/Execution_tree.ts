@@ -11,10 +11,10 @@ export function buildTree(character: Character) : Tree {
         primitives = primitives.concat(item.effects.map(effect => { return effect.primitive; }));
     }
 
-    let nodes: Node[] = [];
+    const nodes: Node[] = [];
 
     for (const prim of primitives) {
-        let new_node = new Node('', prim);
+        const new_node = new Node('', prim);
         
         prim.incoming_refs.forEach(ref => {
             let node = nodes.find(node => { return node.name == ref; });
@@ -63,7 +63,7 @@ class Tree {
             node.evaluated=false;
         }
     }
-};
+}
 
 class Node {
     name: string;
@@ -103,4 +103,4 @@ class Node {
             this.primitive.invoke(scope);
         }
     }
-};
+}

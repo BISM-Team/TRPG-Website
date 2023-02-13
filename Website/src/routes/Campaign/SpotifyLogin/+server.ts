@@ -4,16 +4,16 @@ import crypto from 'crypto'
 
 const client_id = '';
 const client_secret = '';
-let access_token_birth : number | null = null;
+const access_token_birth : number | null = null;
 let access_token: string | null = null;
 let refresh_token: string | null = null;
 
 async function requestRefreshedToken(auth_code: string) {
-    let form_body = new URLSearchParams();
+    const form_body = new URLSearchParams();
     form_body.append('grant_type', 'refresh_token');
     form_body.append('code', auth_code);
 
-    let req = new Request('https://accounts.spotify.com/api/token', {
+    const req = new Request('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
             'Authorization': client_id + ':' + client_secret,
@@ -31,12 +31,12 @@ async function requestRefreshedToken(auth_code: string) {
 }
 
 async function requestAccessToken(callbackUrl: string, auth_code: string, ) {
-    let form_body = new URLSearchParams();
+    const form_body = new URLSearchParams();
     form_body.append('grant_type', 'authorization_code');
     form_body.append('code', auth_code);
     form_body.append('redirect_uri', callbackUrl);
 
-    let req = new Request('https://accounts.spotify.com/api/token', {
+    const req = new Request('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
             'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64'),
@@ -65,10 +65,10 @@ export const GET: RequestHandler = async ({ url }) => {
     } else if(url.searchParams.has('error') && url.searchParams.has('state')) {
         throw redirect(301, new URL('..', url.origin+url.pathname).toString());
     } else if(access_token === null && refresh_token === null) {
-        let state = crypto.randomBytes(8).toString('hex')
-        var scope = 'user-read-private user-read-email user-modify-playback-state streaming';
+        const state = crypto.randomBytes(8).toString('hex')
+        const scope = 'user-read-private user-read-email user-modify-playback-state streaming';
     
-        let req_url = new URL('https://accounts.spotify.com/authorize');
+        const req_url = new URL('https://accounts.spotify.com/authorize');
         req_url.searchParams.append('response_type', 'code');
         req_url.searchParams.append('client_id', client_id);
         req_url.searchParams.append('scope', scope);

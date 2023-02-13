@@ -2,19 +2,19 @@ export class Effect {
     primitive: Primitive;
     blocked: boolean;
     active: boolean;
-    constructor(fn: CallableFunction, modifies: string[], gets: string[], priority: number = 0, active: boolean = true, blocked: boolean = false) {
+    constructor(fn: CallableFunction, modifies: string[], gets: string[], priority = 0, active = true, blocked = false) {
         this.primitive=new Primitive(fn, modifies, gets, priority);
         this.blocked=blocked;
         this.active=active;
     }
-};
+}
 
 export class Event {
     name: string;
     constructor(name: string) {
         this.name=name;
     }
-};
+}
 
 export class Ability {
     name: string;
@@ -23,7 +23,7 @@ export class Ability {
         this.name=name;
         this.effects=effects;
     }
-};
+}
 
 export class Item {
     name: string;
@@ -32,7 +32,7 @@ export class Item {
         this.name=name;
         this.effects=effects;
     }
-};
+}
 
 export class Character {
     name: string;
@@ -43,7 +43,7 @@ export class Character {
         this.abilities=abilities;
         this.items=items;
     }
-};
+}
 
 
 export class Primitive {
@@ -51,7 +51,7 @@ export class Primitive {
     incoming_refs: string[]; // inputs/children
     priority: number;
     fn: CallableFunction;
-    constructor(fn: CallableFunction, modifies: string[] = [], gets: string[] = [], priority: number = 0) {
+    constructor(fn: CallableFunction, modifies: string[] = [], gets: string[] = [], priority = 0) {
         this.invoke = this.invoke.bind(this);
         this.outgoing_refs=modifies;
         this.incoming_refs=gets;
@@ -60,4 +60,4 @@ export class Primitive {
     }
 
     invoke(scope: any) { this.fn(scope); }
-};
+}

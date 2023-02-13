@@ -19,7 +19,7 @@ export async function stringifyTree(tree: Root) : Promise<string> {
 }
 
 export async function parseSource(src: string) : Promise<Root> {
-  let tree = unified().use(remarkDirective).use(remarkParse).parse(src);
+  const tree = unified().use(remarkDirective).use(remarkParse).parse(src);
   return await unified().use(headingToDirective).use(directiveToHeading).use(addHeadingIds).run(tree);
 }
 
@@ -36,7 +36,7 @@ export async function renderTree(tree: Root, username: string) : Promise<string>
 }
 
 export function isTreeVisible(heading_text: string, tree: Root, username: string) : boolean {
-  let node = searchHeading(tree, heading_text, includesMatcher);
+  const node = searchHeading(tree, heading_text, includesMatcher);
   if(node && heading_text) {
     return getHeadingVisibility(node, username);
   }

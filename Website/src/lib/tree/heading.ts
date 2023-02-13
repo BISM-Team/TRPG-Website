@@ -11,10 +11,10 @@ export interface AdvancedHeading extends Heading {
 }
 
 function makeDirective(tagName: string, attributes?: any) {
-    let id = attributes && attributes.id ? '#'+attributes.id+' ' : '';
-    let viewers = attributes && attributes.viewers ? 'viewers=\''+attributes.viewers+'\' ' : '';
-    let modifiers = attributes && attributes.modifiers ? 'modifiers=\''+attributes.modifiers+'\' ' : '';
-    let attributes_str = id || viewers || modifiers ? '{'+id+viewers+modifiers+'}' : '';
+    const id = attributes && attributes.id ? '#'+attributes.id+' ' : '';
+    const viewers = attributes && attributes.viewers ? 'viewers=\''+attributes.viewers+'\' ' : '';
+    const modifiers = attributes && attributes.modifiers ? 'modifiers=\''+attributes.modifiers+'\' ' : '';
+    const attributes_str = id || viewers || modifiers ? '{'+id+viewers+modifiers+'}' : '';
     return `::heading[# ${capitalizeFirstLetter(tagName)}]${attributes_str}`;
 }
 
@@ -29,7 +29,7 @@ export async function inject_tag(tag_name: string, tree: Root, to_inject: Root, 
 
 export function searchHeadingIndex(tree: Root, searchText: string, matcher: Matcher = defaultMatcher) : number {
     for(let index=0; index<tree.children.length; index++) {
-        let child = tree.children[index];
+        const child = tree.children[index];
         if(child.type === 'heading' && matcher(toString(child).trim().toLowerCase(), searchText.trim().toLowerCase())) {
             return index;
         }
@@ -39,8 +39,28 @@ export function searchHeadingIndex(tree: Root, searchText: string, matcher: Matc
 
 export function searchHeading(tree: Root, searchText: string, matcher: Matcher = defaultMatcher) : AdvancedHeading | undefined {
     for(let index=0; index<tree.children.length; index++) {
-        let child = tree.children[index];
+        const child = tree.children[index];
         if(child.type === 'heading' && matcher(toString(child).trim().toLowerCase(), searchText.trim().toLowerCase())) {
+            return child;
+        }
+    }
+    return undefined;
+}
+
+export function searchHeadingIndexById(tree: Root, id: string) : number {
+    for(let index=0; index<tree.children.length; index++) {
+        const child = tree.children[index] as AdvancedHeading;
+        if(child.type === 'heading' && child.attributes && child.attributes.id && child.attributes.id===id) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+export function searchHeadingById(tree: Root, id: string) : AdvancedHeading | undefined {
+    for(let index=0; index<tree.children.length; index++) {
+        const child = tree.children[index] as AdvancedHeading;
+        if(child.type === 'heading' && child.attributes && child.attributes.id && child.attributes.id===id) {
             return child;
         }
     }

@@ -13,7 +13,7 @@ export function getHeadingVisibility(node: AdvancedHeading, username: string) : 
     const low_username = username.trim().toLowerCase();
     if(low_username===('gm')) return true;
     if(node.attributes && node.attributes.viewers) {
-        let viewers: string[] = node.attributes.viewers.split(';').map((viewer: string) => { return viewer.trim().toLowerCase(); });
+        const viewers: string[] = node.attributes.viewers.split(';').map((viewer: string) => { return viewer.trim().toLowerCase(); });
         return includes(viewers, low_username) || includes(viewers, 'all');
     }
     else return false;
@@ -22,9 +22,9 @@ export function getHeadingVisibility(node: AdvancedHeading, username: string) : 
 export function isNodeVisible(tree: Root, index: number, username: string) : boolean {
     let current_depth=7;
     for (let i=index; 0<=i && current_depth>1; i-=1) {
-        let child = tree.children[i];
+        const child = tree.children[i];
         if(child.type === 'heading') {
-            let heading = child as AdvancedHeading;
+            const heading = child as AdvancedHeading;
             if(heading.depth >= current_depth) {
                 continue;
             }

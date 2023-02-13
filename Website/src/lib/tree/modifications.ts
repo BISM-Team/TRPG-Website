@@ -13,7 +13,7 @@ export function getHeadingModifiability(node: AdvancedHeading, username: string)
     const low_username = username.trim().toLowerCase();
     if(low_username===('gm')) return true;
     if(node.attributes && node.attributes.modifiers) {
-        let modifiers: string[] = node.attributes.modifiers.split(';').map((modifier: string) => { return modifier.trim().toLowerCase(); });
+        const modifiers: string[] = node.attributes.modifiers.split(';').map((modifier: string) => { return modifier.trim().toLowerCase(); });
         return includes(modifiers, low_username) || includes(modifiers, 'all');
     }
     else return false;
@@ -22,10 +22,9 @@ export function getHeadingModifiability(node: AdvancedHeading, username: string)
 export function isNodeModifiable(tree: Root, index: number, username: string) : boolean {
     let current_depth=7;
     for (let i=index; 0<=i && current_depth>1; i-=1) {
-        let child = tree.children[i];
-        
+        const child = tree.children[i];
         if(child.type === 'heading') {
-            let heading = child as AdvancedHeading;
+            const heading = child as AdvancedHeading;
             if(child.depth >= current_depth) {
                 continue;
             }

@@ -1,12 +1,15 @@
-import { capitalizeFirstLetter, includes } from '$lib/utils'
-import { parseSource } from '$lib/tree/tree'
+import { includes } from '$lib/utils'
 import type { Root } from 'mdast'
-import inject from 'mdast-util-inject'
-import { includesMatcher } from 'mdast-util-inject'
-import { visit } from 'unist-util-visit'
 import type { AdvancedHeading } from './heading'
 
-function getModifiability(node: AdvancedHeading, username: string) : boolean {
+export function getHeadingModifiers(node: AdvancedHeading) {
+    if(node.attributes && node.attributes.modifiers) {
+        return node.attributes.modifiers.split(';').map((modifier: string) => { return modifier.trim().toLowerCase(); });
+    }
+    else return [];
+}
+
+export function getHeadingModifiability(node: AdvancedHeading, username: string) : boolean {
     const low_username = username.trim().toLowerCase();
     if(low_username===('gm')) return true;
     if(node.attributes && node.attributes.modifiers) {
@@ -16,7 +19,7 @@ function getModifiability(node: AdvancedHeading, username: string) : boolean {
     else return false;
 }
 
-function isNodeModifiable(tree: Root, index: number, username: string) : boolean {
+export function isNodeModifiable(tree: Root, index: number, username: string) : boolean {
     let current_depth=7;
     for (let i=index; 0<=i && current_depth>1; i-=1) {
         let child = tree.children[i];
@@ -26,47 +29,11 @@ function isNodeModifiable(tree: Root, index: number, username: string) : boolean
             if(child.depth >= current_depth) {
                 continue;
             }
-            if(getModifiability(heading, username)) { 
+            if(getHeadingModifiability(heading, username)) { 
                 return true; 
             }
             current_depth=child.depth;
         }
     }
     return false;
-}
-
-export function integrateDirectiveInfo(options?: {username: string} | void) {
-    if(!options || !options.username) {
-        throw new Error('Missing options.username');
-    }
-
-    return function(tree: Root) {
-        visit(tree, 'heading', (child, i) => {
-            if(i===null) return;
-            const node_data_ref = child.data || (child.data = { hProperties: {}});
-            const hProperties_ref = (node_data_ref.hProperties as any);
-            if(isNodeModifiable(tree, i, options.username)) {
-                hProperties_ref.class = (hProperties_ref.class || '') + 'modifiable';
-            }
-            let advHeading = child as AdvancedHeading;
-            if(advHeading.attributes && advHeading.attributes.id) hProperties_ref.id = advHeading.attributes.id;
-        });
-    }
-}
-
-function makeDirective(tagName: string, attributes?: any) {
-    let id = attributes && attributes.id ? '#'+attributes.id+' ' : '';
-    let viewers = attributes && attributes.viewers ? 'viewers=\''+attributes.viewers+'\' ' : '';
-    let modifiers = attributes && attributes.modifiers ? 'modifiers=\''+attributes.modifiers+'\' ' : '';
-    let attributes_str = id || viewers || modifiers ? '{'+id+viewers+modifiers+'}' : '';
-    return `::heading[# ${capitalizeFirstLetter(tagName)}]${attributes_str}`;
-}
-
-export async function inject_tag(tag_name: string, tree: Root, to_inject: Root, attributes?: any) {
-    if(!inject(capitalizeFirstLetter(tag_name), tree, to_inject, includesMatcher)) {
-        inject('', tree, await parseSource(makeDirective(tag_name, attributes)));
-        if(!inject(capitalizeFirstLetter(tag_name), tree, to_inject, includesMatcher)) {
-            throw new Error('Did you submit an empty Tree ?');
-        }
-    }
 }

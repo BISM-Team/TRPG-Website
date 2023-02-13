@@ -1,8 +1,7 @@
 import type { PageServerLoad, RouteParams } from './$types';
 import { renderTree, parseSource, filterOutTree, stringifyTree } from '$lib/tree/tree';
-import { inject_tag } from '$lib/tree/modifications'
+import { inject_tag } from '$lib/tree/heading'
 import { logWholeObject } from '$lib/utils';
-import { getHeadingModifiers, getHeadingViewers, searchHeadingIndex } from '$lib/tree/heading';
 import { includesMatcher } from 'mdast-util-inject';
 
 interface Page {
@@ -11,9 +10,9 @@ interface Page {
 }
 
 const pages : Page[] = [
-    {title: 'index', content: '# Tag 1\n[title1](./title1)'},
+    {title: 'index', content: '::heading[# Tag 1]{viewers=all}\n[title1](./title1)'},
     {title: 'title1', content: '# Title 1 \n## Section 1 \ndajlbvlabdvla \n\n## Section 2 \ncvpijbòdkgnmhlwirhdajgvs \n\nend \n\n::youtube[Video of a cat in a box]{#01ab2cd3efg}'},
-    {title: 'test', content: '::heading[# Page title]{#page_title viewers=all} \n\n paragraph visible to all \n\n::heading[## Visible to GM only]{modifiers=GM viewers=GM} \n\nparahraph with some content \n\nanother paragraph \n\n::heading[## Visible to P1 and P2]{viewers=Player1;Player2 modifiers=Player1} \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw} \n\nparagraph with more content'}
+    {title: 'test', content: '::heading[# Test]{#page_title viewers=all} \n\n paragraph visible to all \n\n::heading[## Visible to GM only]{modifiers=GM viewers=GM} \n\nparahraph with some content \n\nanother paragraph \n\n::heading[## Visible to P1 and P2]{viewers=Player1;Player2 modifiers=Player1} \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw} \n\nparagraph with more content'}
 ]
 
 export const load = (async ({ params }) => {
@@ -25,8 +24,8 @@ export const load = (async ({ params }) => {
     if(page) {
         const username = 'player1';
         let tree = await parseSource(await stringifyTree(await parseSource(page.content)));
+        await inject_tag('NPCs', tree, await parseSource('- [NPC](test) \n\n - [NPC2](test#section)'), {id: 'ciao', viewers: 'Player1;Player3', modifiers: 'Player3'});
         logWholeObject(tree);
-        await inject_tag('NPCs', tree, await parseSource('- [NPC](test)'), {id: 'ciao', viewers: 'Player1;Player3', modifiers: 'Player3'});
         await filterOutTree(tree, username);
         out.page = {title: page.title, content: (await renderTree(tree, username)) }
     }

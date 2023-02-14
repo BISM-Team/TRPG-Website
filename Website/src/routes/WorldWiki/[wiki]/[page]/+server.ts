@@ -1,12 +1,29 @@
-import { parseSource, stringifyTree } from '$lib/tree/tree';
-import { error } from '@sveltejs/kit';
+import { filterOutTree, parseSource, stringifyTree } from '$lib/tree/tree';
+import { error, json, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { readFileSync } from 'fs'
 import * as fs from 'fs/promises'
 import type { Root } from 'mdast';
 import { mergeTrees } from '$lib/server/tree/merge';
 
-const username = 'player1';
+const username = 'gm';
+
+export const GET: RequestHandler = async ({ params }) => {
+    const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
+    let file: string;
+    try {
+        file = await fs.readFile(page_path, {encoding: 'utf8'});
+    } catch (exc: any) {
+        console.log('not found: ' + page_path);
+        throw error(404, 'Page not found, want to create it?');
+    }
+
+    try {
+        return json(await filterOutTree(await parseSource(file), username));
+    } catch (exc) {
+        throw error(500, 'Errors in parsing page, try again');
+    }
+}
 
 export const POST: RequestHandler = async ({ params, request }) => {
     const wiki_path = `./files/WorldWiki/${params.wiki}`;

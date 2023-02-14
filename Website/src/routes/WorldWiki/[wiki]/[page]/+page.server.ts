@@ -1,36 +1,23 @@
-import type { PageServerLoad, RouteParams } from './$types';
-import { renderTree, parseSource, filterOutTree, stringifyTree } from '$lib/tree/tree';
-import { inject_tag } from '$lib/tree/heading'
-import { logWholeObject } from '$lib/utils';
-import { includesMatcher } from 'mdast-util-inject';
-import { mergeTrees } from '$lib/tree/merge';
+import type { PageServerLoad } from './$types';
+import { filterOutTree, parseSource } from '$lib/tree/tree';
+import { error } from '@sveltejs/kit';
+import fs from 'fs/promises'
 
-interface Page {
-    title: string,
-    content: string
-}
-
-const pages : Page[] = [
-    {title: 'index', content: '::heading[# Tag 1]{viewers=all}\n[title1](./title1)'},
-    {title: 'title1', content: '# Title 1 \n## Section 1 \ndajlbvlabdvla \n\n## Section 2 \ncvpijbòdkgnmhlwirhdajgvs \n\nend \n\n::youtube[Video of a cat in a box]{#01ab2cd3efg}'},
-    {title: 'test', content: '::heading[# Test]{#page_title viewers=all} \n\n paragraph visible to all \n\n::heading[## Visible to GM only]{#fist modifiers=GM viewers=GM} \n\nparahraph with some content \n\nanother paragraph \n\n::heading[## Visible to P1 and P2]{#second viewers=Player1;Player2 modifiers=Player1} \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw} \n\nparagraph with more content'}
-]
-
-const mod = '::heading[# Test]{#page_title viewers=all} \n\n paragraph visible to all \n\n::heading[## Visible to GM only]{#first modifiers=GM viewers=GM} \n\nparaggggraph with some content \n\nanother paragraph \n\n::heading[## Visible to P1 and P2]{#second viewers=Player1;Player2 modifiers=Player1} \n\n::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw} \n\nparaggggraph with more content';
+const username = 'gm';
 
 export const load = (async ({ params }) => {
-    const out: {params: RouteParams, index: boolean, page: Page|undefined} = {params: params, index: false, page: undefined};
-    if(params.page==='index') {
-        out.index=true;
+    const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
+    let file: string;
+    try {
+        file = await fs.readFile(page_path, {encoding: 'utf8'});
+    } catch (exc: any) {
+        console.log('not found: ' + page_path);
+        throw error(404, 'Page not found, want to create it?');
     }
-    const page = pages.find(page => {return params.page===page.title;})
-    if(page) {
-        const username = 'player1';
-        const tree = await parseSource(await stringifyTree(await parseSource(mod)));
-        await inject_tag('NPCs', tree, await parseSource('- [NPC](test) \n\n - [NPC2](test#section)'), {id: 'ciao', viewers: `${username};Player3`, modifiers: `${username};Player3`});
-        await filterOutTree(tree, username);
-        const left = await parseSource(page.content);
-        out.page = {title: page.title, content: (await renderTree(mergeTrees(left, tree, username), username)) }
+
+    try {
+        return {tree: await filterOutTree(await parseSource(file), username)};
+    } catch (exc) {
+        throw error(500, 'Errors in parsing page, try again');
     }
-    return out;
 }) satisfies PageServerLoad;

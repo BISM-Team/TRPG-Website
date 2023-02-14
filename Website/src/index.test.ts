@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { mergeTrees } from './lib/tree/merge';
+import { mergeTrees } from './lib/server/tree/merge';
 import { parseSource } from './lib/tree/tree';
 import { logWholeObject } from '$lib/utils';
 

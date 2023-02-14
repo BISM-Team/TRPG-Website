@@ -1,0 +1,15 @@
+::heading[# Test]{#page_title viewers="all"}
+
+paragraph visible to all
+
+::heading[## Visible to GM only]{#fist modifiers="GM" viewers="GM"}
+
+paragraph with some content
+
+another paragraph
+
+::heading[## Visible to P1 and P2]{#second viewers="Player1;Player2" modifiers="Player1"}
+
+::youtube[Video of an Interesting Algorithm]{#A60q6dcoCjw}
+
+paraggggraph with more content

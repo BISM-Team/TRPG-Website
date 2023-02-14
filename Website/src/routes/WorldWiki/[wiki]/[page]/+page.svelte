@@ -55,7 +55,7 @@
     }
     #textArea {
         width: calc(100% - 10em);
-        height: 70vh;
+        height: 74vh;
         padding: 12px 20px;
         box-sizing: border-box;
         border: 2px solid #ccc;

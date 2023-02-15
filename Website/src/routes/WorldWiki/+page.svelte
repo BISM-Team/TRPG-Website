@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import type { PageData } from './$types';
     import WikiPreview from './wiki_preview.svelte';
     

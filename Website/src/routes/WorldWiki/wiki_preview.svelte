@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { WikiPreview } from "$lib/data_types";
+    import type { WikiPreview } from "$lib/WorldWiki/data_types";
     export let wiki: WikiPreview;
 </script>
 

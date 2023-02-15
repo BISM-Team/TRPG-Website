@@ -1,4 +1,4 @@
-import type { WikiPreview } from '$lib/data_types';
+import type { WikiPreview } from '$lib/WorldWiki/data_types';
 import type { PageServerLoad } from './$types';
 
 const wikis : WikiPreview[] = [

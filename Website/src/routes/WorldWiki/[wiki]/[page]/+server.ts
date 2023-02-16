@@ -1,5 +1,5 @@
 import { filterOutTree, parseSource, stringifyTree } from '$lib/WorldWiki/tree/tree';
-import { error, json } from '@sveltejs/kit';
+import { error, json, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { readFileSync } from 'fs'
 import * as fs from 'fs/promises'
@@ -8,9 +8,10 @@ import { mergeTrees } from '$lib/server/WorldWiki/tree/merge';
 import { name_check_regex } from '$lib/WorldWiki/constants';
 import { capitalizeFirstLetter } from '$lib/utils';
 
-const username = 'gm';
+export const GET: RequestHandler = async ({ params, locals }) => {
+    const user = locals.user;
+    if(!user) throw redirect(302, 'Please Login');
 
-export const GET: RequestHandler = async ({ params }) => {
     const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
     let file: string;
     try {
@@ -21,13 +22,16 @@ export const GET: RequestHandler = async ({ params }) => {
     }
 
     try {
-        return json(await filterOutTree(JSON.parse(file), username));
+        return json(await filterOutTree(JSON.parse(file), user.name));
     } catch (exc) {
         throw error(500, 'Errors in parsing page, try again');
     }
 }
 
-export const POST: RequestHandler = async ({ params, request }) => {
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+    const user = locals.user;
+    if(!user) throw error(401, 'Please Login');
+
     const content_type = request.headers.get('content-type');
 
     if(!name_check_regex.test(params.wiki) || !name_check_regex.test(params.page)) throw error(400, 'invalid wiki or page name');
@@ -64,7 +68,7 @@ export const POST: RequestHandler = async ({ params, request }) => {
     try {
         handle = await fs.open(page_path, 'w+');
         const old_tree = JSON.parse(old_file_content);
-        let mergedTree = mergeTrees(old_tree, new_tree, username);
+        let mergedTree = mergeTrees(old_tree, new_tree, user.name);
         await handle.writeFile(JSON.stringify(mergedTree));
         await handle.close(); 
         handle=undefined;

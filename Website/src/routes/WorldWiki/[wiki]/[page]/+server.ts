@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params }) => {
     }
 
     try {
-        return json(await filterOutTree(await parseSource(file), username));
+        return json(await filterOutTree(JSON.parse(file), username));
     } catch (exc) {
         throw error(500, 'Errors in parsing page, try again');
     }
@@ -41,42 +41,48 @@ export const POST: RequestHandler = async ({ params, request }) => {
     }
 
     const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
-    let handle: fs.FileHandle | undefined;
+    let new_tree: Root | undefined = undefined;
+    if(content_type.includes('text/plain')) {
+        const req_text = await request.text();
+        if(req_text) new_tree=await parseSource(req_text);
+    } else if(content_type.includes('application/json')) {
+        const req_tree = await request.json();
+        if(req_tree) new_tree=req_tree;
+    } else { throw error(400, 'please supply a content-type of either text/plain or application/json') }
+
+    let old_file_content: string;
+    let handle: fs.FileHandle | undefined = undefined;
     try {
-        let new_tree: Root | undefined = undefined;
-        if(content_type.includes('text/plain')) {
-            const req_text = await request.text();
-            if(req_text) new_tree=await parseSource(req_text);
-        } else if(content_type.includes('application/json')) {
-            const req_tree = await request.json();
-            if(req_tree) new_tree=req_tree;
-        } else { throw error(400, 'please supply a content-type of either text/plain or application/json') }
+        old_file_content = readFileSync(page_path, {encoding: 'utf8'});
+    } catch (exc) {
+        handle = await fs.open(page_path, 'w+');
+        new_tree = new_tree || await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
+        await handle.writeFile(JSON.stringify(new_tree));
+        await handle.close();
+        handle=undefined;
+        return new Response('created', {status: 201})
+    }
 
-        let old_file_content: string;
-        let handle: fs.FileHandle | undefined = undefined;
-        try {
-            old_file_content = readFileSync(page_path, {encoding: 'utf8'});
-            handle = await fs.open(page_path, 'w+');
-        } catch (exc) {
-            if(!handle) handle = await fs.open(page_path, 'w+');
-            new_tree = new_tree || await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
-            await handle.writeFile(await stringifyTree(new_tree));
-            await handle.close();
-            return new Response('created', {status: 201})
-        }
-
-        const old_tree = await parseSource(old_file_content);
+    try {
+        handle = await fs.open(page_path, 'w+');
+        const old_tree = JSON.parse(old_file_content);
         if(new_tree) {
-            await handle.writeFile(await stringifyTree(mergeTrees(old_tree, new_tree, username)));
-            await handle.close();
+            await handle.writeFile(JSON.stringify(mergeTrees(old_tree, new_tree, username)));
+            await handle.close(); 
+            handle=undefined;
             return new Response('updated', {status: 200})
         } else {
-            await handle.close();
+            await handle.close(); 
+            handle=undefined;
             await fs.unlink(page_path);
             return new Response('removed', {status: 200})
         }
-    } catch (exc: any) {
-        if(handle) await handle.close();
+    } catch (exc) {
+        if(handle) { 
+            await handle.writeFile(old_file_content);
+            await handle.close();
+            handle=undefined;
+        }
         console.error(exc);
         throw error(500, 'Unknown error with file or tree');
     }

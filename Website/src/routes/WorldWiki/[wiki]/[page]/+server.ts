@@ -83,5 +83,4 @@ export const POST: RequestHandler = async ({ params, request }) => {
         console.error(exc);
         throw error(500, 'Unknown error with file or tree');
     }
-
 };

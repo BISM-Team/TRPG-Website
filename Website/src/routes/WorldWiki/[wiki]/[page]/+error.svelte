@@ -1,16 +1,16 @@
 <script lang="ts">
-    import { goto, invalidateAll } from '$app/navigation';
+    import { goto, invalidateAll, afterNavigate } from '$app/navigation';
     import { page } from '$app/stores';
 
     let disable: boolean = false;
+    let previousUrl: URL = new URL(`${window.location.host}/WorldWiki/${$page.params.wiki}/index`);
+
+    afterNavigate(({from}) => {
+        if(from) previousUrl = from.url;
+    })
 
     function goBack() {
-        if(window.history.length > 1) {
-            window.history.back();
-        } else {
-            if($page.params.page.toLowerCase()==='index') goto(`${window.location.host}/WorldWiki/`);
-            else goto(`${window.location.host}/WorldWiki/${$page.params.wiki}/index`);
-        }
+        goto(previousUrl)
     }
 
     async function createPage() {

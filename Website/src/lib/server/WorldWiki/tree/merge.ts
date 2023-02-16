@@ -5,8 +5,7 @@ import { searchHeadingIndexById, type AdvancedHeading } from '../../../WorldWiki
 export function mergeTrees(left: Root, right: Root, username: string) : Root {
     const tree: Root = {type: 'root', children: []};
     const first_left = left.children[0];
-    const first_right = right.children[0];
-    if(!(first_left && first_left.type==='heading') || !(first_right && first_right.type==='heading')) throw new Error('root heading not present');
+    if(!(first_left && first_left.type==='heading')) throw new Error('root heading not present');
     if(getHeadingModifiability(first_left, username)) {
         rightRecursion(left, right, tree, insertUntilNextHeading(right, tree, 0), username);
     } else {
@@ -49,6 +48,7 @@ function rightRecursion(left: Root, right: Root, tree: Root, index: number, user
 
 function insertUntilNextHeading(src: Root, dest: Root, index: number) : number {
     let first=true;
+    if(index===src.children.length) return -1;
     while(first || src.children[index].type!=='heading') {
         dest.children.push(src.children[index]);
         first=false;
@@ -60,6 +60,7 @@ function insertUntilNextHeading(src: Root, dest: Root, index: number) : number {
 
 function skipUntilNextHeading(src: Root, index: number) : number {
     let first=true;
+    if(index===src.children.length) return -1;
     while(first || src.children[index].type!=='heading') {
         first=false;
         index++;

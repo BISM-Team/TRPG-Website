@@ -41,13 +41,11 @@ export const POST: RequestHandler = async ({ params, request }) => {
     }
 
     const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
-    let new_tree: Root | undefined = undefined;
+    let new_tree: Root;
     if(content_type.includes('text/plain')) {
-        const req_text = await request.text();
-        if(req_text) new_tree=await parseSource(req_text);
+        new_tree = await parseSource(await request.text());
     } else if(content_type.includes('application/json')) {
-        const req_tree = await request.json();
-        if(req_tree) new_tree=req_tree;
+        new_tree = await request.json();
     } else { throw error(400, 'please supply a content-type of either text/plain or application/json') }
 
     let old_file_content: string;
@@ -56,7 +54,7 @@ export const POST: RequestHandler = async ({ params, request }) => {
         old_file_content = readFileSync(page_path, {encoding: 'utf8'});
     } catch (exc) {
         handle = await fs.open(page_path, 'w+');
-        new_tree = new_tree || await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
+        new_tree = new_tree.children.length ? new_tree : await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
         await handle.writeFile(JSON.stringify(new_tree));
         await handle.close();
         handle=undefined;
@@ -66,14 +64,13 @@ export const POST: RequestHandler = async ({ params, request }) => {
     try {
         handle = await fs.open(page_path, 'w+');
         const old_tree = JSON.parse(old_file_content);
-        if(new_tree) {
-            await handle.writeFile(JSON.stringify(mergeTrees(old_tree, new_tree, username)));
-            await handle.close(); 
-            handle=undefined;
-            return new Response('updated', {status: 200})
+        let mergedTree = mergeTrees(old_tree, new_tree, username);
+        await handle.writeFile(JSON.stringify(mergedTree));
+        await handle.close(); 
+        handle=undefined;
+        if(mergedTree.children.length) {
+            return new Response('updated', {status: 200}) 
         } else {
-            await handle.close(); 
-            handle=undefined;
             await fs.unlink(page_path);
             return new Response('removed', {status: 200})
         }

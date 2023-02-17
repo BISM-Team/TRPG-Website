@@ -10,7 +10,7 @@ export interface AdvancedHeading extends Heading {
     attributes?: Record<string, string | null | undefined> | null | undefined
 }
 
-function makeDirective(tagName: string, attributes?: any) {
+export function makeDirective(tagName: string, attributes?: {id?: string, viewers?: string, modifiers?: string}) {
     const id = attributes && attributes.id ? '#'+attributes.id+' ' : '';
     const viewers = attributes && attributes.viewers ? 'viewers=\''+attributes.viewers+'\' ' : '';
     const modifiers = attributes && attributes.modifiers ? 'modifiers=\''+attributes.modifiers+'\' ' : '';

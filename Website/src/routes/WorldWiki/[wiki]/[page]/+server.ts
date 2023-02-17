@@ -6,7 +6,7 @@ import * as fs from 'fs/promises'
 import type { Root } from 'mdast';
 import { mergeTrees } from '$lib/server/WorldWiki/tree/merge';
 import { name_check_regex } from '$lib/WorldWiki/constants';
-import { capitalizeFirstLetter } from '$lib/utils';
+import { makeDirective } from '$lib/WorldWiki/tree/heading';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
     const user = locals.user;
@@ -60,7 +60,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             old_file_content = readFileSync(page_path, {encoding: 'utf8'});
         } catch (exc) {
             handle = await fs.open(page_path, 'w+');
-            new_tree = new_tree.children.length ? new_tree : await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
+            new_tree = new_tree.children.length ? new_tree : await parseSource(makeDirective(params.page, { viewers: user.name, modifiers: user.name }));
             await handle.writeFile(JSON.stringify(new_tree));
             await handle.close();
             handle=undefined;

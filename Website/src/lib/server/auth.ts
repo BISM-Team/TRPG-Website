@@ -1,13 +1,14 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { PrismaClient, type User } from '@prisma/client'
 import { error, type Cookies } from "@sveltejs/kit";
+import { AUTH_SECRET } from "$env/static/private";
 import bcrypt from 'bcrypt'
 
 export const db = new PrismaClient(); 
 
 export async function getUserFromToken(token: string | undefined) : Promise<User|null> {
     let jwtUser: string | JwtPayload;
-    if(token && (jwtUser = jwt.verify(token, import.meta.env.AUTH_SECRET))) {
+    if(token && (jwtUser = jwt.verify(token, AUTH_SECRET))) {
         if((typeof jwtUser === 'string')) throw error(400, 'Invalid Token');
         return await db.user.findUnique({ where: { id: jwtUser.id } });
     }
@@ -15,19 +16,35 @@ export async function getUserFromToken(token: string | undefined) : Promise<User
 }
 
 export function createToken(id: string) {
-    return jwt.sign({id: id}, import.meta.env.AUTH_SECRET, {
-		expiresIn: '8h'
-	});
+    return jwt.sign({id: id}, AUTH_SECRET, { expiresIn: '8h' });
 }
 
 export function setToken(cookies: Cookies, id: string) {
-    cookies.set('AuthorizationToken', `Bearer ${createToken(id)}`, {
+    cookies.set('Authorization', createToken(id), {
         httpOnly: true,
         path: '/',
         secure: true,
         sameSite: 'strict',
         maxAge: 60 * 60 * 8 // 8 hours
       });
+}
+
+export function deleteToken(cookies: Cookies) {
+    cookies.delete('Authorization', { path: '/' });
+}
+
+export async function getUser(identifier: string, password: string) {
+    const user = await db.user.findFirst({ 
+        where: { 
+            OR: [{ email: identifier }, { name: identifier }] 
+        }
+    });
+
+    if(user) {
+        if(await bcrypt.compare(password, user.password)) return {user: user, error: null}
+        else return {user: null, error: {identifier: identifier, login_failed: true}}
+    }
+    else return {user: null, error: {identifier: identifier, login_failed: true}}
 }
 
 export async function createUser(email: string, name: string, password: string) {

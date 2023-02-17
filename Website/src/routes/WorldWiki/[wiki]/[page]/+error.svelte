@@ -3,21 +3,22 @@
     import { page } from '$app/stores';
 
     let disable: boolean = false;
-    let previousUrl: URL = new URL(`${window.location.host}/WorldWiki/${$page.params.wiki}/index`);
+    let previousUrl: URL;
 
     afterNavigate(({from}) => {
         if(from) previousUrl = from.url;
+        else previousUrl = new URL(`${window.location.host}/WorldWiki/${$page.params.wiki}/index`)
     })
 
-    function goBack() {
-        goto(previousUrl)
+    async function goBack() {
+        await goto(previousUrl)
     }
 
     async function createPage() {
         disable=true;
         await fetch(window.location.href, { method: 'POST', body: '', headers: { 'content-type': 'text/plain' }});
-        await invalidateAll();
         await goto(window.location.href);
+        await invalidateAll();
         disable=false;
     }
 </script>

@@ -10,7 +10,7 @@ import { capitalizeFirstLetter } from '$lib/utils';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
     const user = locals.user;
-    if(!user) throw redirect(302, 'Please Login');
+    if(!user) throw error(401, 'Not logged');
 
     const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
     let file: string;
@@ -24,13 +24,14 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     try {
         return json(await filterOutTree(JSON.parse(file), user.name));
     } catch (exc) {
+        console.log(exc);
         throw error(500, 'Errors in parsing page, try again');
     }
 }
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
     const user = locals.user;
-    if(!user) throw error(401, 'Please Login');
+    if(!user) throw error(401, 'Not logged');
 
     const content_type = request.headers.get('content-type');
 
@@ -44,28 +45,28 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         throw error(500, 'Unknown error with directory');
     }
 
-    const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
-    let new_tree: Root;
-    if(content_type.includes('text/plain')) {
-        new_tree = await parseSource(await request.text());
-    } else if(content_type.includes('application/json')) {
-        new_tree = await request.json();
-    } else { throw error(400, 'please supply a content-type of either text/plain or application/json') }
-
-    let old_file_content: string;
+    let old_file_content: string | undefined = undefined;
     let handle: fs.FileHandle | undefined = undefined;
     try {
-        old_file_content = readFileSync(page_path, {encoding: 'utf8'});
-    } catch (exc) {
-        handle = await fs.open(page_path, 'w+');
-        new_tree = new_tree.children.length ? new_tree : await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
-        await handle.writeFile(JSON.stringify(new_tree));
-        await handle.close();
-        handle=undefined;
-        return new Response('created', {status: 201})
-    }
+        const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
+        let new_tree: Root;
+        if(content_type.includes('text/plain')) {
+            new_tree = await parseSource(await request.text());
+        } else if(content_type.includes('application/json')) {
+            new_tree = await request.json();
+        } else { throw error(400, 'please supply a content-type of either text/plain or application/json') }
+    
+        try {
+            old_file_content = readFileSync(page_path, {encoding: 'utf8'});
+        } catch (exc) {
+            handle = await fs.open(page_path, 'w+');
+            new_tree = new_tree.children.length ? new_tree : await parseSource(`# ${capitalizeFirstLetter(params.page)}`);
+            await handle.writeFile(JSON.stringify(new_tree));
+            await handle.close();
+            handle=undefined;
+            return new Response('created', {status: 201})
+        }
 
-    try {
         handle = await fs.open(page_path, 'w+');
         const old_tree = JSON.parse(old_file_content);
         let mergedTree = mergeTrees(old_tree, new_tree, user.name);
@@ -79,7 +80,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             return new Response('removed', {status: 200})
         }
     } catch (exc) {
-        if(handle) { 
+        if(handle && old_file_content) { 
             await handle.writeFile(old_file_content);
             await handle.close();
             handle=undefined;

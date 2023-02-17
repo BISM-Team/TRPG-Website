@@ -1,7 +1,7 @@
 <script lang="ts">
     import { stringifyTree } from '$lib/WorldWiki/tree/tree';
     import type { PageData } from './$types';
-    import { goto, invalidateAll } from '$app/navigation';
+    import { invalidateAll } from '$app/navigation';
     import { onMount } from 'svelte';
 
     export let data: PageData;
@@ -17,9 +17,12 @@
     });
 
     async function deletePage() {
+        disable=true;
         await fetch(window.location.href, { method: 'POST', body: '', headers: { 'content-type': 'text/plain' }});
         await invalidateAll();
-        goto(window.location.href);
+        edit=false;
+        show_modal=false;
+        disable=false;
     }
 
     async function handleSubmit(event: any) {

@@ -1,8 +1,15 @@
+<script lang='ts'>
+    import type { LayoutData } from "./$types";
+    export let data: LayoutData;
+</script>
+
 <header class='w3-container w3-center w3-teal w3-padding-16'>
     <h1>BISM Website</h1>
     <nav>
         <a href="/GameWiki">Game Wiki</a>
         <a href="/WorldWiki">World Wiki</a>
+        {#if data.auth} <a href="/logout">Logout</a>
+        {:else} <a href="/login">Login/Signup</a> {/if}
     </nav>
 </header>
 

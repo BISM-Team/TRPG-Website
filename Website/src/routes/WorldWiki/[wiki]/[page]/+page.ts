@@ -15,6 +15,6 @@ export const load = (async ({ url, fetch }) => {
         return {loaded: true, tree: tree, html: await renderTree(tree, username)};
     } else {
         if(response.status===401) throw redirect(302, '/login');
-        else throw error(response.status, await response.text())
+        else { throw error(response.status, await response.text()) }
     }
 }) satisfies PageLoad;

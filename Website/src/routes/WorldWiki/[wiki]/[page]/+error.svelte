@@ -1,24 +1,23 @@
 <script lang="ts">
-    import { goto, invalidateAll, afterNavigate } from '$app/navigation';
+    import { goto, afterNavigate } from '$app/navigation';
     import { page } from '$app/stores';
+    import { onMount } from 'svelte';
 
     let disable: boolean = false;
-    let previousUrl: URL;
+    let previousUrl: URL | undefined = undefined;
 
-    afterNavigate(({from}) => {
+    afterNavigate(({ from }) => {
         if(from) previousUrl = from.url;
-        else previousUrl = new URL(`${window.location.host}/WorldWiki/${$page.params.wiki}/index`)
     })
 
     async function goBack() {
-        await goto(previousUrl)
+        await goto(previousUrl || `/WorldWiki/${$page.params.wiki}/index`)
     }
 
     async function createPage() {
         disable=true;
         await fetch(window.location.href, { method: 'POST', body: '', headers: { 'content-type': 'text/plain' }});
-        await goto(window.location.href);
-        await invalidateAll();
+        await goto(window.location.href, {invalidateAll: true});
         disable=false;
     }
 </script>

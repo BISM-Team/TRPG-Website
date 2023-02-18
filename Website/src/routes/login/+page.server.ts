@@ -22,7 +22,7 @@ export const actions: Actions = {
             const { user, error } = await getUser(identifier.toString(), password.toString());
          
             if(error) { return fail(422, error); }
-            else if(user) { setToken(event.cookies, user.id) }
+            else if(user) { setToken(event.cookies, user) }
             else return fail(500, { identifier: identifier, unspecified_error: true })
         } catch (exc) {
             console.error(exc);
@@ -42,7 +42,7 @@ export const actions: Actions = {
             const { user, error } = await createUser(email.toString(), name.toString(), password.toString());
          
             if(error) { return fail(422, error); }
-            else if(user) { setToken(event.cookies, user.id) }
+            else if(user) { setToken(event.cookies, user) }
             else return fail(500, { email: email, name: name, unspecified_error: true })   
         } catch (exc) {
             console.error(exc);

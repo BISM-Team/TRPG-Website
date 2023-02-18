@@ -15,12 +15,12 @@ export async function getUserFromToken(token: string | undefined) : Promise<User
     else return null;
 }
 
-export function createToken(id: string) {
-    return jwt.sign({id: id}, AUTH_SECRET, { expiresIn: '8h' });
+export function createToken(user: User) {
+    return jwt.sign({id: user.id, username: user.name}, AUTH_SECRET, { expiresIn: '8h' });
 }
 
-export function setToken(cookies: Cookies, id: string) {
-    cookies.set('Authorization', createToken(id), {
+export function setToken(cookies: Cookies, user: User) {
+    cookies.set('Authorization', createToken(user), {
         httpOnly: true,
         path: '/',
         secure: true,

@@ -13,6 +13,7 @@ import { getHeadingVisibility } from './visibility'
 import { searchHeading } from './heading'
 import type { Root as HastRoot } from 'hast'
 
+// WARNING: could have side effects on 'tree' (untested)
 export async function stringifyTree(tree: Root) : Promise<string> {
   await unified().use(headingToDirective).run(tree)
   return unified().use(remarkDirective).use(remarkStringify).stringify(tree);
@@ -31,6 +32,7 @@ async function prepareTree(tree: Root, username: string) {
   return await unified().use(tagsDirectiveToLinks).use(integrateDirectiveInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
 }
 
+// WARNING: side effects on 'tree', make a deep copy if you want to use it without modifications made by this function
 export async function renderTree(tree: Root, username: string) : Promise<string> {
   return unified().use(rehypeSanitize).use(rehypeStringify).stringify(await prepareTree(tree, username) as HastRoot);
 }

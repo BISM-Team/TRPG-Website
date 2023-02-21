@@ -1,5 +1,5 @@
-import type { LeafDirective } from 'mdast-util-directive'
-import type { Root } from 'mdast'
+import type { LeafDirective, TextDirective } from 'mdast-util-directive'
+import type { Root, Link } from 'mdast'
 import type { AdvancedHeading } from './heading'
 import crypto from 'crypto'
 import { visit }  from 'unist-util-visit'
@@ -7,6 +7,8 @@ import { remove } from 'unist-util-remove'
 import { isNodeModifiable } from './modifications'
 import { isNodeVisible } from './visibility'
 import { isTreeVisible } from './tree'
+import { getTags } from './tags'
+import { logWholeObject } from '$lib/utils'
 
 function stripHash(str: string) : {result: string, depth: 1|2|3|4|5|6} {
     let n = 1 as 1|2|3|4|5|6;
@@ -124,3 +126,40 @@ export function integrateDirectiveInfo(options?: {username: string} | void) {
         });
     }
 }
+
+export function tagsDirectiveToLinks() {
+    return function(tree: Root) {
+        visit(tree, 'textDirective', (node, i, parent) => {
+            const tags = getTags(node);
+            if(tags && parent) {
+                if(tags.length) parent.children.push({type: 'text', value: 'Tags: '})
+                for(let n=0; n<tags.length; ++n) {
+                    let link: Link = {type: 'link', url: tags[n], children: [{type: 'text', value: tags[n]}]}
+                    parent.children.push(link as any)
+                    if(n!=tags.length-1) parent.children.push({type: 'text', value: ', '})
+                }
+                parent.children.splice(0, 1);
+            }
+        })
+    }
+}
+
+export function resolveCustomElements() {
+    return (tree: Root) => {
+      visit(tree, 'leafDirective', node => {
+        if(node.name === 'youtube') {
+          const node_data_ref = node.data || (node.data = {})
+          const node_attributes_ref = node.attributes || {}
+          node_data_ref.hName = 'iframe'
+          node_data_ref.hProperties = {
+            src: 'https://www.youtube.com/embed/' + node_attributes_ref.id,
+            width: 200,
+            height: 200,
+            frameBorder: 0,
+            allow: 'picture-in-picture',
+            allowFullScreen: true
+          }
+        }
+      })
+    }
+  }

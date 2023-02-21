@@ -1,16 +1,19 @@
 import { filterOutTree, parseSource, stringifyTree } from '$lib/WorldWiki/tree/tree';
-import { error, json, redirect } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { readFileSync } from 'fs'
 import * as fs from 'fs/promises'
 import type { Root } from 'mdast';
 import { mergeTrees } from '$lib/server/WorldWiki/tree/merge';
-import { name_check_regex } from '$lib/WorldWiki/constants';
+import { allowed_page_names_regex_whole_word } from '$lib/WorldWiki/constants';
 import { makeDirective } from '$lib/WorldWiki/tree/heading';
+import { logWholeObject } from '$lib/utils';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
     const user = locals.user;
     if(!user) throw error(401, 'Not logged');
+    
+    if(!allowed_page_names_regex_whole_word.test(params.wiki) || !allowed_page_names_regex_whole_word.test(params.page)) throw error(400, 'Invalid wiki or page name');
 
     const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
     let file: string;
@@ -35,8 +38,8 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
     const content_type = request.headers.get('content-type');
 
-    if(!name_check_regex.test(params.wiki) || !name_check_regex.test(params.page)) throw error(400, 'invalid wiki or page name');
-    if(!content_type) throw error(400, 'please supply a content-type header');
+    if(!allowed_page_names_regex_whole_word.test(params.wiki) || !allowed_page_names_regex_whole_word.test(params.page)) throw error(400, 'invalid wiki or page name');
+    if(!content_type) throw error(400, 'Please supply a content-type header');
 
     const wiki_path = `./files/WorldWiki/${params.wiki}`;
     try {
@@ -54,7 +57,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
             new_tree = await parseSource(await request.text());
         } else if(content_type.includes('application/json')) {
             new_tree = await request.json();
-        } else { throw error(400, 'please supply a content-type of either text/plain or application/json') }
+        } else { throw error(400, 'Please supply a content-type of either text/plain or application/json') }
     
         try {
             old_file_content = readFileSync(page_path, {encoding: 'utf8'});

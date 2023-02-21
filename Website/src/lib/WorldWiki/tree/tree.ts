@@ -6,15 +6,15 @@ import remarkRehype from 'remark-rehype'
 import rehypeSanitize from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
 import remarkStringify from 'remark-stringify'
-import { visit } from 'unist-util-visit'
-import { logWholeObject } from '$lib/utils'
-import { directiveToHeading, headingToDirective, addHeadingIds, integrateDirectiveInfo, filterOutNonVisible, filterOutNonVisibleLinks } from './plugins'
+import { directiveToHeading, headingToDirective, addHeadingIds, integrateDirectiveInfo, 
+         filterOutNonVisible, filterOutNonVisibleLinks, tagsDirectiveToLinks, resolveCustomElements } from './plugins'
 import { includesMatcher } from 'mdast-util-inject'
 import { getHeadingVisibility } from './visibility'
 import { searchHeading } from './heading'
+import type { Root as HastRoot } from 'hast'
 
 export async function stringifyTree(tree: Root) : Promise<string> {
-  await unified().use(headingToDirective).run(tree);
+  await unified().use(headingToDirective).run(tree)
   return unified().use(remarkDirective).use(remarkStringify).stringify(tree);
 }
 
@@ -27,12 +27,12 @@ export async function filterOutTree(tree: Root, username: string) : Promise<Root
   return await unified().use(filterOutNonVisible, { username: username }).use(filterOutNonVisibleLinks, {username: username}).run(tree);
 }
 
-export async function prepareTree(tree: Root, username: string) {
-  return await unified().use(integrateDirectiveInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
+async function prepareTree(tree: Root, username: string) {
+  return await unified().use(tagsDirectiveToLinks).use(integrateDirectiveInfo, {username: username}).use(resolveCustomElements).use(remarkRehype).run(tree);
 }
 
 export async function renderTree(tree: Root, username: string) : Promise<string> {
-  return unified().use(rehypeSanitize).use(rehypeStringify).stringify(await prepareTree(tree, username));
+  return unified().use(rehypeSanitize).use(rehypeStringify).stringify(await prepareTree(tree, username) as HastRoot);
 }
 
 export function isTreeVisible(heading_text: string, tree: Root, username: string) : boolean {
@@ -41,24 +41,4 @@ export function isTreeVisible(heading_text: string, tree: Root, username: string
     return getHeadingVisibility(node, username);
   }
   else throw new Error('Supply a correct heading text (page title for page visibility, section title for section visibility)');
-}
-
-function resolveCustomElements() {
-  return (tree: Root) => {
-    visit(tree, 'leafDirective', node => {
-      if(node.name === 'youtube') {
-        const node_data_ref = node.data || (node.data = {})
-        const node_attributes_ref = node.attributes || {}
-        node_data_ref.hName = 'iframe'
-        node_data_ref.hProperties = {
-          src: 'https://www.youtube.com/embed/' + node_attributes_ref.id,
-          width: 200,
-          height: 200,
-          frameBorder: 0,
-          allow: 'picture-in-picture',
-          allowFullScreen: true
-        }
-      }
-    })
-  }
 }

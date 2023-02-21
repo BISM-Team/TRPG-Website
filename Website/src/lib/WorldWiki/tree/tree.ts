@@ -25,7 +25,7 @@ export async function parseSource(src: string) : Promise<Root> {
 }
 
 export async function filterOutTree(tree: Root, username: string) : Promise<Root> {
-  return await unified().use(filterOutNonVisible, { username: username }).use(filterOutNonVisibleLinks, {username: username}).run(tree);
+  return await unified().use(filterOutNonVisible, { username: username })/*.use(filterOutNonVisibleLinks, {username: username})*/.run(tree);
 }
 
 async function prepareTree(tree: Root, username: string) {

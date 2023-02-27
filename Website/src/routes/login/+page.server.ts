@@ -1,6 +1,6 @@
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { createUser, getUser, setToken } from '$lib/server/auth';
+import { createUser, getUser, setToken } from '$lib/auth.server';
 import { error as _error } from '@sveltejs/kit';
 
 export const load = (async ({ locals }) => {

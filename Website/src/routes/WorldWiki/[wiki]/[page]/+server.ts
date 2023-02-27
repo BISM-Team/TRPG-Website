@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 import { readFileSync } from 'fs'
 import * as fs from 'fs/promises'
 import type { Root } from 'mdast';
-import { mergeTrees } from '$lib/server/WorldWiki/tree/merge';
+import { mergeTrees } from '$lib/WorldWiki/tree/merge.server';
 import { allowed_page_names_regex_whole_word } from '$lib/WorldWiki/constants';
 import { makeDirective } from '$lib/WorldWiki/tree/heading';
 import { logWholeObject } from '$lib/utils';

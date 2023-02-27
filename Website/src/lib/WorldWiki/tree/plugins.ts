@@ -1,14 +1,13 @@
-import type { LeafDirective, TextDirective } from 'mdast-util-directive'
+import type { LeafDirective } from 'mdast-util-directive'
 import type { Root, Link } from 'mdast'
 import type { AdvancedHeading } from './heading'
-import crypto from 'crypto'
 import { visit }  from 'unist-util-visit'
 import { remove } from 'unist-util-remove'
 import { isNodeModifiable } from './modifications'
 import { isNodeVisible } from './visibility'
 import { isTreeVisible } from './tree'
 import { getTags } from './tags'
-import { logWholeObject } from '$lib/utils'
+import { randomHex, logWholeObject } from '$lib/utils'
 
 function stripHash(str: string) : {result: string, depth: 1|2|3|4|5|6} {
     let n = 1 as 1|2|3|4|5|6;
@@ -66,7 +65,7 @@ export function addHeadingIds(options?: { randomizer?: () => string} | void) {
         visit(tree, 'heading', node => {
             const advHeading = node as AdvancedHeading;
             advHeading.attributes = advHeading.attributes || {};
-            if(!advHeading.attributes.id) advHeading.attributes.id = ((options ? options.randomizer : undefined) || (() => {return crypto.randomBytes(4).toString('hex')}))();
+            if(!advHeading.attributes.id) advHeading.attributes.id = ((options ? options.randomizer : undefined) || (() => randomHex(4)))();
         });
     }
 }

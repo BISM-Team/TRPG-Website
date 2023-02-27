@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from '../$types';
-import crypto from 'crypto'
+import { randomHex } from '$lib/utils';
 
 const client_id = '';
 const client_secret = '';
@@ -65,7 +65,7 @@ export const GET: RequestHandler = async ({ url }) => {
     } else if(url.searchParams.has('error') && url.searchParams.has('state')) {
         throw redirect(301, new URL('..', url.origin+url.pathname).toString());
     } else if(access_token === null && refresh_token === null) {
-        const state = crypto.randomBytes(8).toString('hex')
+        const state = randomHex(8);
         const scope = 'user-read-private user-read-email user-modify-playback-state streaming';
     
         const req_url = new URL('https://accounts.spotify.com/authorize');

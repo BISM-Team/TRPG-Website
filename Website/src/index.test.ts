@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { mergeTrees } from './lib/server/WorldWiki/tree/merge';
+import { mergeTrees } from './lib/WorldWiki/tree/merge.server';
 import { parseSource } from './lib/WorldWiki/tree/tree';
 import { logWholeObject } from '$lib/utils';
 

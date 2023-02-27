@@ -8,8 +8,8 @@
 </script>
 
 <header class='w3-border-top'>
-    <button disabled={disable} on:click={() => {login_or_register=true}} class={login_or_register ? 'w3-button w3-blue-gray w3-block' : 'w3-button w3-teal w3-block'}>Login</button>
-    <button disabled={disable} on:click={() => {login_or_register=false}} class={!login_or_register ? 'w3-button w3-blue-gray w3-block' : 'w3-button w3-teal w3-block'}>Register</button>
+    <button disabled={disable} on:click={() => {login_or_register=true}} class={login_or_register ? 'w3-button w3-block w3-blue-gray w3-hover-blue-gray' : 'w3-button w3-block w3-teal'}>Login</button>
+    <button disabled={disable} on:click={() => {login_or_register=false}} class={!login_or_register ? 'w3-button w3-block w3-blue-gray w3-hover-blue-gray' : 'w3-button w3-block w3-teal'}>Register</button>
 </header>
 
 <div id='content' class='w3-padding-large'>

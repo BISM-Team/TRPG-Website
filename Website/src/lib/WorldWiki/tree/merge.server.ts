@@ -1,6 +1,6 @@
 import type { Root } from 'mdast'
-import { getHeadingModifiability } from '../../../WorldWiki/tree/modifications';
-import { searchHeadingIndexById, type AdvancedHeading } from '../../../WorldWiki/tree/heading';
+import { getHeadingModifiability } from './modifications';
+import { searchHeadingIndexById, type AdvancedHeading } from './heading';
 
 export function mergeTrees(left: Root, right: Root, username: string) : Root {
     const tree: Root = {type: 'root', children: []};

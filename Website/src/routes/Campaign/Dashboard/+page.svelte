@@ -85,7 +85,7 @@
             ev.stopPropagation();
             const mousepos = {x: ev.pageX, y: ev.pageY};
             const element = document.elementsFromPoint(mousepos.x, mousepos.y).find(element => {
-                return element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
+                return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
             });
             if(!picked.refractary && element && element.id.startsWith('content')) { 
                 hoverElement(parseInt(element.id.replace('content', '')));

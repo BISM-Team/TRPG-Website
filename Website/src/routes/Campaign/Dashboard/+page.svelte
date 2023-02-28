@@ -12,7 +12,7 @@
     const transition_delay=0, transition_duration=300;
     const animate_delay=0, animate_duration = 500;
     const stiffness=0.6, damping=1.0;
-    const drag_refractary_period=300;
+    const drag_refractary_period=400;
     let text='';
     let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean} | undefined = undefined;
     let pickedPosition: Spring<{x: number, y: number}> = spring({x:0, y:0}, {stiffness, damping});
@@ -84,7 +84,7 @@
             ev.preventDefault();
             ev.stopPropagation();
             const mousepos = {x: ev.pageX, y: ev.pageY};
-            const element = document.elementsFromPoint(mousepos.x, mousepos.y).find(element => {
+            const element = document.elementsFromPoint(mousepos.x-window.scrollX, mousepos.y-window.scrollY).find(element => {
                 return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
             });
             if(!picked.refractary && element && element.id.startsWith('content')) { 
@@ -107,7 +107,6 @@
     function hoverElement(id: number) {
         if(picked) {
             const index = data.elements.findIndex(element => element.id===id);
-            console.log('mousehover', id, picked.index, index);
             if(index===-1) throw new Error('Id not found in cards');
             arraymove(data.elements, picked.index, index);
             data.elements=data.elements;
@@ -148,7 +147,5 @@
     .pickedCard {
         position: absolute;
         z-index: 100;
-        width: fit-content;
-        height: fit-content;
     }
 </style>

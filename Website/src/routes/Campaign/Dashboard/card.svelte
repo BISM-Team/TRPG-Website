@@ -10,30 +10,61 @@
     function pick(ev: MouseEvent) {
         ev.preventDefault();
         ev.stopPropagation();
-        let computedGeometry: DOMRect | undefined = document.getElementById('content'+data.id)?.getBoundingClientRect();
+        const element = document.getElementById('content'+data.id);
+        if(!element) throw new Error('Could not find root element of Card');
+        let computedGeometry: DOMRect = element.getBoundingClientRect();
         dispatch('pick', {id: data.id, geometry: computedGeometry, mousepos: {x: ev.pageX, y: ev.pageY}})
     }
 </script>
 
-<div id='content{data.id}' class='card-content w3-card-4' style='width:{data.width ? Math.max(6, data.width)+'px' : default_width}; height:{data.height ? Math.max(6, data.height)+'px' : default_height}'>
+<div id='content{data.id}' class='card-content w3-card-4' style='width:{data.width ? Math.max(6, data.width)+'px' : default_width}; height:{data.height ? Math.max(6, data.height)+'px' : default_height}; {data.picked ? 'cursor: grabbing;' : ''}'>
+    <div id='controlBar'>
+        <div id='pickArea' on:mousedown={pick}></div>
+        <button on:click={() => {dispatch('remove', {id: data.id})}} id='removeButton' class='w3-button'></button>
+    </div>
     <p>Id: {data.id}</p>
     <p>{data.content}</p>
-    <button on:click={() => {dispatch('remove', {id: data.id})}} class='w3-button w3-teal w3-margin'>Remove</button>
-    <button on:mousedown={pick} class='w3-button w3-teal w3-margin'>Pick</button>
 </div>
 
 <style>
     .card-content {
+        position: relative;
         padding: 2em;
         overflow: auto;
-        box-sizing: border-box;
         background-color: white;
         box-sizing: border-box;
     }
 
-    button {
-        width: 7em;
-        margin-bottom: 0 !important;
+    #controlBar {
+        position: absolute;
+        top: 1em;
+        left: 0;
+        width: 85%;
+        margin-left: 10%;
+        margin-right: 5%;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-evenly;
+    }
+
+    #pickArea {
+        background-color: #f1f1f1;
+        border-radius: 6px;
+        height: 0.7em;
+        width: 60%;
+        cursor: grab;
+    }
+
+    #pickArea:hover {
+        background-color: #ccc;
+    }
+
+    #removeButton {
+        height: 0.7em;
+        padding: 0;
+        width: 15%;
+        border-radius: 6px;
+        background-color: #f1f1f1;
     }
 
     ::-webkit-scrollbar {
@@ -48,11 +79,11 @@
     
     /* Handle */
     ::-webkit-scrollbar-thumb {
-        background: #9e9e9e; 
+        background: #ccc; 
     }
 
     /* Handle on hover */
     ::-webkit-scrollbar-thumb:hover {
-        background: #616161;
+        background: #9e9e9e;
     }
 </style>

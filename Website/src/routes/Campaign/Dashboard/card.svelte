@@ -15,6 +15,15 @@
         let computedGeometry: DOMRect = element.getBoundingClientRect();
         dispatch('pick', {id: data.id, geometry: computedGeometry, mousepos: {x: ev.pageX, y: ev.pageY}})
     }
+
+    function resize(ev: MouseEvent) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const element = document.getElementById('content'+data.id);
+        if(!element) throw new Error('Could not find root element of Card');
+        let computedGeometry: DOMRect = element.getBoundingClientRect();
+        dispatch('resize', {id: data.id, geometry: computedGeometry, mousepos: {x: ev.pageX, y: ev.pageY}})
+    }
 </script>
 
 <div id='content{data.id}' class='card-content w3-card-4' style='width:{data.width ? Math.max(6, data.width)+'px' : default_width}; height:{data.height ? Math.max(6, data.height)+'px' : default_height}; {data.picked ? 'cursor: grabbing;' : ''}'>
@@ -24,6 +33,7 @@
     </div>
     <p>Id: {data.id}</p>
     <p>{data.content}</p>
+    <div id='resizeArea' on:mousedown={resize}></div>
 </div>
 
 <style>
@@ -65,6 +75,17 @@
         width: 15%;
         border-radius: 6px;
         background-color: #f1f1f1;
+    }
+
+    #resizeArea {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: #f1f1f1;
+        border-radius: 6px;
+        height: 0.7em;
+        width: 0.7em;
+        cursor: se-resize;
     }
 
     ::-webkit-scrollbar {

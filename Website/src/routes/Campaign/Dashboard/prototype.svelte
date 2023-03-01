@@ -5,7 +5,7 @@
     const default_width = 'auto';
     const default_height = 'auto';
 
-    export let data: {index?: number, id: number, content: string, width: number, height: number}
+    export let data: {id: number, width: number, height: number}
 
 </script>
 

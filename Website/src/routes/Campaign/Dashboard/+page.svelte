@@ -12,10 +12,11 @@
     const transition_delay=0, transition_duration=300;
     const animate_delay=0, animate_duration = 500;
     const stiffness=0.6, damping=1.0;
-    const drag_refractary_period=400;
+    const trace_refractary_perioid=10, drag_refractary_period=500;
     let text='';
     let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean} | undefined = undefined;
-    let pickedPosition: Spring<{x: number, y: number}> = spring({x:0, y:0}, {stiffness, damping});
+    let resizing : {index: number, id: number, starting_top_left: {top: number, left: number}} | undefined = undefined;
+    let actionData: Spring<{x_or_width: number, y_or_height: number}> = spring({x_or_width:0, y_or_height:0}, {stiffness, damping});
 
     onMount(() => {
         document.addEventListener('mousemove', mousemove);
@@ -40,6 +41,7 @@
     }
 
     function pickElement(ev: any) {
+        cancelAction();
         const index = data.elements.findIndex(element => element.id===ev.detail.id);
         if(index===-1) throw new Error('Id not found in cards');
         picked = {
@@ -50,32 +52,52 @@
             data: data.elements[index],
             refractary: false
         }
-        pickedPosition = spring({x: ev.detail.geometry.x+window.scrollX, y: ev.detail.geometry.y+window.scrollY}, {stiffness, damping})
+        actionData = spring({x_or_width: ev.detail.geometry.x+window.scrollX, y_or_height: ev.detail.geometry.y+window.scrollY}, {stiffness, damping})
         const mousepos = ev.detail.mousepos;
-        pickedPosition.set({x: mousepos.x-(picked.geometry.width/2), y: mousepos.y-(picked.geometry.height/2)});
+        actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)});
     }
 
-    function cancelPick() {
+    function resizeElement(ev: any) {
+        cancelAction();
+        const index = data.elements.findIndex(element => element.id===ev.detail.id);
+        if(index===-1) throw new Error('Id not found in cards');
+        resizing = {
+            index: index,
+            id: ev.detail.id,
+            starting_top_left: {top: ev.detail.geometry.top+window.scrollY, left: ev.detail.geometry.left+window.scrollX}
+        }
+        actionData = spring({x_or_width: ev.detail.geometry.width, y_or_height: ev.detail.geometry.height}, {stiffness, damping})
+    }
+
+    function cancelAction() {
         if(picked) {
             arraymove(data.elements, picked.index, picked.startingIndex);
             data.elements=data.elements;
             picked=undefined;
         }
+        if(resizing) {
+            resizing=undefined;
+        }
     }
 
-    function confirmMove() {
+    function confirmAction() {
         picked=undefined;
+        if(resizing) {
+            data.elements[resizing.index].width = $actionData.x_or_width;
+            data.elements[resizing.index].height = $actionData.y_or_height;
+            resizing=undefined;
+        }
     }
 
     function keydown(ev: KeyboardEvent) {
-        if(picked && (ev.key==='Escape' || ev.key==='Delete' || ev.key==='Backspace')) {
+        if((picked || resizing) && (ev.key==='Escape' || ev.key==='Delete' || ev.key==='Backspace')) {
             ev.preventDefault();
             ev.stopPropagation();
-            cancelPick();
-        } else if(picked && ev.key==='Enter') {
+            cancelAction();
+        } else if((picked || resizing) && ev.key==='Enter') {
             ev.preventDefault();
             ev.stopPropagation();
-            confirmMove();
+            confirmAction();
         }
     }
 
@@ -84,23 +106,33 @@
             ev.preventDefault();
             ev.stopPropagation();
             const mousepos = {x: ev.pageX, y: ev.pageY};
-            const element = document.elementsFromPoint(mousepos.x-window.scrollX, mousepos.y-window.scrollY).find(element => {
-                return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
-            });
-            if(!picked.refractary && element && element.id.startsWith('content')) { 
-                hoverElement(parseInt(element.id.replace('content', '')));
-                picked.refractary=true;
-                setTimeout(() => {if(picked) picked.refractary=false}, drag_refractary_period)
+            if(!picked.refractary) {
+                console.log('try hover');
+                const element = document.elementsFromPoint(mousepos.x-window.scrollX, mousepos.y-window.scrollY).find(element => {
+                    return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
+                });
+                if(element && element.id.startsWith('content')) {
+                    picked.refractary=true; 
+                    hoverElement(parseInt(element.id.replace('content', '')));
+                    setTimeout(() => {if(picked) picked.refractary=false}, drag_refractary_period)
+                } else {
+                    setTimeout(() => {if(picked) picked.refractary=false}, trace_refractary_perioid)
+                }
             }
-            pickedPosition.set({x: mousepos.x-(picked.geometry.width/2), y: mousepos.y-(picked.geometry.height/2)});
+            actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)});
+        } else if(resizing) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const mousepos = {x: ev.pageX, y: ev.pageY};
+            actionData.set({x_or_width: mousepos.x-resizing.starting_top_left.left, y_or_height: mousepos.y-resizing.starting_top_left.top});
         }
     }
 
     function mouseup(ev: any) {
-        if(picked) {
+        if(picked || resizing) {
             ev.preventDefault();
             ev.stopPropagation();
-            confirmMove();
+            confirmAction();
         }
     }
 
@@ -111,6 +143,7 @@
             arraymove(data.elements, picked.index, index);
             data.elements=data.elements;
             picked.index=index;
+            console.log('hover '+id, data.elements);
         }
     }
 </script>
@@ -120,17 +153,21 @@
 <div id="grid">
     {#each data.elements as element, index (element.id)}
         <div class="card" in:scale={{delay: transition_delay, duration: transition_duration}} out:scale={{delay: transition_delay, duration: transition_duration}} animate:flip={{delay: animate_delay, duration: d => Math.sqrt(d*animate_duration)}}>
-            {#if picked && element.id===picked.id}
-                <Prototype data={{index: index, id: element.id, content: element.content, width: element.width || picked.geometry.width, height: element.height || picked.geometry.height}} on:pick={pickElement} on:remove={removeElement}/>
+            {#if (picked && element.id===picked.id) || (resizing && element.id===resizing.id)}
+                {#if picked}
+                    <Prototype data={{id: element.id, width: picked.geometry.width, height: picked.geometry.height}}/>
+                {:else if resizing} 
+                    <Prototype data={{id: element.id, width: $actionData.x_or_width, height: $actionData.y_or_height}}/>
+                {/if}
             {:else}
-                <Card data={{picked: false, index: index, id: element.id, content: element.content, width: element.width, height: element.height}} on:pick={pickElement} on:remove={removeElement}/>
+                <Card data={{picked: false, index: index, id: element.id, content: element.content, width: element.width, height: element.height}} on:pick={pickElement} on:resize={resizeElement} on:remove={removeElement}/>
             {/if}    
         </div>
     {/each}
 </div>
 
 {#if picked}
-    <div class='pickedCard' style="top:{$pickedPosition.y}px; left:{$pickedPosition.x}px;">
+    <div class='pickedCard' style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
         <Card data={{picked: true, id: picked.id, content: picked.data.content, width: picked.data.width, height: picked.data.height}}/>
     </div>
 {/if}

@@ -1,5 +1,5 @@
 <script lang='ts'>
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     const dispatch = createEventDispatcher();
 
     const default_width = 'auto';

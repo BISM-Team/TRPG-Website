@@ -10,11 +10,11 @@
     
     export let data: PageData;
     const transition_delay=0, transition_duration=300;
-    const animate_delay=0, animate_duration = 500;
+    const animate_delay=0, animate_duration=15;
     const stiffness=0.6, damping=1.0;
-    const trace_refractary_perioid=10, drag_refractary_period=500;
+    const trace_refractary_perioid=500, drag_refractary_period=1000;
     let text='';
-    let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean} | undefined = undefined;
+    let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean, lastHoverEv: MouseEvent | undefined} | undefined = undefined;
     let resizing : {index: number, id: number, starting_top_left: {top: number, left: number}} | undefined = undefined;
     let actionData: Spring<{x_or_width: number, y_or_height: number}> = spring({x_or_width:0, y_or_height:0}, {stiffness, damping});
 
@@ -50,7 +50,8 @@
             id: ev.detail.id,
             geometry: ev.detail.geometry,
             data: data.elements[index],
-            refractary: false
+            refractary: false,
+            lastHoverEv: undefined
         }
         actionData = spring({x_or_width: ev.detail.geometry.x+window.scrollX, y_or_height: ev.detail.geometry.y+window.scrollY}, {stiffness, damping})
         const mousepos = ev.detail.mousepos;
@@ -71,8 +72,9 @@
 
     function cancelAction() {
         if(picked) {
-            arraymove(data.elements, picked.index, picked.startingIndex);
-            data.elements=data.elements;
+            if(picked.index!==picked.startingIndex) {
+                arraymove(data.elements, picked.index, picked.startingIndex);
+            }
             picked=undefined;
         }
         if(resizing) {
@@ -107,17 +109,35 @@
             ev.stopPropagation();
             const mousepos = {x: ev.pageX, y: ev.pageY};
             if(!picked.refractary) {
-                console.log('try hover');
                 const element = document.elementsFromPoint(mousepos.x-window.scrollX, mousepos.y-window.scrollY).find(element => {
                     return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
                 });
                 if(element && element.id.startsWith('content')) {
                     picked.refractary=true; 
                     hoverElement(parseInt(element.id.replace('content', '')));
-                    setTimeout(() => {if(picked) picked.refractary=false}, drag_refractary_period)
+                    setTimeout(() => {
+                        if(picked) { 
+                            picked.refractary=false; 
+                            if(picked.lastHoverEv) { 
+                                mousemove(picked.lastHoverEv);
+                                picked.lastHoverEv=undefined;
+                            } 
+                        }
+                    }, drag_refractary_period)
                 } else {
-                    setTimeout(() => {if(picked) picked.refractary=false}, trace_refractary_perioid)
+                    picked.refractary=true; 
+                    setTimeout(() => { 
+                        if(picked) { 
+                            picked.refractary=false; 
+                            if(picked.lastHoverEv) { 
+                                mousemove(picked.lastHoverEv);
+                                picked.lastHoverEv=undefined;
+                            } 
+                        }
+                    }, trace_refractary_perioid)
                 }
+            } else {
+                picked.lastHoverEv = ev;
             }
             actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)});
         } else if(resizing) {
@@ -140,10 +160,10 @@
         if(picked) {
             const index = data.elements.findIndex(element => element.id===id);
             if(index===-1) throw new Error('Id not found in cards');
-            arraymove(data.elements, picked.index, index);
-            data.elements=data.elements;
-            picked.index=index;
-            console.log('hover '+id, data.elements);
+            if(index!==picked.index) {
+                arraymove(data.elements, picked.index, index);
+                picked.index=index;
+            }
         }
     }
 </script>
@@ -152,13 +172,11 @@
 
 <div id="grid">
     {#each data.elements as element, index (element.id)}
-        <div class="card" in:scale={{delay: transition_delay, duration: transition_duration}} out:scale={{delay: transition_delay, duration: transition_duration}} animate:flip={{delay: animate_delay, duration: d => Math.sqrt(d*animate_duration)}}>
-            {#if (picked && element.id===picked.id) || (resizing && element.id===resizing.id)}
-                {#if picked}
-                    <Prototype data={{id: element.id, width: picked.geometry.width, height: picked.geometry.height}}/>
-                {:else if resizing} 
-                    <Prototype data={{id: element.id, width: $actionData.x_or_width, height: $actionData.y_or_height}}/>
-                {/if}
+        <div class="card" in:scale={{delay: transition_delay, duration: transition_duration}} out:scale={{delay: transition_delay, duration: transition_duration}} animate:flip={{delay: animate_delay, duration: d => Math.sqrt(d)*animate_duration}}>
+            {#if picked && element.id===picked.id}
+                <Prototype data={{id: element.id, width: picked.geometry.width, height: picked.geometry.height}}/>
+            {:else if resizing && element.id===resizing.id}
+                <Prototype data={{id: element.id, width: $actionData.x_or_width, height: $actionData.y_or_height}}/>
             {:else}
                 <Card data={{picked: false, index: index, id: element.id, content: element.content, width: element.width, height: element.height}} on:pick={pickElement} on:resize={resizeElement} on:remove={removeElement}/>
             {/if}    

@@ -1,4 +1,4 @@
-import { deleteToken, getUserFromToken } from "$lib/auth.server";
+import { deleteToken, getUserFromToken } from "$lib/db/auth.server";
 import type { Handle } from "@sveltejs/kit";
 
 export const handle = (async function ({ event, resolve }) {

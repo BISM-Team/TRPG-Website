@@ -1,10 +1,9 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { PrismaClient, type User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { error, type Cookies } from "@sveltejs/kit";
 import { AUTH_SECRET } from "$env/static/private";
 import bcrypt from 'bcrypt'
-
-export const db = new PrismaClient(); 
+import { db } from "./db.server";
 
 export async function getUserFromToken(token: string | undefined) : Promise<User|null> {
     let jwtUser: string | JwtPayload;

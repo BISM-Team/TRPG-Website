@@ -28,9 +28,11 @@
     async function handleSubmit(event: any) {
         disable=true;
         const response = await fetch(event.target.action, { method: 'POST', body: new FormData(event.target).get('text')});
-        if (response.ok) {
+        if(response.ok) {
             await invalidateAll();
             edit=false;
+        } else if(response.status===409) {
+            console.log('Page already updated, please try again');
         }
         disable=false;
     }

@@ -8,6 +8,7 @@ import { mergeTrees } from '$lib/WorldWiki/tree/merge.server';
 import { allowed_page_names_regex_whole_word } from '$lib/WorldWiki/constants';
 import { makeDirective } from '$lib/WorldWiki/tree/heading';
 import { logWholeObject } from '$lib/utils';
+import { createPage, deletePage, getPage, modifyPage } from '$lib/db/page.server';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
     const user = locals.user;
@@ -15,17 +16,15 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     
     if(!allowed_page_names_regex_whole_word.test(params.wiki) || !allowed_page_names_regex_whole_word.test(params.page)) throw error(400, 'Invalid wiki or page name');
 
-    const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
-    let file: string;
-    try {
-        file = await fs.readFile(page_path, {encoding: 'utf8'});
-    } catch (exc: any) {
-        console.log('not found: ' + page_path);
+    const page_path = params.wiki+'/'+params.page;
+
+    const page = (await getPage(page_path));
+    if(!page) {
         throw error(404, 'Page not found, want to create it?');
     }
 
     try {
-        return json(await filterOutTree(JSON.parse(file), user.name));
+        return json(await filterOutTree(JSON.parse(page.content), user.name));
     } catch (exc) {
         console.log(exc);
         throw error(500, 'Errors in parsing page, try again');
@@ -41,54 +40,31 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     if(!allowed_page_names_regex_whole_word.test(params.wiki) || !allowed_page_names_regex_whole_word.test(params.page)) throw error(400, 'invalid wiki or page name');
     if(!content_type) throw error(400, 'Please supply a content-type header');
 
-    const wiki_path = `./files/WorldWiki/${params.wiki}`;
-    try {
-        await fs.mkdir(wiki_path, { recursive: true });
-    } catch (exc) {
-        throw error(500, 'Unknown error with directory');
+    const page_path = params.wiki+'/'+params.page;
+    let new_tree: Root;
+    if(content_type.includes('text/plain')) {
+        new_tree = await parseSource(await request.text());
+    } else if(content_type.includes('application/json')) {
+        new_tree = await request.json();
+    } else { throw error(400, 'Please supply a content-type of either text/plain or application/json') }
+
+    const old_page = await getPage(page_path);
+    if(!old_page) {
+        new_tree = new_tree.children.length ? new_tree : await parseSource(makeDirective(params.page, { viewers: user.name, modifiers: user.name }));
+        try { await createPage(page_path, JSON.stringify(new_tree), []); } 
+        catch (exc) { throw error(409, 'Creation conflict'); }
+        return new Response('created', {status: 201})
     }
 
-    let old_file_content: string | undefined = undefined;
-    let handle: fs.FileHandle | undefined = undefined;
-    try {
-        const page_path = `./files/WorldWiki/${params.wiki}/${params.page}.txt`;
-        let new_tree: Root;
-        if(content_type.includes('text/plain')) {
-            new_tree = await parseSource(await request.text());
-        } else if(content_type.includes('application/json')) {
-            new_tree = await request.json();
-        } else { throw error(400, 'Please supply a content-type of either text/plain or application/json') }
-    
-        try {
-            old_file_content = readFileSync(page_path, {encoding: 'utf8'});
-        } catch (exc) {
-            handle = await fs.open(page_path, 'w+');
-            new_tree = new_tree.children.length ? new_tree : await parseSource(makeDirective(params.page, { viewers: user.name, modifiers: user.name }));
-            await handle.writeFile(JSON.stringify(new_tree));
-            await handle.close();
-            handle=undefined;
-            return new Response('created', {status: 201})
-        }
-
-        handle = await fs.open(page_path, 'w+');
-        const old_tree = JSON.parse(old_file_content);
-        let mergedTree = mergeTrees(old_tree, new_tree, user.name);
-        await handle.writeFile(JSON.stringify(mergedTree));
-        await handle.close(); 
-        handle=undefined;
-        if(mergedTree.children.length) {
-            return new Response('updated', {status: 200}) 
-        } else {
-            await fs.unlink(page_path);
-            return new Response('removed', {status: 200})
-        }
-    } catch (exc) {
-        if(handle && old_file_content) { 
-            await handle.writeFile(old_file_content);
-            await handle.close();
-            handle=undefined;
-        }
-        console.error(exc);
-        throw error(500, 'Unknown error with file or tree');
+    const old_tree = JSON.parse(old_page.content);
+    let mergedTree = mergeTrees(old_tree, new_tree, user.name);
+    if(mergedTree.children.length) {
+        try { await modifyPage(page_path, JSON.stringify(mergedTree), [], old_page.version); } 
+        catch (exc) { throw error(409, 'Update conflict'); }
+        return new Response('updated', {status: 200}) 
+    } else {
+        try { await deletePage(page_path, old_page.version); } 
+        catch (exc) { throw error(409, 'Delete conflict'); }
+        return new Response('removed', {status: 200})
     }
 };

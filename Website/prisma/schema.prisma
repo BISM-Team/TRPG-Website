@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique"]
 }
 
 datasource db {
@@ -11,10 +9,28 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  name      String   @unique
-  password  String
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  email       String   @unique
+  name        String   @unique
+  password    String
+  Modifier_in Header[] @relation("Modifier")
+  Viewer_in   Header[] @relation("Viewer")
+}
+
+model Page {
+  name    String   @id
+  content String
+  version Int      @default(0)
+  headers Header[]
+}
+
+model Header {
+  pageName  String
+  id        String @id
+  level     Int
+  page      Page   @relation(fields: [pageName], references: [name])
+  modifiers User[] @relation("Modifier")
+  viewers   User[] @relation("Viewer")
 }

@@ -1,4 +1,4 @@
 <script lang="ts">
     import { afterNavigate, goto } from '$app/navigation';
-    afterNavigate(async () => { await goto('/', { invalidateAll: true }) });
+    afterNavigate(async ({ from }) => { await goto(from?.url || '/', { invalidateAll: true }) });
 </script>

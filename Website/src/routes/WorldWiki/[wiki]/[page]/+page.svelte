@@ -1,8 +1,11 @@
 <script lang="ts">
-    import { stringifyTree } from '$lib/WorldWiki/tree/tree';
+    import type { SubmitFunction } from '@sveltejs/kit';
     import type { PageData } from './$types';
-    import { invalidateAll } from '$app/navigation';
+    import { stringifyTree } from '$lib/WorldWiki/tree/tree';
     import { onMount } from 'svelte';
+    import { applyAction, enhance } from '$app/forms';
+    import { page } from '$app/stores';
+    import { update_await_block_branch } from 'svelte/internal';
 
     export let data: PageData;
     let edit: boolean = false
@@ -16,26 +19,30 @@
         }
     });
 
-    async function deletePage() {
+    const handleDelete: SubmitFunction = async function() {
         disable=true;
-        await fetch(window.location.href, { method: 'POST', body: '', headers: { 'content-type': 'text/plain' }});
-        await invalidateAll();
-        edit=false;
-        show_modal=false;
-        disable=false;
+        return async({ result, update }) => {
+            edit=false;
+            show_modal=false;
+            disable=false;
+            if(result.type==='success' && result.data?.deleted) {
+                result.status=404;
+                (result.type as any)='error';
+            }
+            console.log(result);
+            await update();
+        }
     }
 
-    async function handleSubmit(event: any) {
+    const handleSubmit: SubmitFunction = async function() {
         disable=true;
-        const response = await fetch(event.target.action, { method: 'POST', body: new FormData(event.target).get('text')});
-        if(response.ok) {
-            await invalidateAll();
+        return async ({ update }) => {
             edit=false;
-        } else if(response.status===409) {
-            console.log('Page already updated, please try again');
+            disable=false;
+            await update();
         }
-        disable=false;
     }
+    
 </script>
 
 {#if show_modal}
@@ -43,36 +50,41 @@
         <div id='modalContent' class='w3-center w3-container w3-padding-16'>
             <h2 class='w3-padding'>Do you want to delete this page?</h2>
             <p><em>Note that only the content you can modify will be deleted</em></p>
-            <div id='deleteConfirmationButtons' class='w3-container'>
-                <button disabled={disable} class='w3-button w3-margin w3-grey' on:click={() => {show_modal=false}}>Cancel</button>
-                <button disabled={disable} type="submit" class='w3-button w3-margin w3-teal' on:click={deletePage}>Yes</button>
-            </div>
+            <form id='deleteConfirmationButtons' class='w3-container' method="post" use:enhance={handleDelete}>
+                <input type="hidden" name="version" value={data.version}>
+                <input type="hidden" name="text" value=''>
+                <button disabled={disable} class='w3-button w3-margin w3-grey' type="button" on:click={() => {show_modal=false}}>Cancel</button>
+                <button disabled={disable} class='w3-button w3-margin w3-teal' type="submit">Yes</button>
+            </form>
         </div>
     </div>
 {/if}
 
 <div class='w3-container' id='page'>
-    {#if !data.loaded}
-        <div>Loading data...</div>
-    {:else} 
-        <div id='topRightButtonContainer'>
-            <button disabled={disable} id='deleteButton' class='w3-button w3-grey' on:click={() => {show_modal=true}}>Delete</button>
-            <button disabled={disable} id='editButton' class='w3-button w3-teal' on:click={() => {edit=!edit}}>{edit ? 'View' : 'Edit'}</button>
-        </div>
-        {#if edit}
-            {#await stringifyTree(data.tree)}
-                Stringifying markdown...
-            {:then src} 
-                <form method='post' on:submit|preventDefault={handleSubmit} class='w3-container w3-padding-32' id='form'>
-                    <textarea name="text" id="textArea" value={src}/>
-                    <br>
-                    <button disabled={disable} class='w3-button w3-grey' on:click={() => {edit=false}}>Cancel</button>
-                    <button disabled={disable} type="submit" class='w3-button w3-teal'>Done</button>
-                </form>
-            {/await}
-        {:else}
-            <div class='w3-container w3-padding-32' id='content'>{@html data.html}</div>
-        {/if}
+    <div id='topRightButtonContainer'>
+        <button disabled={disable} id='deleteButton' class='w3-button w3-grey' on:click={() => {show_modal=true}}>Delete</button>
+        <button disabled={disable} id='editButton' class='w3-button w3-teal' on:click={() => {edit=!edit}}>{edit ? 'View' : 'Edit'}</button>
+    </div>
+    {#if edit}
+        {#await stringifyTree(data.tree)}
+            Stringifying markdown...
+        {:then src} 
+            {#if $page.status===409}
+                <p class='w3-panel w3-red'>Oops... this page has been edited while you were working on it... Please <strong>copy the information you were editing</strong> and reload the page to get the updated version!</p>
+            {/if}
+            {#if $page.error}
+                <p class='w3-panel w3-red'>Unspecified Error, please contact us to investigate the cause!</p>
+            {/if}
+            <form class='w3-container w3-padding-32' id='form' method='post' use:enhance={handleSubmit}>
+                <input type="hidden" name="version" value={data.version}>
+                <textarea name="text" id="textArea" value={src}/>
+                <br>
+                <button disabled={disable} class='w3-button w3-grey' type="button" on:click={() => {edit=false}}>Cancel</button>
+                <button disabled={disable} class='w3-button w3-teal' type="submit">Done</button>
+            </form>
+        {/await}
+    {:else}
+        <div class='w3-container w3-padding-32' id='content'>{@html data.renderedTree}</div>
     {/if}
 </div>
 

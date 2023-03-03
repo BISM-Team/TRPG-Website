@@ -1,10 +1,25 @@
 <script lang="ts">
     import type { ActionData } from './$types';
     import { enhance } from '$app/forms';
+    import { afterNavigate, invalidateAll } from '$app/navigation';
+    import type { SubmitFunction } from '@sveltejs/kit';
 
     let disable=false;
     let login_or_register=true;
     export let form: ActionData;
+    let previousUrl: string = '';
+
+    afterNavigate(({ from }) => {
+        if(from) previousUrl = from.url.toString();
+    })
+
+    const onSubmit: SubmitFunction = async function() {
+        return async ({ result, update }) => {
+            if(result.type==='redirect') await invalidateAll();
+            await update();
+        }
+    }
+
 </script>
 
 <header class='w3-border-top'>
@@ -14,8 +29,10 @@
 
 <div id='content' class='w3-padding-large'>
     {#if login_or_register}
-        <form action="?/login" method="post" class='w3-padding-16' use:enhance>
+        <form action="?/login" method="post" class='w3-padding-16' use:enhance={onSubmit}>
             <fieldset disabled={disable} class='w3-padding-16'>
+                <input type="hidden" name="redirect" value={previousUrl}>
+
                 <label for="identifier_input">Username or Email</label>
                 <input required type="text" name="identifier" id="identifier_input" value={form?.identifier ?? ''} class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.identifier_missing} <p class='w3-panel w3-red'>Missing Username or Email</p> {/if}
@@ -30,8 +47,10 @@
             </fieldset>
         </form>
     {:else}
-        <form action="?/register" method="post" class='w3-padding-16' use:enhance>
+        <form action="?/register" method="post" class='w3-padding-16' use:enhance={onSubmit}>
             <fieldset disabled={disable} class='w3-padding-16'>
+                <input type="hidden" name="redirect" value={previousUrl}>
+
                 <label for="username_input">Username</label>
                 <input required type="text" name="name" id="username_input" value={form?.name ?? ''} class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>

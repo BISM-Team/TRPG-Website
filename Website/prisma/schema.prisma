@@ -15,18 +15,18 @@ model User {
   email       String   @unique
   name        String   @unique
   password    String
-  Modifier_in Header[] @relation("Modifier")
-  Viewer_in   Header[] @relation("Viewer")
+  Modifier_in Heading[] @relation("Modifier")
+  Viewer_in   Heading[] @relation("Viewer")
 }
 
 model Page {
-  name    String   @id
-  content String
-  version Int      @default(0)
-  headers Header[]
+  name      String   @id
+  content   String
+  version   Int      @default(0)
+  headings  Heading[]
 }
 
-model Header {
+model Heading {
   pageName  String
   id        String @id
   level     Int

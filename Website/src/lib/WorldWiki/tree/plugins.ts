@@ -1,28 +1,13 @@
 import type { LeafDirective } from 'mdast-util-directive'
 import type { Root, Link } from 'mdast'
-import type { AdvancedHeading } from './heading'
+import { stripHash, addHash, type AdvancedHeading } from './heading'
 import { visit }  from 'unist-util-visit'
 import { remove } from 'unist-util-remove'
 import { isNodeModifiable } from './modifications'
 import { isNodeVisible } from './visibility'
 import { isTreeVisible } from './tree'
 import { getTags } from './tags'
-import { randomHex, logWholeObject } from '$lib/utils'
-
-function stripHash(str: string) : {result: string, depth: 1|2|3|4|5|6} {
-    let n = 1 as 1|2|3|4|5|6;
-    let first=true;
-    while(str.length && str[0]==='#') {
-        str=str.slice(1);
-        if(!first && n<6) n+=1;
-        if(first) first=false;
-    }
-    return {result: str.trimStart(), depth: n};
-}
-
-function addHash(str:string, depth: 1|2|3|4|5|6) : string {
-    return ('#'.repeat(depth)+' '+str);
-}
+import { randomHex } from '$lib/utils'
 
 export function directiveToHeading() {
     return function(tree: Root) {

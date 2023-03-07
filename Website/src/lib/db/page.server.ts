@@ -1,8 +1,8 @@
 import type { Heading, Page } from '@prisma/client'
 import { db } from './db.server'
 
-export async function getPage(name: string) : Promise<Page|null> {
-    return await db.page.findUnique({ where: { name: name }});
+export async function getPage(name: string) {
+    return await db.page.findUnique({ where: { name: name }, include: { headings: { include: { viewers: true, modifiers: true }}}});
 }
 
 export async function getPageHeaders(name: string) {
@@ -10,7 +10,7 @@ export async function getPageHeaders(name: string) {
 }
 
 export async function modifyPage(name: string, content: string, headings: (Heading & {viewers: string[]; modifiers: string[];})[], version: number) : Promise<Page> {
-    let _headings = headings.map(heading => { return { id: heading.id, level: heading.level, pageName: heading.pageName, viewers: { connect: heading.viewers.map(viewer => {return {name: viewer}}) }, modifiers: { connect: heading.modifiers.map(modifier => {return {name: modifier}}) }}});
+    let _headings = headings.map(heading => { return { id: heading.id, level: heading.level, text: heading.text, index: heading.index, viewers: { connect: heading.viewers.map(viewer => {return {name: viewer}}) }, modifiers: { connect: heading.modifiers.map(modifier => {return {name: modifier}}) }}});
     return await db.page.update({ 
         where: { name: name, version: version },
         data: { 
@@ -26,8 +26,8 @@ export async function modifyPage(name: string, content: string, headings: (Headi
     })
 }
 
-export async function createPage(name: string, content: string, headings: (Heading & {viewers: string[]; modifiers: string[];})[]) : Promise<Page> {
-    let _headings = headings.map(heading => { return { id: heading.id, level: heading.level, pageName: heading.pageName, viewers: { connect: heading.viewers.map(viewer => {return {name: viewer}}) }, modifiers: { connect: heading.modifiers.map(modifier => {return {name: modifier}}) }}});
+export async function createPage(name: string, content: string, headings: (Heading & {viewers: string[]; modifiers: string[];})[]) {
+    let _headings = headings.map(heading => { return { id: heading.id, level: heading.level, text: heading.text, index: heading.index, viewers: { connect: heading.viewers.map(viewer => {return {name: viewer}}) }, modifiers: { connect: heading.modifiers.map(modifier => {return {name: modifier}}) }}});
     return await db.page.create({ 
         data: {
             name: name,

@@ -1,70 +1,61 @@
 import type { Root } from 'mdast'
 import { getHeadingModifiability } from './modifications';
-import { searchHeadingIndexById, type AdvancedHeading } from './heading';
+import { searchHeadingIndexById, type AdvancedHeading, getHeadings } from './heading';
+import { getHeadingVisibility } from './visibility';
+import { includes } from '$lib/utils';
 
 export function mergeTrees(left: Root, right: Root, username: string) : Root {
-    const tree: Root = {type: 'root', children: []};
-    const first_left = left.children[0];
-    if(!(first_left && first_left.type==='heading')) throw new Error('root heading not present');
-    if(getHeadingModifiability(first_left, username)) {
-        rightRecursion(left, right, tree, insertUntilNextHeading(right, tree, 0), username);
-    } else {
-        leftRecursion(left, right, tree, insertUntilNextHeading(left, tree, 0), username);
-    }
-    return tree;
-}
+    const left_headings = getHeadings(left);
+    const right_headings = getHeadings(right);
+    const resulting_headings: (AdvancedHeading & {left: boolean})[] = [];
+    const new_tree: Root = {type: 'root', children: []};
 
-function leftRecursion(left: Root, right: Root, tree: Root, index: number, username: string) {
-    if(index===-1) return;
-    const heading = left.children[index] as AdvancedHeading;
-    if(getHeadingModifiability(heading, username)) {
-        if(!heading.attributes || !heading.attributes.id) throw new Error('invalid heading');
-        const _index = searchHeadingIndexById(right, heading.attributes.id);
-        if(_index>=0) {
-            rightRecursion(left, right, tree, insertUntilNextHeading(right, tree, _index), username);
-        } else {
-            leftRecursion(left, right, tree, skipUntilNextHeading(left, index), username);
+    for (let depth=1; depth<6; depth++) {
+        let previous_level_heading: number = -1;
+        for(let i=0; i<left_headings.length; ++i) {
+            const heading = left_headings[i];
+            if(heading.depth<depth) {
+                previous_level_heading=resulting_headings.findIndex(_heading => {return _heading.attributes?.id===heading.attributes?.id});
+            } else if(heading.depth===depth && (previous_level_heading>=0 || depth===1) && (!getHeadingModifiability(heading, username) || !getHeadingVisibility(heading, username))) {
+                const obj={...heading, left: true};
+                if(depth===1) resulting_headings.push(obj);
+                else resulting_headings.splice(previous_level_heading+1, 0, obj);
+            }
         }
-    } else {
-        leftRecursion(left, right, tree, insertUntilNextHeading(left, tree, index), username);
-    }
-}
-
-function rightRecursion(left: Root, right: Root, tree: Root, index: number, username: string) {
-    if(index===-1) return;
-    const heading = right.children[index] as AdvancedHeading;
-    if(getHeadingModifiability(heading, username)) {
-        rightRecursion(left, right, tree, insertUntilNextHeading(right, tree, index), username);
-    } else {
-        if(!heading.attributes || !heading.attributes.id) throw new Error('invalid heading');
-        const _index = searchHeadingIndexById(left, heading.attributes.id);
-        if(_index>=0) {
-            leftRecursion(left, right, tree, insertUntilNextHeading(left, tree, _index), username);
-        } else {
-            rightRecursion(left, right, tree, skipUntilNextHeading(right, index), username);
+        previous_level_heading = -1;
+        for(let i=0; i<right_headings.length; ++i) {
+            const heading = right_headings[i];
+            if(heading.depth<depth) { 
+                previous_level_heading=resulting_headings.findIndex(_heading => {return _heading.attributes?.id===heading.attributes?.id}); 
+            } else if(heading.depth===depth && (previous_level_heading>=0 || depth===1) && (!includes(resulting_headings, heading, (first, second) => { return first.attributes?.id===second.attributes?.id }))) { 
+                const obj={...heading, left: false};
+                if(depth===1) resulting_headings.push(obj);
+                else resulting_headings.splice(previous_level_heading+1, 0, obj);
+            }
         }
     }
+
+    console.log(left_headings);
+    console.log(right_headings);
+    console.log(resulting_headings);
+
+    for(const heading of resulting_headings) {
+        const id=heading.attributes?.id;
+        if(id) {
+            const index = searchHeadingIndexById(heading.left ? left : right, id);
+            if(index===-1) throw new Error('Heading not found during merge finalization');
+            insertUntilNextHeading(heading.left ? left : right, new_tree, index);
+        } else console.warn('Heading without id during merge finalization, skipping...')
+    }
+
+    return new_tree;
 }
 
-function insertUntilNextHeading(src: Root, dest: Root, index: number) : number {
+function insertUntilNextHeading(src: Root, dest: Root, index: number) {
     let first=true;
-    if(index===src.children.length) return -1;
-    while(first || src.children[index].type!=='heading') {
+    while(index!==src.children.length && (first || src.children[index].type!=='heading')) {
         dest.children.push(src.children[index]);
         first=false;
         index++;
-        if(index===src.children.length) return -1;
     }
-    return index;
-}
-
-function skipUntilNextHeading(src: Root, index: number) : number {
-    let first=true;
-    if(index===src.children.length) return -1;
-    while(first || src.children[index].type!=='heading') {
-        first=false;
-        index++;
-        if(index===src.children.length) return -1;
-    }
-    return index;
 }

@@ -3,9 +3,9 @@
     import type { PageData } from './$types';
     import { stringifyTree } from '$lib/WorldWiki/tree/tree';
     import { onMount } from 'svelte';
-    import { applyAction, enhance } from '$app/forms';
+    import { enhance } from '$app/forms';
     import { page } from '$app/stores';
-    import { update_await_block_branch } from 'svelte/internal';
+    import { addHash } from '$lib/WorldWiki/tree/heading';
 
     export let data: PageData;
     let edit: boolean = false
@@ -29,7 +29,6 @@
                 result.status=404;
                 (result.type as any)='error';
             }
-            console.log(result);
             await update();
         }
     }
@@ -84,6 +83,11 @@
             </form>
         {/await}
     {:else}
+        <div id="toc" class='w3-card-4'>
+            {#each data.headings as heading}
+                <a class='w3-block w3-container w3-padding' href='#{heading.id}'><span class='w3-text-gray'>{addHash('', heading.level).trim()}</span> {heading.text}</a>
+            {/each}
+        </div>
         <div class='w3-container w3-padding-32' id='content'>{@html data.renderedTree}</div>
     {/if}
 </div>
@@ -135,5 +139,23 @@
     }
     #modalContent button {
         width: 6em;
+    }
+
+    #toc {
+        position: absolute;
+        top: 2em;
+        right: 20em;
+        background-color: white;
+        width: fit-content;
+        padding: 0.5em;
+    }
+
+    #toc a {
+        text-decoration: underline rgba(0, 0, 0, 0);
+        transition: 0.2s ease-out;
+    }
+
+    #toc a:hover {
+        text-decoration: underline rgba(0, 0, 0, 1);
     }
 </style>

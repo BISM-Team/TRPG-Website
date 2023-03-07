@@ -5,8 +5,8 @@ export function capitalizeFirstLetter(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function includes<type>(arr: Array<type>, value: type) : boolean {
-  if(arr.find(item => { return item===value; }))
+export function includes<type>(arr: Array<type>, value: type, matcherFn?: (first: type, second: type) => boolean) : boolean {
+  if(arr.find(matcherFn ? item => { return matcherFn(item, value); } : item => { return item===value; }))
     { return true; }
   else { return false; }
 }

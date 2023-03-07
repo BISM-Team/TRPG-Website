@@ -29,7 +29,9 @@ model Page {
 model Heading {
   pageName  String
   id        String @id
+  text      String
   level     Int
+  index     Int
   page      Page   @relation(fields: [pageName], references: [name])
   modifiers User[] @relation("Modifier")
   viewers   User[] @relation("Viewer")

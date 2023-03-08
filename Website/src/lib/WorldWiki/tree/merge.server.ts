@@ -12,6 +12,7 @@ export function mergeTrees(left: Root, right: Root, username: string) : Root {
 
     for (let depth=1; depth<6; depth++) {
         let previous_level_heading: number = -1;
+        let last_added_index: number = -1;
         for(let i=0; i<left_headings.length; ++i) {
             const heading = left_headings[i];
             if(heading.depth<depth) {
@@ -19,10 +20,14 @@ export function mergeTrees(left: Root, right: Root, username: string) : Root {
             } else if(heading.depth===depth && (previous_level_heading>=0 || depth===1) && (!getHeadingModifiability(heading, username) || !getHeadingVisibility(heading, username))) {
                 const obj={...heading, left: true};
                 if(depth===1) resulting_headings.push(obj);
-                else resulting_headings.splice(previous_level_heading+1, 0, obj);
+                else {
+                    last_added_index = Math.max(previous_level_heading, last_added_index)+1;
+                    resulting_headings.splice(last_added_index, 0, obj);
+                }
             }
         }
         previous_level_heading = -1;
+        last_added_index = -1;
         for(let i=0; i<right_headings.length; ++i) {
             const heading = right_headings[i];
             if(heading.depth<depth) { 
@@ -30,14 +35,13 @@ export function mergeTrees(left: Root, right: Root, username: string) : Root {
             } else if(heading.depth===depth && (previous_level_heading>=0 || depth===1) && (!includes(resulting_headings, heading, (first, second) => { return first.attributes?.id===second.attributes?.id }))) { 
                 const obj={...heading, left: false};
                 if(depth===1) resulting_headings.push(obj);
-                else resulting_headings.splice(previous_level_heading+1, 0, obj);
+                else {
+                    last_added_index = Math.max(previous_level_heading, last_added_index)+1;
+                    resulting_headings.splice(last_added_index, 0, obj);
+                }
             }
         }
     }
-
-    console.log(left_headings);
-    console.log(right_headings);
-    console.log(resulting_headings);
 
     for(const heading of resulting_headings) {
         const id=heading.attributes?.id;

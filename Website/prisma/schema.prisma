@@ -32,7 +32,7 @@ model Heading {
   text      String
   level     Int
   index     Int
-  page      Page   @relation(fields: [pageName], references: [name])
+  page      Page   @relation(fields: [pageName], references: [name], onDelete: Cascade, onUpdate: Cascade)
   modifiers User[] @relation("Modifier")
   viewers   User[] @relation("Viewer")
 }

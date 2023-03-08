@@ -73,7 +73,7 @@ export function searchHeadingById(tree: Root, id: string) : AdvancedHeading | un
 
 export function getHeadings(tree: Root) : AdvancedHeading[] {
     const headings: AdvancedHeading[] = [];
-    visit(tree, 'heading', (node, i) => {
+    visit(tree, 'heading', node => {
         const advHeading = node as AdvancedHeading;
         headings.push(advHeading);
     })
@@ -84,7 +84,7 @@ export function getHeadingsDb(tree: Root, page_name: string) : (DbHeading & { vi
     const headings: (DbHeading & { viewers: string[]; modifiers: string[];})[] = [];
     visit(tree, 'heading', (node, i) => {
         const advHeading = node as AdvancedHeading;
-        if(advHeading.attributes && advHeading.attributes.id && i) { 
+        if(advHeading.attributes && advHeading.attributes.id && i!==null) { 
             headings.push({
                 pageName: page_name, 
                 id: advHeading.attributes.id, 

@@ -70,8 +70,6 @@ export const actions: Actions = {
         const old_tree = JSON.parse(old_page.content);
         let mergedTree = mergeTrees(old_tree, new_tree, user.name);
         try { 
-            logWholeObject(new_tree);
-            logWholeObject(mergedTree);
             if(mergedTree.children.length) { 
                 const headings = getHeadingsDb(mergedTree, page_path);
                 await modifyPage(page_path, JSON.stringify(mergedTree), headings, version!==null ? version : old_page.version); 

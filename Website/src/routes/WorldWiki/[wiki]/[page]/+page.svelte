@@ -35,8 +35,8 @@
 
     const handleSubmit: SubmitFunction = async function() {
         disable=true;
-        return async ({ update }) => {
-            edit=false;
+        return async ({ result, update }) => {
+            if(result.type==='success') edit=false;
             disable=false;
             await update();
         }
@@ -48,7 +48,7 @@
     <div id='modalWrapper'>
         <div id='modalContent' class='w3-center w3-container w3-padding-16'>
             <h2 class='w3-padding'>Do you want to delete this page?</h2>
-            <p><em>Note that only the content you can modify will be deleted</em></p>
+            <p><em>Note that only the content you are allowed to modify will be deleted</em></p>
             <form id='deleteConfirmationButtons' class='w3-container' method="post" use:enhance={handleDelete}>
                 <input type="hidden" name="version" value={data.version}>
                 <input type="hidden" name="text" value=''>
@@ -59,21 +59,22 @@
     </div>
 {/if}
 
+<div id='topRightButtonContainer' class='w3-block'>
+    <button disabled={disable} id='editButton' class='w3-button' on:click={() => {edit=!edit}}><span class="material-symbols-outlined">{edit ? 'visibility' : 'edit'}</span></button>
+    <button disabled={disable} id='deleteButton' class='w3-button' on:click={() => {show_modal=true}}><span class="material-symbols-outlined">delete</span></button>
+</div>
+
 <div class='w3-container' id='page'>
-    <div id='topRightButtonContainer'>
-        <button disabled={disable} id='deleteButton' class='w3-button w3-grey' on:click={() => {show_modal=true}}>Delete</button>
-        <button disabled={disable} id='editButton' class='w3-button w3-teal' on:click={() => {edit=!edit}}>{edit ? 'View' : 'Edit'}</button>
-    </div>
     {#if edit}
+        {#if $page.status===409}
+            <p class='w3-panel w3-red'>Oops... this page has been edited while you were working on it... Please <strong>copy the information you were editing</strong> and reload the page to get the updated version!</p>
+        {/if}
+        {#if $page.error}
+            <p class='w3-panel w3-red'>Unspecified Error, please contact us to investigate the cause!</p>
+        {/if}
         {#await stringifyTree(data.tree)}
             Stringifying markdown...
         {:then src} 
-            {#if $page.status===409}
-                <p class='w3-panel w3-red'>Oops... this page has been edited while you were working on it... Please <strong>copy the information you were editing</strong> and reload the page to get the updated version!</p>
-            {/if}
-            {#if $page.error}
-                <p class='w3-panel w3-red'>Unspecified Error, please contact us to investigate the cause!</p>
-            {/if}
             <form class='w3-container w3-padding-32' id='form' method='post' use:enhance={handleSubmit}>
                 <input type="hidden" name="version" value={data.version}>
                 <textarea name="text" id="textArea" value={src}/>
@@ -83,10 +84,12 @@
             </form>
         {/await}
     {:else}
-        <div id="toc" class='w3-card-4'>
-            {#each data.headings as heading}
-                <a class='w3-block w3-container w3-padding' href='#{heading.id}'><span class='w3-text-gray'>{addHash('', heading.level).trim()}</span> {heading.text}</a>
-            {/each}
+        <div id='toc_container'>
+            <div id="toc" class='w3-card-2'>
+                {#each data.headings as heading}
+                    <a class='w3-block w3-container w3-padding' href='#{heading.id}'><span class='w3-text-gray'>{addHash('', heading.level).trim()}</span> {heading.text}</a>
+                {/each}
+            </div>
         </div>
         <div class='w3-container w3-padding-32' id='content'>{@html data.renderedTree}</div>
     {/if}
@@ -97,27 +100,31 @@
         position: relative;
     }
     #topRightButtonContainer {
-        position: absolute;
-        right: 4em;
-        top: 2em;
+        background-color: teal;
+        display: flex;
+        justify-content: right;
+        padding: 0em 1em;
+        gap: 1em;
     }
     #topRightButtonContainer button {
         text-align: center;
-        width: 6em;
+        box-sizing: content-box;
+        width: 4em;
+        height: 24px;
         transition: 0.1s ease-out;
     }
     #form {
         margin-top: 1.5em;
     }
     #textArea {
-        width: calc(100% - 10em);
+        width: 90%;
         height: 74vh;
         padding: 12px 20px;
         box-sizing: border-box;
         border: 2px solid #ccc;
         border-radius: 4px;
         background-color: #f8f8f8;
-        resize: vertical;
+        resize: none;
     }
     #modalWrapper {
         position: fixed; /* Stay in place */
@@ -141,21 +148,27 @@
         width: 6em;
     }
 
-    #toc {
+    #toc_container {
         position: absolute;
-        top: 2em;
-        right: 20em;
+        top: 4em;
+        right: 15%;
+        height: 100%;
+    }
+
+    #toc {
+        position: sticky;
+        top: 10%;
         background-color: white;
         width: fit-content;
         padding: 0.5em;
     }
 
     #toc a {
-        text-decoration: underline rgba(0, 0, 0, 0);
+        text-decoration: underline solid rgba(0, 0, 0, 0) 1px;
         transition: 0.2s ease-out;
     }
 
     #toc a:hover {
-        text-decoration: underline rgba(0, 0, 0, 1);
+        text-decoration: underline solid rgba(0, 0, 0, 1) 1px;
     }
 </style>

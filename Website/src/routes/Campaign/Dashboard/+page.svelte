@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { PageData } from './$types';
     import { scale } from 'svelte/transition';
-    import { flip } from 'svelte/animate';
+    import { flip } from '$lib/Campaign/better_animations';
     import Card from './card.svelte';
     import Prototype from './prototype.svelte';
     import { spring, type Spring } from 'svelte/motion'
@@ -108,6 +108,7 @@
             ev.preventDefault();
             ev.stopPropagation();
             const mousepos = {x: ev.pageX, y: ev.pageY};
+            actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)});
             if(!picked.refractary) {
                 const element = document.elementsFromPoint(mousepos.x-window.scrollX, mousepos.y-window.scrollY).find(element => {
                     return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
@@ -139,7 +140,6 @@
             } else {
                 picked.lastHoverEv = ev;
             }
-            actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)});
         } else if(resizing) {
             ev.preventDefault();
             ev.stopPropagation();
@@ -171,14 +171,14 @@
 <input type="text" id="contentInput" bind:value={text} on:keydown={e => e.key === 'Enter' && addElement(text)}>
 
 <div id="grid">
-    {#each data.elements as element, index (element.id)}
+    {#each data.elements as element (element.id)}
         <div class="card" in:scale={{delay: transition_delay, duration: transition_duration}} out:scale={{delay: transition_delay, duration: transition_duration}} animate:flip={{delay: animate_delay, duration: d => Math.sqrt(d)*animate_duration}}>
             {#if picked && element.id===picked.id}
                 <Prototype data={{id: element.id, width: picked.geometry.width, height: picked.geometry.height}}/>
             {:else if resizing && element.id===resizing.id}
                 <Prototype data={{id: element.id, width: $actionData.x_or_width, height: $actionData.y_or_height}}/>
             {:else}
-                <Card data={{picked: false, index: index, id: element.id, content: element.content, width: element.width, height: element.height}} on:pick={pickElement} on:resize={resizeElement} on:remove={removeElement}/>
+                <Card data={{picked: false, id: element.id, content: element.content, width: element.width, height: element.height}} on:pick={pickElement} on:resize={resizeElement} on:remove={removeElement}/>
             {/if}    
         </div>
     {/each}

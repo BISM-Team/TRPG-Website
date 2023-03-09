@@ -5,7 +5,7 @@
     const default_width = 'auto';
     const default_height = 'auto';
 
-    export let data: {picked: boolean, index?: number, id: number, content: string, width?: number, height?: number}
+    export let data: {picked: boolean, id: number, content: string, width?: number, height?: number}
 
     function pick(ev: MouseEvent) {
         ev.preventDefault();

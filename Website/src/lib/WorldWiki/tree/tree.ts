@@ -19,9 +19,9 @@ export async function stringifyTree(tree: Root) : Promise<string> {
   return unified().use(remarkDirective).use(remarkStringify).stringify(tree);
 }
 
-export async function parseSource(src: string) : Promise<Root> {
+export async function parseSource(src: string, username?: string) : Promise<Root> {
   const tree = unified().use(remarkDirective).use(remarkParse).parse(src);
-  return await unified().use(headingToDirective).use(directiveToHeading).use(addHeadingIds).run(tree);
+  return await unified().use(headingToDirective, username ? { username: username } : undefined).use(directiveToHeading).use(addHeadingIds).run(tree);
 }
 
 export async function filterOutTree(tree: Root, username: string) : Promise<Root> {

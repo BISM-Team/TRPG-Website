@@ -6,7 +6,7 @@ import { filterOutTree, parseSource, renderTree } from '$lib/WorldWiki/tree/tree
 import { createPage, deletePage, getPage, modifyPage } from '$lib/db/page.server';
 import { getHeadingsDb, makeDirective } from '$lib/WorldWiki/tree/heading';
 import { mergeTrees } from '$lib/WorldWiki/tree/merge.server';
-import { logWholeObject } from '$lib/utils';
+import { capitalizeFirstLetter, includes, logWholeObject } from '$lib/utils';
 import type { Heading } from '@prisma/client';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -30,7 +30,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
             viewers: heading.viewers.map(viewer => viewer.name), 
             modifiers: heading.modifiers.map(modifier => modifier.name)
         }});
-        return { version: page.version, headings: headings, tree: tree, renderedTree: await renderTree(JSON.parse(JSON.stringify(tree)), user.name)};
+        return { version: page.version, headings: headings.filter(heading => { return (user.name.trim().toLowerCase()==='gm' || includes(heading.viewers, user.name.trim().toLowerCase())); }), tree: tree, renderedTree: await renderTree(JSON.parse(JSON.stringify(tree)), user.name)};
     } catch (exc) {
         console.log(exc);
         throw error(500, 'Errors in parsing page, try again');
@@ -52,7 +52,7 @@ export const actions: Actions = {
         const text = String(data.get('text'));
         const tree = String(data.get('tree'));
         if(data.has('text')) {
-            new_tree = await parseSource(text);
+            new_tree = await parseSource(text, user.name);
         } else if(data.has('tree')) {
             new_tree = JSON.parse(tree);
         }
@@ -60,7 +60,8 @@ export const actions: Actions = {
 
         const old_page = await getPage(page_path);
         if(!old_page) {
-            new_tree = new_tree.children.length ? new_tree : await parseSource(makeDirective(params.page, { viewers: user.name, modifiers: user.name }));
+            new_tree = new_tree.children.length ? new_tree : await parseSource(`# ${capitalizeFirstLetter(params.page)}`, user.name);
+            logWholeObject(new_tree);
             const headings = getHeadingsDb(new_tree, page_path);
             try { await createPage(page_path, JSON.stringify(new_tree), headings); } 
             catch (exc) { return fail(409, { creation_conflict: true }); }

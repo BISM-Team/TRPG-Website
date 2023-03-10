@@ -2,6 +2,7 @@
     import type { PageData } from './$types';
     import { scale } from 'svelte/transition';
     import { flip } from '$lib/Campaign/better_animations';
+    //import { flip } from 'svelte/animate';
     import Card from './card.svelte';
     import Prototype from './prototype.svelte';
     import { spring, type Spring } from 'svelte/motion'
@@ -12,7 +13,7 @@
     const transition_delay=0, transition_duration=300;
     const animate_delay=0, animate_duration=15;
     const stiffness=0.6, damping=1.0;
-    const trace_refractary_perioid=500, drag_refractary_period=1000;
+    const trace_refractary_perioid=200, drag_refractary_period=500;
     let text='';
     let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean, lastHoverEv: MouseEvent | undefined} | undefined = undefined;
     let resizing : {index: number, id: number, starting_top_left: {top: number, left: number}} | undefined = undefined;
@@ -108,7 +109,7 @@
             ev.preventDefault();
             ev.stopPropagation();
             const mousepos = {x: ev.pageX, y: ev.pageY};
-            actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)});
+            actionData.set({x_or_width: mousepos.x-(picked.geometry.width/2), y_or_height: mousepos.y-(picked.geometry.height/2)})
             if(!picked.refractary) {
                 const element = document.elementsFromPoint(mousepos.x-window.scrollX, mousepos.y-window.scrollY).find(element => {
                     return picked && element.id.startsWith('content') && !element.id.endsWith(`${picked.id}`)
@@ -119,10 +120,6 @@
                     setTimeout(() => {
                         if(picked) { 
                             picked.refractary=false; 
-                            if(picked.lastHoverEv) { 
-                                mousemove(picked.lastHoverEv);
-                                picked.lastHoverEv=undefined;
-                            } 
                         }
                     }, drag_refractary_period)
                 } else {
@@ -130,15 +127,9 @@
                     setTimeout(() => { 
                         if(picked) { 
                             picked.refractary=false; 
-                            if(picked.lastHoverEv) { 
-                                mousemove(picked.lastHoverEv);
-                                picked.lastHoverEv=undefined;
-                            } 
                         }
                     }, trace_refractary_perioid)
                 }
-            } else {
-                picked.lastHoverEv = ev;
             }
         } else if(resizing) {
             ev.preventDefault();

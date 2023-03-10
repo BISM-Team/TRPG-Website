@@ -4,6 +4,7 @@ import { cubicOut } from "svelte/easing"
 
 export function flip(node: Element, { from, to }: { from: DOMRect, to: DOMRect}, params: FlipParams = {}) : AnimationConfig {
     const style = getComputedStyle(node);
+    const transform = style.transform === 'none' ? '' : style.transform;
     const [ox, oy] = style.transformOrigin.split(' ').map(parseFloat);
     const dx = (from.left + from.width * ox / to.width) - (to.left + ox);
     const dy = (from.top + from.height * oy / to.height) - (to.top + oy);
@@ -14,12 +15,12 @@ export function flip(node: Element, { from, to }: { from: DOMRect, to: DOMRect},
         easing,
         css: (t, u) => {
             const style = getComputedStyle(node);
-            const _t = Math.max(parseFloat(style.marginLeft), t);
+            const _t = Math.max(parseFloat(style.getPropertyValue('--anim-time') || '0.0'), t);
             const x = u * dx;
             const y = u * dy;
             const sx = _t + u * from.width / to.width;
             const sy = _t + u * from.height / to.height;
-            return `transform: translate(${x}px, ${y}px) scale(${sx}, ${sy}); margin-left: ${_t}`;
+            return `transform: ${transform} translate(${x}px, ${y}px) scale(${sx}, ${sy}); --anim-time: ${_t}`;
         }
     };
 }

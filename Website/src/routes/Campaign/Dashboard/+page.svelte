@@ -11,11 +11,11 @@
     
     export let data: PageData;
     const transition_delay=0, transition_duration=300;
-    const animate_delay=0, animate_duration=15;
+    const animate_delay=0, animate_duration=20;
     const stiffness=0.6, damping=1.0;
     const trace_refractary_perioid=200, drag_refractary_period=500;
     let text='';
-    let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean, lastHoverEv: MouseEvent | undefined} | undefined = undefined;
+    let picked : {startingIndex: number, index:number, id: number, geometry: DOMRect, data: typeof data.elements[0], refractary: boolean} | undefined = undefined;
     let resizing : {index: number, id: number, starting_top_left: {top: number, left: number}} | undefined = undefined;
     let actionData: Spring<{x_or_width: number, y_or_height: number}> = spring({x_or_width:0, y_or_height:0}, {stiffness, damping});
 
@@ -52,7 +52,6 @@
             geometry: ev.detail.geometry,
             data: data.elements[index],
             refractary: false,
-            lastHoverEv: undefined
         }
         actionData = spring({x_or_width: ev.detail.geometry.x+window.scrollX, y_or_height: ev.detail.geometry.y+window.scrollY}, {stiffness, damping})
         const mousepos = ev.detail.mousepos;

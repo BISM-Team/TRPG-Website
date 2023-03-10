@@ -2,7 +2,6 @@
     import type { PageData } from './$types';
     import { scale } from 'svelte/transition';
     import { flip } from '$lib/Campaign/better_animations';
-    //import { flip } from 'svelte/animate';
     import Card from './card.svelte';
     import Prototype from './prototype.svelte';
     import { spring, type Spring } from 'svelte/motion'

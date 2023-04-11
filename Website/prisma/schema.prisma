@@ -9,30 +9,98 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  email       String   @unique
-  name        String   @unique
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  email       String    @unique
+  name        String    @unique
   password    String
-  Modifier_in Heading[] @relation("Modifier")
-  Viewer_in   Heading[] @relation("Viewer")
+  modifier_in Heading[] @relation("Modifier")
+  viewer_in   Heading[] @relation("Viewer")
+  dashboards  Dashboard[]
+  dashboards_templates  DashboardTemplate[]
 }
 
 model Page {
-  name      String   @id
+  name      String    @id
   content   String
-  version   Int      @default(0)
+  version   Int       @default(0)
   headings  Heading[]
 }
 
 model Heading {
   pageName  String
-  id        String @id
+  id        String    @id
   text      String
   level     Int
   index     Int
-  page      Page   @relation(fields: [pageName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  modifiers User[] @relation("Modifier")
-  viewers   User[] @relation("Viewer")
+  page      Page      @relation(fields: [pageName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  modifiers User[]    @relation("Modifier")
+  viewers   User[]    @relation("Viewer")
+}
+
+model DashboardTemplate {
+  id          String    @id @default(cuid())
+  name        String
+  numericVariables   NumericVariable[]
+  stringVariables    StringVariable[]
+  cards       CardData[]
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  dashboards  Dashboard[]
+}
+
+model Dashboard {
+  id          String    @id @default(cuid())
+  name        String
+  numericVariables   NumericVariable[]
+  stringVariables    StringVariable[]
+  cards       CardData[]
+
+  templateId  String?
+  template    DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model NumericVariable {
+  id          String    @id @default(cuid())
+  name        String
+  value       Int
+
+  dashboardId String?
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model StringVariable {
+  id          String    @id @default(cuid())
+  name        String
+  value       String
+
+  dashboardId String?
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model CardData {
+  id          String    @id @default(cuid())
+  name        String
+  width       Float
+  height      Float
+  zoom        Float
+  source      String
+
+  dashboardId String?
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

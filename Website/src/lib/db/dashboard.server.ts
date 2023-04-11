@@ -1,12 +1,22 @@
 import type { CardData, Dashboard, NumericVariable, StringVariable, User } from '@prisma/client'
 import { db } from './db.server'
 
-export async function getUserDashboards(user: User) : Promise<Dashboard[]> {
+export async function getUserDashboards(user: User) {
     return await db.dashboard.findMany({ where: { userId: user.id }});
 }
 
 export async function getDashboard(user: User, dashboardId: string) {
-    return await db.dashboard.findUnique({ where: { id: dashboardId, userId: user.id }, include: { cards: true, numericVariables: true, stringVariables: true }});
+    return await db.dashboard.findUnique({ 
+        where: { 
+            id: dashboardId, 
+            userId: user.id 
+        }, 
+        include: { 
+            cards: true, 
+            numericVariables: true, 
+            stringVariables: true 
+        }
+    });
 }
 
 export async function createDashboard(dashboard: Omit<Dashboard, 'id'> & {numericVariables: Omit<NumericVariable, 'id'>[], stringVariables: Omit<StringVariable, 'id'>[], cards: Omit<CardData, 'id'>[]}) {
@@ -28,6 +38,38 @@ export async function createDashboard(dashboard: Omit<Dashboard, 'id'> & {numeri
     });
 }
 
+export async function deleteDashboard(user: User, dashboardId: string) {
+    return await db.dashboard.delete({ 
+        where: { 
+            id: dashboardId, 
+            userId: user.id 
+        }
+    });
+}
+
+export async function getUserDashboardTemplates(user: User) {
+    return await db.dashboardTemplate.findMany({ where: { userId: user.id }});
+}
+
 export async function getDashboardTemplate(user: User, templateId: string) {
-    return await db.dashboardTemplate.findUnique({ where: { id: templateId, userId: user.id }, include: { cards: true, numericVariables: true, stringVariables: true }});
+    return await db.dashboardTemplate.findUnique({ 
+        where: { 
+            id: templateId, 
+            userId: user.id 
+        }, 
+        include: { 
+            cards: true, 
+            numericVariables: true, 
+            stringVariables: true 
+        }
+    });
+}
+
+export async function deleteDashboardTemplate(user: User, templateId: string) {
+    return await db.dashboardTemplate.delete({ 
+        where: { 
+            id: templateId, 
+            userId: user.id 
+        }
+    });
 }

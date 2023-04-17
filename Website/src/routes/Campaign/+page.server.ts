@@ -1,29 +1,62 @@
-import type { Actions, PageServerLoad } from './$types';
-import type { DashboardTemplate, NumericVariable, StringVariable, CardData } from '@prisma/client'
-import { createDashboard, getDashboardTemplate, getUserDashboards } from '$lib/db/dashboard.server';
-import { fail, redirect } from '@sveltejs/kit'
+import type { Actions, PageServerLoad } from "./$types";
+import type {
+    DashboardTemplate,
+    NumericVariable,
+    StringVariable,
+    CardData,
+} from "@prisma/client";
+import {
+    createDashboard,
+    deleteDashboard,
+    getDashboardTemplate,
+    getUserDashboards,
+} from "$lib/db/dashboard.server";
+import { fail, redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals }) => {
     const user = locals.user;
-    if(user) {
-        return {dashboards: await getUserDashboards(user)};
-    }
-    else throw redirect(302, '/login');
+    if (!user) throw redirect(302, "/login");
+    return { dashboards: await getUserDashboards(user) };
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-    create: async function({ locals, request }) {
+    create: async function ({ locals, request }) {
         const user = locals.user;
-        if(!user) throw redirect(302, '/login')
+        if (!user) throw redirect(302, "/login");
 
         const data = await request.formData();
-        const name = String(data.get('name'))
-        const templateId = String(data.get('template')) || null;
-        const numericVariables = JSON.parse(String(data.get('numericVariables')));
-        const stringVariables = JSON.parse(String(data.get('stringVariables')));
-        const template = templateId ? await getDashboardTemplate(user, templateId) : null;
+        const name = data.get("name")?.toString();
+        const templateId = String(data.get("template") || "") || null;
+        const numericVariables = JSON.parse(
+            String(data.get("numericVariables") || "[]")
+        );
+        const stringVariables = JSON.parse(
+            String(data.get("stringVariables") || "[]")
+        );
+        const template = templateId
+            ? await getDashboardTemplate(user, templateId)
+            : null;
 
-        if(templateId && !template) return fail(400, {name: name, templateId: templateId, numericVariables: numericVariables, stringVariables: stringVariables, template_non_existant: true})
+        let savedData = {
+            name: name,
+            templateId: templateId,
+            numericVariables: numericVariables,
+            stringVariables: stringVariables,
+        };
+
+        console.log({
+            name: name,
+            templateId: templateId,
+            userId: user.id,
+            numericVariables: numericVariables,
+            stringVariables: stringVariables,
+            cards: template ? template.cards : [],
+        });
+
+        if (!name) return fail(400, { ...savedData, name_missing: true });
+
+        if (templateId && !template)
+            return fail(400, { ...savedData, template_non_existant: true });
 
         let dashboard = {
             name: name,
@@ -31,17 +64,27 @@ export const actions: Actions = {
             userId: user.id,
             numericVariables: numericVariables,
             stringVariables: stringVariables,
-            cards: template ? template.cards : []
-        }
+            cards: template ? template.cards : [],
+        };
         try {
             await createDashboard(dashboard);
         } catch (exc) {
-            
+            console.error(exc);
+            return fail(500, { ...savedData, server_error: true });
         }
     },
 
-    remove: async function({ locals, request }) {
-        const data = await request.formData();
+    remove: async function ({ locals, request }) {
+        const user = locals.user;
+        if (!user) throw redirect(302, "/login");
 
-    }
-}
+        const data = await request.formData();
+        const id = String(data.get("id"));
+
+        if (!id) return fail(400, { missing_id: true });
+
+        try {
+            await deleteDashboard(user, id);
+        } catch (exc) {}
+    },
+};

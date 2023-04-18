@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import type { RequestHandler } from '../$types';
+import type { RequestHandler } from './$types';
 import { randomHex } from '$lib/utils';
 
 const client_id = '';
@@ -57,8 +57,9 @@ async function requestAccessToken(callbackUrl: string, auth_code: string, ) {
 }
 
 export const GET: RequestHandler = async ({ url }) => {
-    if(url.searchParams.has('code') && url.searchParams.has('state')) {
-        const result = await requestAccessToken(url.origin+url.pathname,  url.searchParams.get('code'));
+    const code=url.searchParams.get('code');
+    if(code && url.searchParams.has('state')) {
+        const result = await requestAccessToken(url.origin+url.pathname, code);
         access_token = result.access_token;
         refresh_token = result.refresh_token;
         throw redirect(301, new URL('..', url.origin+url.pathname).toString());

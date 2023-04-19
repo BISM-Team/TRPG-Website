@@ -1,16 +1,22 @@
-<script lang='ts'>
+<script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     const dispatch = createEventDispatcher();
 
-    const default_width = 'auto';
-    const default_height = 'auto';
+    const default_width = "auto";
+    const default_height = "auto";
 
-    export let data: {id: number, width: number, height: number}
-
+    export let data: { id: string; width: number; height: number };
 </script>
 
-<div id='prototype-content{data.id}' class='prototype-content w3-card-4' style='width:{data.width ? Math.max(6, data.width)+'px' : default_width}; height:{data.height ? Math.max(6, data.height)+'px' : default_height}'>
-</div>
+<div
+    id="prototype-content{data.id}"
+    class="prototype-content w3-card-4"
+    style="width:{data.width
+        ? Math.max(6, data.width) + 'px'
+        : default_width}; height:{data.height
+        ? Math.max(6, data.height) + 'px'
+        : default_height}"
+/>
 
 <style>
     .prototype-content {

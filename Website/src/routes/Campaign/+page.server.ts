@@ -47,7 +47,6 @@ export const actions: Actions = {
         console.log({
             name: name,
             templateId: templateId,
-            userId: user.id,
             numericVariables: numericVariables,
             stringVariables: stringVariables,
             cards: template ? template.cards : [],
@@ -61,13 +60,12 @@ export const actions: Actions = {
         let dashboard = {
             name: name,
             templateId: templateId,
-            userId: user.id,
             numericVariables: numericVariables,
             stringVariables: stringVariables,
             cards: template ? template.cards : [],
         };
         try {
-            await createDashboard(dashboard);
+            await createDashboard(user, dashboard);
         } catch (exc) {
             console.error(exc);
             return fail(500, { ...savedData, server_error: true });
@@ -85,6 +83,9 @@ export const actions: Actions = {
 
         try {
             await deleteDashboard(user, id);
-        } catch (exc) {}
+        } catch (exc) {
+            console.error(exc);
+            return fail(500, { server_error: true });
+        }
     },
 };

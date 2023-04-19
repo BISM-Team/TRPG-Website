@@ -1,39 +1,67 @@
-<script lang='ts'>
+<script lang="ts">
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
-    const default_width = 'auto';
-    const default_height = 'auto';
+    const default_width = "auto";
+    const default_height = "auto";
 
-    export let data: {picked: boolean, id: number, content: string, width?: number, height?: number}
+    export let data: {
+        picked: boolean;
+        id: string;
+        source: string;
+        width?: number;
+        height?: number;
+    };
 
     function pick(ev: MouseEvent) {
         ev.preventDefault();
         ev.stopPropagation();
-        const element = document.getElementById('content'+data.id);
-        if(!element) throw new Error('Could not find root element of Card');
+        const element = document.getElementById("content" + data.id);
+        if (!element) throw new Error("Could not find root element of Card");
         let computedGeometry: DOMRect = element.getBoundingClientRect();
-        dispatch('pick', {id: data.id, geometry: computedGeometry, mousepos: {x: ev.pageX, y: ev.pageY}})
+        dispatch("pick", {
+            id: data.id,
+            geometry: computedGeometry,
+            mousepos: { x: ev.pageX, y: ev.pageY },
+        });
     }
 
     function resize(ev: MouseEvent) {
         ev.preventDefault();
         ev.stopPropagation();
-        const element = document.getElementById('content'+data.id);
-        if(!element) throw new Error('Could not find root element of Card');
+        const element = document.getElementById("content" + data.id);
+        if (!element) throw new Error("Could not find root element of Card");
         let computedGeometry: DOMRect = element.getBoundingClientRect();
-        dispatch('resize', {id: data.id, geometry: computedGeometry, mousepos: {x: ev.pageX, y: ev.pageY}})
+        dispatch("resize", {
+            id: data.id,
+            geometry: computedGeometry,
+            mousepos: { x: ev.pageX, y: ev.pageY },
+        });
     }
 </script>
 
-<div id='content{data.id}' class='card-content w3-card-4' style='width:{data.width ? Math.max(6, data.width)+'px' : default_width}; height:{data.height ? Math.max(6, data.height)+'px' : default_height}; {data.picked ? 'cursor: grabbing;' : ''}'>
-    <div id='controlBar'>
-        <div id='pickArea' on:mousedown={pick}></div>
-        <button on:click={() => {dispatch('remove', {id: data.id})}} id='removeButton' class='w3-button'></button>
+<div
+    id="content{data.id}"
+    class="card-content w3-card-4"
+    style="width:{data.width
+        ? Math.max(6, data.width) + 'px'
+        : default_width}; height:{data.height
+        ? Math.max(6, data.height) + 'px'
+        : default_height}; {data.picked ? 'cursor: grabbing;' : ''}"
+>
+    <div id="controlBar">
+        <div id="pickArea" on:mousedown={pick} />
+        <button
+            on:click={() => {
+                dispatch("remove", { id: data.id });
+            }}
+            id="removeButton"
+            class="w3-button"
+        />
     </div>
     <p>Id: {data.id}</p>
-    <p>{data.content}</p>
-    <div id='resizeArea' on:mousedown={resize}></div>
+    <p>{data.source}</p>
+    <div id="resizeArea" on:mousedown={resize} />
 </div>
 
 <style>
@@ -95,12 +123,12 @@
 
     /* Track */
     ::-webkit-scrollbar-track {
-        background: #f1f1f1; 
+        background: #f1f1f1;
     }
-    
+
     /* Handle */
     ::-webkit-scrollbar-thumb {
-        background: #ccc; 
+        background: #ccc;
     }
 
     /* Handle on hover */

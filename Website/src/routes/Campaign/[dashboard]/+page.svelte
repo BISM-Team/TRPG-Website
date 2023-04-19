@@ -1,14 +1,17 @@
 <script lang="ts">
-    import type { PageData } from "./$types";
+    import type { ActionData, PageData } from "./$types";
     import { scale } from "svelte/transition";
     import { flip } from "$lib/Campaign/better_animations";
     import Card from "./card.svelte";
     import Prototype from "./prototype.svelte";
+    import Modal from "../../../components/modal.svelte";
     import { spring, type Spring } from "svelte/motion";
     import { onMount } from "svelte";
     import { arraymove } from "$lib/utils";
+    import { enhance, type SubmitFunction } from "$app/forms";
 
     export let data: PageData;
+    export let form: ActionData;
     const transition_delay = 0,
         transition_duration = 300;
     const animate_delay = 0,
@@ -17,12 +20,11 @@
         damping = 1.0;
     const trace_refractary_perioid = 200,
         drag_refractary_period = 500;
-    let text = "";
     let picked:
         | {
               startingIndex: number;
               index: number;
-              id: number;
+              id: string;
               geometry: DOMRect;
               data: (typeof data.dashboard.cards)[0];
               refractary: boolean;
@@ -31,45 +33,43 @@
     let resizing:
         | {
               index: number;
-              id: number;
+              id: string;
               starting_top_left: { top: number; left: number };
           }
         | undefined = undefined;
     let actionData: Spring<{ x_or_width: number; y_or_height: number }> =
         spring({ x_or_width: 0, y_or_height: 0 }, { stiffness, damping });
 
+    let removeDialog = { show: false, id: "" };
+    let showCreateDialog = false;
+    let disable = false;
+
     onMount(() => {
-        document.addEventListener("mousemove", mousemove);
-        document.addEventListener("mouseup", mouseup);
+        document.addEventListener("mousemove", moveWhileDragging);
+        document.addEventListener("mouseup", endAction);
         document.addEventListener("keydown", keydown);
+        document.addEventListener("mouseleave", cancelAction);
 
         return () => {
-            document.removeEventListener("mousemove", mousemove);
-            document.removeEventListener("mouseup", mouseup);
+            document.removeEventListener("mousemove", moveWhileDragging);
+            document.removeEventListener("mouseup", endAction);
             document.removeEventListener("keydown", keydown);
         };
     });
 
-    function addElement(content: string) {
-        let id: number;
-        for (
-            id = 0;
-            data.dashboard.cards.findIndex((element) => element.id === id) !==
-            -1;
-            ++id
-        ) {}
-        data.elements[data.elements.length] = { id: id, content: content };
+    function toggleCreateDialog() {
+        showCreateDialog = !showCreateDialog;
     }
 
-    function removeElement(ev: any) {
-        data.elements = data.elements.filter(
-            (element) => element.id !== ev.detail.id
-        );
+    function toggleRemoveDialog(ev: any) {
+        removeDialog = removeDialog.show
+            ? { show: false, id: "" }
+            : { show: true, id: ev.detail.id };
     }
 
-    function pickElement(ev: any) {
+    function startDragElement(ev: any) {
         cancelAction();
-        const index = data.elements.findIndex(
+        const index = data.dashboard.cards.findIndex(
             (element) => element.id === ev.detail.id
         );
         if (index === -1) throw new Error("Id not found in cards");
@@ -78,7 +78,7 @@
             index: index,
             id: ev.detail.id,
             geometry: ev.detail.geometry,
-            data: data.elements[index],
+            data: data.dashboard.cards[index],
             refractary: false,
         };
         actionData = spring(
@@ -95,9 +95,9 @@
         });
     }
 
-    function resizeElement(ev: any) {
+    function startResizeElement(ev: any) {
         cancelAction();
-        const index = data.elements.findIndex(
+        const index = data.dashboard.cards.findIndex(
             (element) => element.id === ev.detail.id
         );
         if (index === -1) throw new Error("Id not found in cards");
@@ -121,7 +121,11 @@
     function cancelAction() {
         if (picked) {
             if (picked.index !== picked.startingIndex) {
-                arraymove(data.elements, picked.index, picked.startingIndex);
+                arraymove(
+                    data.dashboard.cards,
+                    picked.index,
+                    picked.startingIndex
+                );
             }
             picked = undefined;
         }
@@ -133,8 +137,9 @@
     function confirmAction() {
         picked = undefined;
         if (resizing) {
-            data.elements[resizing.index].width = $actionData.x_or_width;
-            data.elements[resizing.index].height = $actionData.y_or_height;
+            data.dashboard.cards[resizing.index].width = $actionData.x_or_width;
+            data.dashboard.cards[resizing.index].height =
+                $actionData.y_or_height;
             resizing = undefined;
         }
     }
@@ -156,7 +161,7 @@
         }
     }
 
-    function mousemove(ev: MouseEvent) {
+    function moveWhileDragging(ev: MouseEvent) {
         if (picked) {
             ev.preventDefault();
             ev.stopPropagation();
@@ -180,7 +185,7 @@
                     });
                 if (element && element.id.startsWith("content")) {
                     picked.refractary = true;
-                    hoverElement(parseInt(element.id.replace("content", "")));
+                    hoverWhileDragging(element.id.replace("content", ""));
                     setTimeout(() => {
                         if (picked) {
                             picked.refractary = false;
@@ -206,7 +211,7 @@
         }
     }
 
-    function mouseup(ev: any) {
+    function endAction(ev: any) {
         if (picked || resizing) {
             ev.preventDefault();
             ev.stopPropagation();
@@ -214,29 +219,48 @@
         }
     }
 
-    function hoverElement(id: number) {
+    function hoverWhileDragging(id: string) {
         if (picked) {
-            const index = data.elements.findIndex(
+            const index = data.dashboard.cards.findIndex(
                 (element) => element.id === id
             );
             if (index === -1) throw new Error("Id not found in cards");
             if (index !== picked.index) {
-                arraymove(data.elements, picked.index, index);
+                arraymove(data.dashboard.cards, picked.index, index);
                 picked.index = index;
             }
         }
     }
+
+    const submitCreateCard: SubmitFunction = async function () {
+        disable = true;
+        return async ({ result, update }) => {
+            if (result.type === "success") toggleCreateDialog();
+            disable = false;
+            await update();
+            const new_dashboard = form?.dashboard;
+            if (new_dashboard) data.dashboard = new_dashboard;
+        };
+    };
+
+    const submitRemoveCard: SubmitFunction = async function () {
+        disable = true;
+        return async ({ result, update }) => {
+            if (result.type === "success") toggleRemoveDialog({});
+            disable = false;
+            await update();
+            const new_dashboard = form?.dashboard;
+            if (new_dashboard) data.dashboard = new_dashboard;
+        };
+    };
 </script>
 
-<input
-    type="text"
-    id="contentInput"
-    bind:value={text}
-    on:keydown={(e) => e.key === "Enter" && addElement(text)}
-/>
+<button on:click={toggleCreateDialog} class="w3-center w3-teal w3-block"
+    >New Card</button
+>
 
 <div id="grid">
-    {#each data.elements as element (element.id)}
+    {#each data.dashboard.cards as card (card.id)}
         <div
             class="card"
             in:scale={{
@@ -252,18 +276,18 @@
                 duration: (d) => Math.sqrt(d) * animate_duration,
             }}
         >
-            {#if picked && element.id === picked.id}
+            {#if picked && card.id === picked.id}
                 <Prototype
                     data={{
-                        id: element.id,
+                        id: card.id,
                         width: picked.geometry.width,
                         height: picked.geometry.height,
                     }}
                 />
-            {:else if resizing && element.id === resizing.id}
+            {:else if resizing && card.id === resizing.id}
                 <Prototype
                     data={{
-                        id: element.id,
+                        id: card.id,
                         width: $actionData.x_or_width,
                         height: $actionData.y_or_height,
                     }}
@@ -272,19 +296,78 @@
                 <Card
                     data={{
                         picked: false,
-                        id: element.id,
-                        content: element.content,
-                        width: element.width,
-                        height: element.height,
+                        id: card.id,
+                        source: card.source,
+                        width: card.width,
+                        height: card.height,
                     }}
-                    on:pick={pickElement}
-                    on:resize={resizeElement}
-                    on:remove={removeElement}
+                    on:pick={startDragElement}
+                    on:resize={startResizeElement}
+                    on:remove={toggleRemoveDialog}
                 />
             {/if}
         </div>
     {/each}
 </div>
+
+{#if showCreateDialog}
+    <Modal {disable} on:close={toggleCreateDialog}>
+        <h3 class="w3-center">Create Card</h3>
+        <form
+            action="?/createCard"
+            method="post"
+            use:enhance={submitCreateCard}
+        >
+            <label for="nameInput">Name</label>
+            <input type="text" name="name" id="nameInput" />
+            <label for="heightInput">Height (px)</label>
+            <input
+                type="number"
+                name="height"
+                id="heightInput"
+                value={form?.height || 200}
+            />
+            <label for="widthInput">Width (px)</label>
+            <input
+                type="number"
+                name="width"
+                id="widthInput"
+                value={form?.width || 200}
+            />
+            <input type="hidden" name="zoom" id="nameInput" value={1} />
+            <label for="sourceInput">Source</label>
+            <input
+                type="text"
+                name="source"
+                id="sourceInput"
+                value={form?.source || ""}
+            />
+            <input type="hidden" name="dashboardId" value={data.dashboard.id} />
+            <button type="button" on:click={toggleCreateDialog}>Cancel</button>
+            <button type="submit">Create</button>
+        </form>
+    </Modal>
+{/if}
+
+{#if removeDialog.show}
+    <Modal {disable} on:close={toggleRemoveDialog}>
+        <h3 class="w3-center">Remove Card</h3>
+        <form
+            action="?/removeCard"
+            method="post"
+            use:enhance={submitRemoveCard}
+        >
+            <input type="hidden" name="cardId" value={removeDialog.id} />
+            <input type="hidden" name="dashboardId" value={data.dashboard.id} />
+            <button
+                type="button"
+                on:click={toggleRemoveDialog}
+                class="w3-button">Cancel</button
+            >
+            <button type="submit" class="w3-button w3-teal">Remove</button>
+        </form>
+    </Modal>
+{/if}
 
 {#if picked}
     <div
@@ -295,7 +378,7 @@
             data={{
                 picked: true,
                 id: picked.id,
-                content: picked.data.content,
+                source: picked.data.source,
                 width: picked.data.width,
                 height: picked.data.height,
             }}
@@ -304,6 +387,19 @@
 {/if}
 
 <style>
+    form label {
+        display: block;
+        margin-bottom: 0.5em;
+    }
+    form input {
+        display: block;
+        margin-bottom: 1em;
+    }
+
+    form button {
+        margin: 2em;
+    }
+
     #grid {
         display: flex;
         flex-flow: row wrap;

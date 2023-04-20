@@ -1,84 +1,80 @@
 <script lang="ts">
-    import type { PageData } from "./$types";
-    import Modal from "../../components/modal.svelte";
-    import Card from "../../components/card.svelte";
-    import { enhance, type SubmitFunction } from "$app/forms";
+  import type { ActionData, PageData } from "./$types";
+  import Card from "$lib/components/card.svelte";
+  import Modal from "$lib/components/modal.svelte";
+  import { enhance, type SubmitFunction } from "$app/forms";
 
-    export let data: PageData;
+  export let data: PageData;
+  export let form: ActionData;
+  let show_modal = false;
+  let disable = false;
 
-    let show_modal = false;
-    let disable = false;
+  function toggleCreateDialog() {
+    show_modal = !show_modal;
+  }
 
-    const handleSubmit: SubmitFunction = async function () {
-        disable = true;
-        return async ({ result, update }) => {
-            if (result.type === "success") show_modal = false;
-            disable = false;
-            await update();
-        };
+  const submitCreate: SubmitFunction = async function () {
+    disable = true;
+    return async ({ result, update }) => {
+      if (result.type === "success") toggleCreateDialog();
+      disable = false;
+      await update();
     };
+  };
 </script>
 
 {#if show_modal}
-    <Modal
-        {disable}
-        on:close={() => {
-            show_modal = false;
-        }}
-    >
-        <div id="modalContent">
-            <form method="post" action="?/create" use:enhance={handleSubmit}>
-                <input type="text" name="name" />
-                <button
-                    disabled={disable}
-                    type="button"
-                    on:click={() => {
-                        show_modal = false;
-                    }}>Cancel</button
-                >
-                <button disabled={disable} type="submit">Create</button>
-            </form>
-        </div>
-    </Modal>
+  <Modal {disable} on:close={toggleCreateDialog}>
+    <form action="?/create" method="post" use:enhance={submitCreate}>
+      <label for="nameInput">Name</label>
+      <input
+        type="text"
+        name="name"
+        id="nameInput"
+        class="w3-input w3-border w3-margin-bottom"
+        value={form?.name || ""}
+      />
+
+      <button
+        type="button"
+        on:click={toggleCreateDialog}
+        class="w3-margin-top w3-button w3-block">Cancel</button
+      >
+      <button type="submit" class="w3-margin-top w3-button w3-teal w3-block"
+        >Create</button
+      >
+    </form>
+  </Modal>
 {/if}
 
-<div id="content">
-    {#each data.dashboards as dashboard}
-        <Card link={"./Campaign/" + dashboard.id}>
-            <h3>{dashboard.name}</h3>
-        </Card>
-    {/each}
-    <button
-        class="w3-button w3-white"
-        on:click={() => {
-            show_modal = true;
-        }}>New</button
-    >
+<div id="cards">
+  {#each data.campaigns as campaign}
+    <Card link={window.location.pathname + "/" + campaign.id}>
+      <h3 class="w3-padding-32">{campaign.name}</h3>
+    </Card>
+  {/each}
+
+  <Card on:buttonClick={toggleCreateDialog}
+    ><h3 class="w3-padding-32">Create a campaign</h3></Card
+  >
 </div>
 
 <style>
-    #content {
-        padding: 2em;
-        display: flex;
-        flex-flow: row wrap;
-        gap: 2em;
-    }
+  #cards {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin-top: 4em;
+  }
 
-    #content > * {
-        min-width: 20vw;
-        min-height: 20vh;
-        transition: ease-out 200ms;
-    }
-    #content > *:hover {
-        transform: scale(110%);
-    }
-
-    #modalContent {
-        background-color: #fefefe;
-        border: 1px solid #888;
-        padding: 2em;
-        margin: 15% auto;
-        min-height: 20vh;
-        width: 40vw;
-    }
+  form label {
+    display: block;
+    margin-bottom: 0.5em;
+  }
+  form input {
+    display: block;
+    margin-bottom: 1em;
+  }
 </style>

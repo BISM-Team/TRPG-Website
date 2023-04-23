@@ -309,13 +309,6 @@
   <Modal {disable} on:close={toggleCreateDialog}>
     <h3 class="w3-center">Create Card</h3>
     <form action="?/createCard" method="post" use:enhance={submitCreateCard}>
-      <label for="nameInput">Name</label>
-      <input
-        type="text"
-        name="name"
-        id="nameInput"
-        class="w3-input w3-border w3-margin-bottom"
-      />
       <label for="heightInput">Height (px)</label>
       <input
         type="number"
@@ -353,7 +346,7 @@
         name="type"
         id="typeInput"
         class="w3-input w3-border w3-margin-bottom"
-        value={form?.type || ""}
+        value={form?.type || "text"}
       />
       <input
         type="hidden"

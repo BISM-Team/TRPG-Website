@@ -52,7 +52,7 @@
 
 <div id="cards">
   {#each data.dashboards as dashboard}
-    <Card link={window.location.pathname + "/" + dashboard.id}>
+    <Card link={window.location.pathname + "/dashboards/" + dashboard.id}>
       <h3 class="w3-padding-32">{dashboard.name}</h3>
     </Card>
   {/each}
@@ -60,6 +60,10 @@
     <h3 class="w3-padding-32">New Dashboard</h3>
   </Card>
 </div>
+
+<Card link={window.location.pathname + "/wiki/index"}>
+  <h3 class="w3-padding-32">Wiki</h3>
+</Card>
 
 <style>
   #cards {

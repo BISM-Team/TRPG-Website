@@ -14,12 +14,6 @@
         "Explore and enter all the campaigns you have been invited to or created",
       link: "/Campaign",
     },
-    {
-      name: "World Wiki",
-      description:
-        "Explore all the information about the Worlds you have seen in your campaigns, create and look at Lore, Characters, Cities and private or shared notes",
-      link: "/WorldWiki",
-    },
   ];
 </script>
 

@@ -13,56 +13,50 @@ import {
   getPage,
   modifyPage,
 } from "$lib/db/page.server";
-import { getHeadingsDb, makeDirective } from "$lib/WorldWiki/tree/heading";
+import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
 import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
 import { capitalizeFirstLetter, includes, logWholeObject } from "$lib/utils";
-import type { Heading } from "@prisma/client";
+import type { Heading, Prisma } from "@prisma/client";
 import { getLoginOrRedirect } from "$lib/utils.server";
+import { getUserCampaign } from "$lib/db/campaign.server";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const user = getLoginOrRedirect(locals);
+  const campaign = await getUserCampaign(user, params.campaign);
 
-  if (
-    !allowed_page_names_regex_whole_word.test(params.wiki) ||
-    !allowed_page_names_regex_whole_word.test(params.page)
-  )
-    throw error(400, "Invalid wiki or page name");
+  if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
+    throw error(400, "Invalid campaign id or page name");
 
-  const page_path = params.wiki + "/" + params.page;
-
-  const page = await getPage(page_path);
+  const page = await getPage(params.page, campaign);
   if (!page) {
     throw error(404, "Page not found, want to create it?");
   }
 
   try {
-    const tree = await filterOutTree(JSON.parse(page.content), user.name);
+    const tree = await filterOutTree(page.content as unknown as Root, user.id);
     const headings: (Omit<Heading, "index"> & {
       viewers: string[];
       modifiers: string[];
     })[] = page.headings.map((heading) => {
       return {
+        pageCampaignId: heading.pageCampaignId,
         pageName: heading.pageName,
         id: heading.id,
         text: heading.text,
         level: heading.level,
-        viewers: heading.viewers.map((viewer) => viewer.name),
-        modifiers: heading.modifiers.map((modifier) => modifier.name),
+        viewers: heading.viewers.map((viewer) => viewer.id),
+        modifiers: heading.modifiers.map((modifier) => modifier.id),
       };
     });
     return {
       version: page.version,
       headings: headings.filter((heading) => {
         return (
-          user.name.trim().toLowerCase() === "gm" ||
-          includes(heading.viewers, user.name.trim().toLowerCase())
+          user.id.trim() === "gm" || includes(heading.viewers, user.id.trim())
         );
       }),
       tree: tree,
-      renderedTree: await renderTree(
-        JSON.parse(JSON.stringify(tree)),
-        user.name
-      ),
+      renderedTree: await renderTree(JSON.parse(JSON.stringify(tree)), user.id),
     };
   } catch (exc) {
     console.log(exc);
@@ -73,14 +67,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   default: async ({ locals, params, request }) => {
     const user = getLoginOrRedirect(locals);
+    const campaign = await getUserCampaign(user, params.campaign);
 
-    if (
-      !allowed_page_names_regex_whole_word.test(params.wiki) ||
-      !allowed_page_names_regex_whole_word.test(params.page)
-    )
-      return fail(400, { invalid_page_or_wiki_name: true });
+    if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
+      return fail(400, { invalid_campaign_id_or_page_name: true });
 
-    const page_path = params.wiki + "/" + params.page;
     const data = await request.formData();
 
     let new_tree: Root;
@@ -88,44 +79,48 @@ export const actions: Actions = {
     const text = String(data.get("text"));
     const tree = String(data.get("tree"));
     if (data.has("text")) {
-      new_tree = await parseSource(text, user.name);
+      new_tree = await parseSource(text, user.id);
     } else if (data.has("tree")) {
       new_tree = JSON.parse(tree);
     } else return fail(400, { missing_text_or_tree: true });
 
-    const old_page = await getPage(page_path);
+    const old_page = await getPage(params.page, campaign);
     if (!old_page) {
       new_tree = new_tree.children.length
         ? new_tree
-        : await parseSource(
-            `# ${capitalizeFirstLetter(params.page)}`,
-            user.name
-          );
-      logWholeObject(new_tree);
-      const headings = getHeadingsDb(new_tree, page_path);
+        : await parseSource(`# ${capitalizeFirstLetter(params.page)}`, user.id);
+      const headings = getHeadingsDb(new_tree, params.page, campaign.id);
       try {
-        await createPage(page_path, JSON.stringify(new_tree), headings);
+        await createPage(
+          params.page,
+          campaign,
+          new_tree as unknown as Prisma.JsonObject,
+          headings
+        );
       } catch (exc) {
+        console.error(exc);
         return fail(409, { creation_conflict: true });
       }
       return { created: true };
     }
 
-    const old_tree = JSON.parse(old_page.content);
-    let mergedTree = mergeTrees(old_tree, new_tree, user.name);
+    const old_tree = old_page.content as unknown as Root;
+    let mergedTree = mergeTrees(old_tree, new_tree, user.id);
     try {
       if (mergedTree.children.length) {
-        const headings = getHeadingsDb(mergedTree, page_path);
+        const headings = getHeadingsDb(mergedTree, params.page, campaign.id);
         await modifyPage(
-          page_path,
-          JSON.stringify(mergedTree),
+          params.page,
+          campaign,
+          mergedTree as unknown as Prisma.JsonObject,
           headings,
           version !== null ? version : old_page.version
         );
         return { updated: true };
       } else {
         await deletePage(
-          page_path,
+          params.page,
+          campaign,
           version !== null ? version : old_page.version
         );
         return { deleted: true };

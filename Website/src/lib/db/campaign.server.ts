@@ -1,12 +1,12 @@
-import type { Campaign, User } from "@prisma/client";
+import { Role, type Campaign, type User } from "@prisma/client";
 import { db } from "./db.server";
 
 export async function getUserCampaigns(user: User) {
   return await db.campaign.findMany({
     where: {
-      users: {
+      Campaign_User: {
         some: {
-          id: user.id,
+          userId: user.id,
         },
       },
     },
@@ -17,9 +17,9 @@ export async function getUserCampaign(user: User, campaignId: string) {
   return await db.campaign.findUnique({
     where: {
       id: campaignId,
-      users: {
+      Campaign_User: {
         some: {
-          id: user.id,
+          userId: user.id,
         },
       },
     },
@@ -28,10 +28,24 @@ export async function getUserCampaign(user: User, campaignId: string) {
 
 export async function createUserCampaign(
   user: User,
-  campaign: Omit<Campaign, "id" | "gmId" | "createdAt">
+  campaign: Omit<Campaign, "id" | "createdAt">
 ) {
   return await db.campaign.create({
-    data: { ...campaign, gmId: user.id, users: { connect: [{ id: user.id }] } },
+    data: {
+      ...campaign,
+      Campaign_User: {
+        create: [
+          {
+            user: {
+              connect: {
+                id: user.id,
+              },
+            },
+            role: Role.gm,
+          },
+        ],
+      },
+    },
   });
 }
 
@@ -39,7 +53,12 @@ export async function deleteUserCampaign(user: User, campaignId: string) {
   return await db.campaign.delete({
     where: {
       id: campaignId,
-      gmId: user.id,
+      Campaign_User: {
+        some: {
+          userId: user.id,
+          role: Role.gm,
+        },
+      },
     },
   });
 }

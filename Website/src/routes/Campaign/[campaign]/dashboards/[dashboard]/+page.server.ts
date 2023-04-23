@@ -15,7 +15,6 @@ export const actions: Actions = {
     const user = getLoginOrRedirect(locals);
 
     const data = await request.formData();
-    const name = data.get("name")?.toString();
     const width = data.get("width")?.toString();
     const height = data.get("height")?.toString();
     const zoom = data.get("zoom")?.toString();
@@ -24,7 +23,6 @@ export const actions: Actions = {
     const dashboardId = data.get("dashboardId")?.toString();
 
     const saved_card = {
-      name: name,
       width: width,
       height: height,
       zoom: zoom,
@@ -32,13 +30,12 @@ export const actions: Actions = {
       type: type,
     };
 
-    if (!name || !width || !height || !zoom || !source || !type || !dashboardId)
+    if (!width || !height || !zoom || !source || !type || !dashboardId)
       return fail(400, { ...saved_card, missing_fields: true });
 
     try {
       return {
         dashboard: await createCard(user, dashboardId, {
-          name: name,
           width: parseInt(width),
           height: parseInt(height),
           zoom: parseInt(zoom),

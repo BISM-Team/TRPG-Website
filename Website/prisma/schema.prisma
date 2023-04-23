@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,7 +12,7 @@ model User {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   email     String   @unique
-  name      String   @unique
+  name      String
   password  String
 
   modifier_in Heading[] @relation("Modifier")
@@ -22,8 +22,24 @@ model User {
 
   dashboards_templates DashboardTemplate[]
 
-  campaigns   Campaign[] @relation("members")
-  gmCampaigns Campaign[] @relation("gm")
+  Campaign_User Campaign_User[]
+}
+
+enum Role {
+  gm
+  member
+}
+
+model Campaign_User {
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  role Role
+
+  @@id([userId, campaignId])
 }
 
 model Campaign {
@@ -31,33 +47,33 @@ model Campaign {
   createdAt DateTime @default(now())
   name      String
 
-  gmId String?
-  gm   User?   @relation("gm", fields: [gmId], references: [id], onDelete: SetNull, onUpdate: SetNull)
-
-  users     User[]      @relation("members")
-  Page      Page[]
-  Dashboard Dashboard[]
+  Page          Page[]
+  Dashboard     Dashboard[]
+  Campaign_User Campaign_User[]
 }
 
 model Page {
-  name       String    @id
+  name       String
   createdAt  DateTime  @default(now())
-  content    String
+  content    Json
   version    Int       @default(0)
   headings   Heading[]
   campaignId String
   campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([name, campaignId])
 }
 
 model Heading {
-  id        String @id
-  text      String
-  level     Int
-  index     Int
-  pageName  String
-  page      Page   @relation(fields: [pageName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  modifiers User[] @relation("Modifier")
-  viewers   User[] @relation("Viewer")
+  id             String @id
+  text           String
+  level          Int
+  index          Int
+  pageName       String
+  pageCampaignId String
+  page           Page   @relation(fields: [pageName, pageCampaignId], references: [name, campaignId], onDelete: Cascade, onUpdate: Cascade)
+  modifiers      User[] @relation("Modifier")
+  viewers        User[] @relation("Viewer")
 }
 
 model DashboardTemplate {
@@ -117,7 +133,6 @@ model StringVariable {
 
 model CardData {
   id     String @id @default(cuid())
-  name   String
   width  Float
   height Float
   zoom   Float

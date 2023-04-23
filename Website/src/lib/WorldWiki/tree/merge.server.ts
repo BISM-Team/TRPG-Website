@@ -8,7 +8,12 @@ import {
 import { getHeadingVisibility } from "./visibility";
 import { includes } from "$lib/utils";
 
-export function mergeTrees(left: Root, right: Root, user_id: string): Root {
+export function mergeTrees(
+  left: Root,
+  right: Root,
+  user_id: string,
+  gm_id: string
+): Root {
   const left_headings = getHeadings(left);
   const right_headings = getHeadings(right);
   const resulting_headings: (AdvancedHeading & { left: boolean })[] = [];
@@ -26,8 +31,8 @@ export function mergeTrees(left: Root, right: Root, user_id: string): Root {
       } else if (
         heading.depth === depth &&
         (previous_level_heading >= 0 || depth === 1) &&
-        (!getHeadingModifiability(heading, user_id) ||
-          !getHeadingVisibility(heading, user_id))
+        (!getHeadingModifiability(heading, user_id, gm_id) ||
+          !getHeadingVisibility(heading, user_id, gm_id))
       ) {
         const obj = { ...heading, left: true };
         if (depth === 1) resulting_headings.push(obj);

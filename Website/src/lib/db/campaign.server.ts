@@ -26,6 +26,29 @@ export async function getUserCampaign(user: User, campaignId: string) {
   });
 }
 
+export async function getUserCampaignWithGmInfo(
+  user: User,
+  campaignId: string
+) {
+  return await db.campaign.findUnique({
+    where: {
+      id: campaignId,
+      Campaign_User: {
+        some: {
+          userId: user.id,
+        },
+      },
+    },
+    include: {
+      Campaign_User: {
+        where: {
+          role: Role.gm,
+        },
+      },
+    },
+  });
+}
+
 export async function createUserCampaign(
   user: User,
   campaign: Omit<Campaign, "id" | "createdAt">

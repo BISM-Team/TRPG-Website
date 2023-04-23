@@ -41,40 +41,47 @@ export async function parseSource(
 
 export async function filterOutTree(
   tree: Root,
-  user_id: string
+  user_id: string,
+  gm_id: string
 ): Promise<Root> {
   return await unified()
     .use(filterOutNonVisible, {
       user_id: user_id,
+      gm_id: gm_id,
     }) /*.use(filterOutNonVisibleLinks, {user_id: user_id})*/
     .run(tree);
 }
 
-async function prepareTree(tree: Root, user_id: string) {
+async function prepareTree(tree: Root, user_id: string, gm_id: string) {
   return await unified()
     .use(tagsDirectiveToLinks)
-    .use(integrateDirectiveInfo, { user_id: user_id })
+    .use(integrateDirectiveInfo, { user_id: user_id, gm_id })
     .use(resolveCustomElements)
     .use(remarkRehype)
     .run(tree);
 }
 
 // WARNING: side effects on 'tree', make a deep copy if you want to use it without modifications made by this function
-export async function renderTree(tree: Root, user_id: string): Promise<string> {
+export async function renderTree(
+  tree: Root,
+  user_id: string,
+  gm_id: string
+): Promise<string> {
   return unified()
     .use(rehypeSanitize)
     .use(rehypeStringify)
-    .stringify((await prepareTree(tree, user_id)) as HastRoot);
+    .stringify((await prepareTree(tree, user_id, gm_id)) as HastRoot);
 }
 
 export function isTreeVisible(
   heading_text: string,
   tree: Root,
-  user_id: string
+  user_id: string,
+  gm_id: string
 ): boolean {
   const node = searchHeading(tree, heading_text, includesMatcher);
   if (node && heading_text) {
-    return getHeadingVisibility(node, user_id);
+    return getHeadingVisibility(node, user_id, gm_id);
   } else
     throw new Error(
       "Supply a correct heading text (page title for page visibility, section title for section visibility)"

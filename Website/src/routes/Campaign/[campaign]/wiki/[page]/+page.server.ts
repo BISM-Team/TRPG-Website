@@ -18,14 +18,18 @@ import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
 import { capitalizeFirstLetter, includes, logWholeObject } from "$lib/utils";
 import type { Heading, Prisma } from "@prisma/client";
 import { getLoginOrRedirect } from "$lib/utils.server";
-import { getUserCampaign } from "$lib/db/campaign.server";
+import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const user = getLoginOrRedirect(locals);
-  const campaign = await getUserCampaign(user, params.campaign);
+  const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
 
   if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
     throw error(400, "Invalid campaign id or page name");
+
+  const gm_id = campaign.Campaign_User[0]
+    ? campaign.Campaign_User[0].userId
+    : "";
 
   const page = await getPage(params.page, campaign);
   if (!page) {
@@ -33,7 +37,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   try {
-    const tree = await filterOutTree(page.content as unknown as Root, user.id);
+    const tree = await filterOutTree(
+      page.content as unknown as Root,
+      user.id,
+      gm_id
+    );
     const headings: (Omit<Heading, "index"> & {
       viewers: string[];
       modifiers: string[];
@@ -51,12 +59,14 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     return {
       version: page.version,
       headings: headings.filter((heading) => {
-        return (
-          user.id.trim() === "gm" || includes(heading.viewers, user.id.trim())
-        );
+        return user.id === gm_id || includes(heading.viewers, user.id);
       }),
       tree: tree,
-      renderedTree: await renderTree(JSON.parse(JSON.stringify(tree)), user.id),
+      renderedTree: await renderTree(
+        JSON.parse(JSON.stringify(tree)),
+        user.id,
+        gm_id
+      ),
     };
   } catch (exc) {
     console.log(exc);
@@ -67,10 +77,14 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   default: async ({ locals, params, request }) => {
     const user = getLoginOrRedirect(locals);
-    const campaign = await getUserCampaign(user, params.campaign);
+    const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
 
     if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
       return fail(400, { invalid_campaign_id_or_page_name: true });
+
+    const gm_id = campaign.Campaign_User[0]
+      ? campaign.Campaign_User[0].userId
+      : "";
 
     const data = await request.formData();
 
@@ -89,13 +103,12 @@ export const actions: Actions = {
       new_tree = new_tree.children.length
         ? new_tree
         : await parseSource(`# ${capitalizeFirstLetter(params.page)}`, user.id);
-      const headings = getHeadingsDb(new_tree, params.page, campaign.id);
       try {
         await createPage(
           params.page,
           campaign,
           new_tree as unknown as Prisma.JsonObject,
-          headings
+          getHeadingsDb(new_tree, params.page, campaign.id)
         );
       } catch (exc) {
         console.error(exc);
@@ -105,15 +118,14 @@ export const actions: Actions = {
     }
 
     const old_tree = old_page.content as unknown as Root;
-    let mergedTree = mergeTrees(old_tree, new_tree, user.id);
+    let mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
     try {
       if (mergedTree.children.length) {
-        const headings = getHeadingsDb(mergedTree, params.page, campaign.id);
         await modifyPage(
           params.page,
           campaign,
           mergedTree as unknown as Prisma.JsonObject,
-          headings,
+          getHeadingsDb(mergedTree, params.page, campaign.id),
           version !== null ? version : old_page.version
         );
         return { updated: true };

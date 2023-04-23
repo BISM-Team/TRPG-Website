@@ -5,31 +5,33 @@ import type { AdvancedHeading } from "./heading";
 export function getHeadingModifiers(node: AdvancedHeading) {
   if (node.attributes && node.attributes.modifiers) {
     return node.attributes.modifiers.split(";").map((modifier: string) => {
-      return modifier.trim();
+      return modifier;
     });
   } else return [];
 }
 
 export function getHeadingModifiability(
   node: AdvancedHeading,
-  user_id: string
+  user_id: string,
+  gm_id: string
 ): boolean {
-  const low_user_id = user_id.trim();
-  if (low_user_id === "gm") return true;
+  const trimmed_user_id = user_id;
+  if (trimmed_user_id === gm_id) return true;
   if (node.attributes && node.attributes.modifiers) {
     const modifiers: string[] = node.attributes.modifiers
       .split(";")
       .map((modifier: string) => {
-        return modifier.trim();
+        return modifier;
       });
-    return includes(modifiers, low_user_id) || includes(modifiers, "all");
+    return includes(modifiers, trimmed_user_id) || includes(modifiers, "all");
   } else return false;
 }
 
 export function isNodeModifiable(
   tree: Root,
   index: number,
-  user_id: string
+  user_id: string,
+  gm_id: string
 ): boolean {
   let current_depth = 7;
   for (let i = index; 0 <= i && current_depth > 1; i -= 1) {
@@ -39,7 +41,7 @@ export function isNodeModifiable(
       if (child.depth >= current_depth) {
         continue;
       }
-      if (getHeadingModifiability(heading, user_id)) {
+      if (getHeadingModifiability(heading, user_id, gm_id)) {
         return true;
       }
       current_depth = child.depth;

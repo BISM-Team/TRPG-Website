@@ -64,9 +64,11 @@ export function addHeadingIds(options?: { randomizer?: () => string } | void) {
   };
 }
 
-export function filterOutNonVisible(options?: { user_id: string } | void) {
-  if (!options || !options.user_id) {
-    throw new Error("Missing options.user_id");
+export function filterOutNonVisible(
+  options?: { user_id: string; gm_id: string } | void
+) {
+  if (!options || !options.user_id || !options.gm_id) {
+    throw new Error("Missing options.user_id or options.gm_id");
   }
 
   return function (tree: Root) {
@@ -79,14 +81,16 @@ export function filterOutNonVisible(options?: { user_id: string } | void) {
       )
         return false;
       if (child.type === "root" || parent.type !== "root") return false;
-      return !isNodeVisible(tree, i, options.user_id);
+      return !isNodeVisible(tree, i, options.user_id, options.gm_id);
     });
   };
 }
 
-export function filterOutNonVisibleLinks(options?: { user_id: string } | void) {
-  if (!options || !options.user_id) {
-    throw new Error("Missing options.user_id");
+export function filterOutNonVisibleLinks(
+  options?: { user_id: string; gm_id: string } | void
+) {
+  if (!options || !options.user_id || !options.gm_id) {
+    throw new Error("Missing options.user_id or options.gm_id");
   }
 
   return function (tree: Root) {
@@ -103,7 +107,12 @@ export function filterOutNonVisibleLinks(options?: { user_id: string } | void) {
           let targets = (child as any).url.split("/");
           targets = targets[targets.length - 1].split("#");
           const header_text = targets[targets.length - 1];
-          return !isTreeVisible(header_text, tree, options.user_id);
+          return !isTreeVisible(
+            header_text,
+            tree,
+            options.user_id,
+            options.gm_id
+          );
         } catch (exc: any) {
           return false;
         }
@@ -112,8 +121,10 @@ export function filterOutNonVisibleLinks(options?: { user_id: string } | void) {
   };
 }
 
-export function integrateDirectiveInfo(options?: { user_id: string } | void) {
-  if (!options || !options.user_id) {
+export function integrateDirectiveInfo(
+  options?: { user_id: string; gm_id: string } | void
+) {
+  if (!options || !options.user_id || !options.gm_id) {
     throw new Error("Missing options.user_id");
   }
 
@@ -122,7 +133,7 @@ export function integrateDirectiveInfo(options?: { user_id: string } | void) {
       if (i === null) return;
       const node_data_ref = child.data || (child.data = { hProperties: {} });
       const hProperties_ref = node_data_ref.hProperties as any;
-      if (isNodeModifiable(tree, i, options.user_id)) {
+      if (isNodeModifiable(tree, i, options.user_id, options.gm_id)) {
         hProperties_ref.class = (hProperties_ref.class || "") + "modifiable";
       }
       const advHeading = child as AdvancedHeading;

@@ -5,31 +5,33 @@ import type { AdvancedHeading } from "./heading";
 export function getHeadingViewers(node: AdvancedHeading) {
   if (node.attributes && node.attributes.viewers) {
     return node.attributes.viewers.split(";").map((viewer: string) => {
-      return viewer.trim();
+      return viewer;
     });
   } else return [];
 }
 
 export function getHeadingVisibility(
   node: AdvancedHeading,
-  user_id: string
+  user_id: string,
+  gm_id: string
 ): boolean {
-  const low_user_id = user_id.trim();
-  if (low_user_id === "gm") return true;
+  const trimmed_user_id = user_id;
+  if (trimmed_user_id === gm_id) return true;
   if (node.attributes && node.attributes.viewers) {
     const viewers: string[] = node.attributes.viewers
       .split(";")
       .map((viewer: string) => {
-        return viewer.trim();
+        return viewer;
       });
-    return includes(viewers, low_user_id) || includes(viewers, "all");
+    return includes(viewers, trimmed_user_id) || includes(viewers, "all");
   } else return false;
 }
 
 export function isNodeVisible(
   tree: Root,
   index: number,
-  user_id: string
+  user_id: string,
+  gm_id: string
 ): boolean {
   let current_depth = 7;
   for (let i = index; 0 <= i && current_depth > 1; i -= 1) {
@@ -39,7 +41,7 @@ export function isNodeVisible(
       if (heading.depth >= current_depth) {
         continue;
       }
-      if (!getHeadingVisibility(heading, user_id)) {
+      if (!getHeadingVisibility(heading, user_id, gm_id)) {
         return false;
       }
       current_depth = heading.depth;

@@ -27,6 +27,11 @@
 <style>
   #modalWrapper {
     position: fixed; /* Stay in place */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding: 5vh;
     z-index: 1; /* Sit on top */
     left: 0;
     top: 0;
@@ -42,7 +47,6 @@
     border: 1px solid #888;
     padding: 2em;
     margin: auto;
-    margin-top: 15%;
     min-height: 20vh;
     width: 40vw;
   }

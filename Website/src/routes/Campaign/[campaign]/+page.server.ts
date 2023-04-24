@@ -1,17 +1,11 @@
 import type { Actions, PageServerLoad } from "./$types";
-import type {
-  DashboardTemplate,
-  NumericVariable,
-  StringVariable,
-  CardData,
-} from "@prisma/client";
 import {
   createDashboard,
   deleteDashboard,
   getUserDashboards,
 } from "$lib/db/dashboard.server";
 import { getDashboardTemplate } from "$lib/db/dashboard_template.server";
-import { fail, redirect } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 
@@ -26,18 +20,18 @@ export const actions: Actions = {
 
     const data = await request.formData();
     const name = data.get("name")?.toString();
-    const templateId = String(data.get("template") || "") || null;
+    const templateId = data.get("template")?.toString() || null;
     const numericVariables = JSON.parse(
-      String(data.get("numericVariables") || "[]")
+      data.get("numericVariables")?.toString() || "[]"
     );
     const stringVariables = JSON.parse(
-      String(data.get("stringVariables") || "[]")
+      data.get("stringVariables")?.toString() || "[]"
     );
     const template = templateId
       ? await getDashboardTemplate(user, templateId)
       : null;
 
-    let savedData = {
+    const savedData = {
       name: name,
       templateId: templateId,
       numericVariables: numericVariables,
@@ -49,7 +43,7 @@ export const actions: Actions = {
     if (templateId && !template)
       return fail(400, { ...savedData, template_non_existant: true });
 
-    let dashboard = {
+    const dashboard = {
       name: name,
       templateId: templateId,
       numericVariables: numericVariables,
@@ -73,7 +67,7 @@ export const actions: Actions = {
     const user = getLoginOrRedirect(locals);
 
     const data = await request.formData();
-    const id = String(data.get("id"));
+    const id = data.get("id")?.toString();
 
     if (!id) return fail(400, { missing_id: true });
 

@@ -20,8 +20,8 @@ export function mergeTrees(
   const new_tree: Root = { type: "root", children: [] };
 
   for (let depth = 1; depth < 6; depth++) {
-    let previous_level_heading: number = -1;
-    let last_added_index: number = -1;
+    let previous_level_heading = -1;
+    let last_added_index = -1;
     for (let i = 0; i < left_headings.length; ++i) {
       const heading = left_headings[i];
       if (heading.depth < depth) {

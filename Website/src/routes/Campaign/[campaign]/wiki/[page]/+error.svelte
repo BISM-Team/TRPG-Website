@@ -4,7 +4,7 @@
   import { page } from "$app/stores";
   import { enhance } from "$app/forms";
 
-  let disable: boolean = false;
+  let disable = false;
   let previousUrl: string | undefined = undefined;
 
   afterNavigate(({ from, to }) => {

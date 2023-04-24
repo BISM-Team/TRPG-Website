@@ -15,7 +15,7 @@ import {
 } from "$lib/db/page.server";
 import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
 import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
-import { capitalizeFirstLetter, includes, logWholeObject } from "$lib/utils";
+import { capitalizeFirstLetter, includes } from "$lib/utils";
 import type { Heading, Prisma } from "@prisma/client";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
@@ -90,11 +90,11 @@ export const actions: Actions = {
 
     let new_tree: Root;
     const version = Number(data.get("version") || -1);
-    const text = String(data.get("text"));
-    const tree = String(data.get("tree"));
-    if (data.has("text")) {
+    const text = data.get("text")?.toString();
+    const tree = data.get("tree")?.toString();
+    if (text) {
       new_tree = await parseSource(text, user.id);
-    } else if (data.has("tree")) {
+    } else if (tree) {
       new_tree = JSON.parse(tree);
     } else return fail(400, { missing_text_or_tree: true });
 
@@ -118,7 +118,7 @@ export const actions: Actions = {
     }
 
     const old_tree = old_page.content as unknown as Root;
-    let mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
+    const mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
     try {
       if (mergedTree.children.length) {
         await modifyPage(

@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-  export let link: string = "";
+  export let link = "";
   function onClick() {
     dispatch("buttonClick");
   }

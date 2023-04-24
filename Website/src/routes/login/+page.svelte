@@ -7,7 +7,7 @@
     let disable=false;
     let login_or_register=true;
     export let form: ActionData;
-    let previousUrl: string = '';
+    let previousUrl = '';
 
     afterNavigate(({ from }) => {
         if(from) previousUrl = from.url.toString();
@@ -53,9 +53,8 @@
 
                 <label for="username_input">Username</label>
                 <input required type="text" name="name" id="username_input" value={form?.name ?? ''} class='w3-input w3-border w3-margin-bottom'/>
-                {#if form?.name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>
-                {:else if form?.name_already_existing} <p class='w3-panel w3-padding w3-red'>Username already taken</p> {/if}
-                
+                {#if form?.name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>{/if}
+
                 <label for="email_input">Email</label>
                 <input required type="email" name="email" id="email_input" value={form?.email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.email_missing} <p class='w3-panel w3-padding w3-red'>Missing Email</p>

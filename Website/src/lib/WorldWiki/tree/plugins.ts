@@ -151,7 +151,7 @@ export function tagsDirectiveToLinks() {
         if (tags.length)
           parent.children.push({ type: "text", value: "Tags: " });
         for (let n = 0; n < tags.length; ++n) {
-          let link: Link = {
+          const link: Link = {
             type: "link",
             url: tags[n],
             children: [{ type: "text", value: tags[n] }],

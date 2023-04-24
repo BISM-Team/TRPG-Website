@@ -8,9 +8,9 @@
   import { addHash } from "$lib/WorldWiki/tree/heading";
 
   export let data: PageData;
-  let edit: boolean = false;
-  let disable: boolean = false;
-  let show_modal: boolean = false;
+  let edit = false;
+  let disable = false;
+  let show_modal = false;
 
   onMount(() => {
     window.onclick = function (event) {

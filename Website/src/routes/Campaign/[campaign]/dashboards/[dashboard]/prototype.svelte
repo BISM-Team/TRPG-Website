@@ -1,7 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher, onMount } from "svelte";
-    const dispatch = createEventDispatcher();
-
     const default_width = "auto";
     const default_height = "auto";
 

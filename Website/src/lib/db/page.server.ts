@@ -50,7 +50,7 @@ export async function createPage(
   content: Prisma.JsonObject,
   headings: (Heading & { viewers: string[]; modifiers: string[] })[]
 ) {
-  let _headings = headings.map((heading) => ({
+  const _headings = headings.map((heading) => ({
     id: heading.id,
     level: heading.level,
     text: heading.text,
@@ -81,7 +81,7 @@ export async function modifyPage(
   headings: (Heading & { viewers: string[]; modifiers: string[] })[],
   version: number
 ): Promise<Page> {
-  let _headings = headings.map((heading) => ({
+  const _headings = headings.map((heading) => ({
     id: heading.id,
     level: heading.level,
     text: heading.text,

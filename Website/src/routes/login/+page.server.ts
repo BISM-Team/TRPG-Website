@@ -1,7 +1,6 @@
 import { fail, type Actions, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { createUser, getUser, setToken } from "$lib/db/auth.server";
-import { error as _error } from "@sveltejs/kit";
 
 export const load = (async ({ locals }) => {
   if (locals.user) {
@@ -12,9 +11,9 @@ export const load = (async ({ locals }) => {
 export const actions: Actions = {
   login: async (event) => {
     const data = await event.request.formData();
-    let identifier = String(data.get("identifier")); // email or name
-    let password = String(data.get("password"));
-    let redirect_url = String(data.get("redirect"));
+    const identifier = data.get("identifier")?.toString(); // email or name
+    const password = data.get("password")?.toString();
+    const redirect_url = data.get("redirect")?.toString();
 
     if (!identifier || !password)
       return fail(400, {
@@ -41,10 +40,10 @@ export const actions: Actions = {
 
   register: async (event) => {
     const data = await event.request.formData();
-    let email = String(data.get("email"));
-    let name = String(data.get("name"));
-    let password = String(data.get("password"));
-    let redirect_url = String(data.get("redirect"));
+    const email = data.get("email")?.toString();
+    const name = data.get("name")?.toString();
+    const password = data.get("password")?.toString();
+    const redirect_url = data.get("redirect")?.toString();
 
     if (!email || !name || !password)
       return fail(400, {

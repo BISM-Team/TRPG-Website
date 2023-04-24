@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import { createCard, getDashboard, removeCard } from "$lib/db/dashboard.server";
-import { error, redirect, type Actions, fail } from "@sveltejs/kit";
+import { error, type Actions, fail } from "@sveltejs/kit";
 import { getLoginOrRedirect } from "$lib/utils.server";
 
 export const load = (async ({ locals, params }) => {

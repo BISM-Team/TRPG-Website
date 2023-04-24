@@ -34,7 +34,7 @@ export function deleteToken(cookies: Cookies) {
 }
 
 export async function getUser(email: string, password: string) {
-  const user = await db.user.findFirst({
+  const user = await db.user.findUnique({
     where: {
       email: email,
     },

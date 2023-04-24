@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
 
   if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
-    throw error(400, "Invalid campaign id or page name");
+    throw error(400, "Invalid campaign or page name");
 
   const gm_id = campaign.Campaign_User[0]
     ? campaign.Campaign_User[0].userId
@@ -96,9 +96,9 @@ export const actions: Actions = {
     const version = Number(data.get("version") || -1);
     const text = data.get("text")?.toString();
     const tree = data.get("tree")?.toString();
-    if (text) {
+    if (text !== undefined) {
       new_tree = await parseSource(text, user.id);
-    } else if (tree) {
+    } else if (tree !== undefined) {
       new_tree = JSON.parse(tree);
     } else return fail(400, { missing_text_or_tree: true });
 

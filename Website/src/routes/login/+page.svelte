@@ -7,13 +7,13 @@
     let disable=false;
     let login_or_register=true;
     export let form: ActionData;
-    let previousUrl = '';
+    let previousUrl: string = "/";
 
     afterNavigate(({ from }) => {
         if(from) previousUrl = from.url.toString();
     })
 
-    const onSubmit: SubmitFunction = async function() {
+    const onSubmit: SubmitFunction = async function({ data, cancel }) {
         return async ({ result, update }) => {
             if(result.type==='redirect') await invalidateAll();
             await update();
@@ -33,16 +33,16 @@
             <fieldset disabled={disable} class='w3-padding-16'>
                 <input type="hidden" name="redirect" value={previousUrl}>
 
-                <label for="identifier_input">Username or Email</label>
-                <input required type="text" name="identifier" id="identifier_input" value={form?.identifier ?? ''} class='w3-input w3-border w3-margin-bottom'/>
-                {#if form?.identifier_missing} <p class='w3-panel w3-red'>Missing Username or Email</p> {/if}
-                
-                <label for="password_input">Password</label>
-                <input required type="password" name="password" id="password_input" class='w3-input w3-border'/>
-                {#if form?.password_missing} <p class='w3-panel w3-red'>Missing Password</p> {/if}
+                <label for="email_input">Email</label>
+                <input required type="text" autocomplete="email" name="email" id="email_input" value={form?.email ?? ''}  class='w3-input w3-border w3-margin-bottom'/>
+                {#if form?.login_email_missing} <p class='w3-panel w3-red'>Missing Email</p> {/if}
 
-                {#if form?.server_error} <p class='w3-panel w3-red'>Error, service might be unavailable</p>
-                {:else if form?.login_failed} <p class='w3-panel w3-red'>Username/Email or Password incorrect</p> {/if}
+                <label for="password_input">Password</label>
+                <input required type="password" autocomplete="current-password" name="password" id="password_input" class='w3-input w3-border'/>
+                {#if form?.login_password_missing} <p class='w3-panel w3-red'>Missing Password</p> {/if}
+
+                {#if form?.login_server_error} <p class='w3-panel w3-red'>Error, service might be unavailable</p>
+                {:else if form?.login_failed} <p class='w3-panel w3-red'>Email or Password incorrect</p> {/if}
                 <button disabled={disable} type="submit" class='w3-margin-top w3-button w3-teal w3-block'>Login</button>
             </fieldset>
         </form>
@@ -53,18 +53,23 @@
 
                 <label for="username_input">Username</label>
                 <input required type="text" name="name" id="username_input" value={form?.name ?? ''} class='w3-input w3-border w3-margin-bottom'/>
-                {#if form?.name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>{/if}
+                {#if form?.register_name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>{/if}
 
                 <label for="email_input">Email</label>
-                <input required type="email" name="email" id="email_input" value={form?.email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
-                {#if form?.email_missing} <p class='w3-panel w3-padding w3-red'>Missing Email</p>
+                <input required type="email" autocomplete="email" name="email" id="email_input" value={form?.email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
+                {#if form?.register_email_missing} <p class='w3-panel w3-padding w3-red'>Missing Email</p>
                 {:else if form?.email_already_existing} <p class='w3-panel w3-padding w3-red'>Email already registered</p> {/if}
                 
                 <label for="password_input">Password</label>
-                <input required type="password" name="password" id="password_input" class='w3-input w3-border'/>
-                {#if form?.password_missing} <p class='w3-panel w3-padding w3-red'>Missing Password</p> {/if}
+                <input required type="password" autocomplete="new-password" name="password" id="password_input" class='w3-input w3-border'/>
+                {#if form?.register_password_missing} <p class='w3-panel w3-padding w3-red'>Missing Password</p> {/if}
 
-                {#if form?.server_error} <p class='w3-panel w3-padding w3-red'>Error, service might be unavailable</p> {/if}
+                <label for="repeat_password">Repeat Password</label>
+                <input required type="password" autocomplete="off" name="repeat_password" id="repeat_password" class='w3-input w3-border'/>
+                {#if form?.register_repeat_password_missing} <p class='w3-panel w3-padding w3-red'>Please repeat your Password</p> 
+                {:else if form?.register_password_mismatched} <p class='w3-panel w3-padding w3-red'>Passwords do not match!</p> {/if}
+
+                {#if form?.register_server_error} <p class='w3-panel w3-padding w3-red'>Error, service might be unavailable</p> {/if}
                 <button disabled={disable} type="submit" class='w3-button w3-teal w3-block'>Register</button>
             </fieldset>
         </form>

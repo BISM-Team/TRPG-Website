@@ -14,7 +14,7 @@
       from?.url.toString().includes(`/index`) &&
       to?.url.toString().includes(`/index`)
     )
-      goto("../../");
+      goto("/Campaign/" + $page.params.campaign);
     if ($page.status === 401) goto("/login");
   });
 

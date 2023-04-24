@@ -3,6 +3,7 @@
   import Modal from "$lib/components/modal.svelte";
   import Card from "$lib/components/card.svelte";
   import { enhance, type SubmitFunction } from "$app/forms";
+  import { page } from "$app/stores";
 
   export let data: PageData;
 
@@ -52,7 +53,7 @@
 
 <div id="cards">
   {#each data.dashboards as dashboard}
-    <Card link={window.location.pathname + "/dashboards/" + dashboard.id}>
+    <Card link={"./" + $page.params.campaign + "/dashboards/" + dashboard.id}>
       <h3 class="w3-padding-32">{dashboard.name}</h3>
     </Card>
   {/each}
@@ -61,7 +62,7 @@
   </Card>
 </div>
 
-<Card link={window.location.pathname + "/wiki/index"}>
+<Card link={"./" + $page.params.campaign + "/wiki/index"}>
   <h3 class="w3-padding-32">Wiki</h3>
 </Card>
 

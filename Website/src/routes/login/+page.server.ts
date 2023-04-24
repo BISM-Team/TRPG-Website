@@ -4,26 +4,26 @@ import { createUser, getUser, setToken } from "$lib/db/auth.server";
 
 export const load = (async ({ locals }) => {
   if (locals.user) {
-    throw redirect(302, "/");
+    throw redirect(307, "/");
   } else return {};
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
   login: async (event) => {
     const data = await event.request.formData();
-    const identifier = data.get("identifier")?.toString(); // email or name
+    const email = data.get("email")?.toString(); // email or name
     const password = data.get("password")?.toString();
     const redirect_url = data.get("redirect")?.toString();
 
-    if (!identifier || !password)
+    if (!email || !password)
       return fail(400, {
-        identifier: identifier,
-        identifier_missing: !identifier,
-        password_missing: !password,
+        login_email: email,
+        login_email_missing: !email,
+        login_password_missing: !password,
       });
 
     try {
-      const { user, error } = await getUser(identifier, password);
+      const { user, error } = await getUser(email, password);
       if (error) {
         return fail(422, error);
       } else {
@@ -31,10 +31,10 @@ export const actions: Actions = {
       }
     } catch (exc) {
       console.error(exc);
-      return fail(500, { server_error: true });
+      return fail(500, { login_server_error: true });
     }
 
-    if (redirect_url) throw redirect(302, redirect_url);
+    if (redirect_url) throw redirect(303, redirect_url);
   },
 
   register: async (event) => {
@@ -42,15 +42,24 @@ export const actions: Actions = {
     const email = data.get("email")?.toString();
     const name = data.get("name")?.toString();
     const password = data.get("password")?.toString();
+    const repeat_password = data.get("repeat_password")?.toString();
     const redirect_url = data.get("redirect")?.toString();
 
-    if (!email || !name || !password)
+    if (
+      !email ||
+      !name ||
+      !password ||
+      !repeat_password ||
+      password !== repeat_password
+    )
       return fail(400, {
-        email: email,
-        name: name,
-        email_missing: !email,
-        name_missing: !name,
-        password_missing: !password,
+        register_email: email,
+        register_name: name,
+        register_email_missing: !email,
+        register_name_missing: !name,
+        register_password_missing: !password,
+        register_repeat_password_missing: !repeat_password,
+        register_password_mismatched: password !== repeat_password,
       });
 
     try {
@@ -60,9 +69,9 @@ export const actions: Actions = {
       else setToken(event.cookies, user);
     } catch (exc) {
       console.error(exc);
-      return fail(500, { server_error: true });
+      return fail(500, { register_server_error: true });
     }
 
-    if (redirect_url) throw redirect(302, redirect_url);
+    if (redirect_url) throw redirect(303, redirect_url);
   },
 };

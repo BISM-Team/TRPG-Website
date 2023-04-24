@@ -5,12 +5,14 @@ import {
   getUserDashboards,
 } from "$lib/db/dashboard.server";
 import { getDashboardTemplate } from "$lib/db/dashboard_template.server";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 
 export const load = (async ({ locals, params }) => {
   const user = getLoginOrRedirect(locals);
+  if (!(await getUserCampaign(user, params.campaign)))
+    throw error(404, "Campaign not found");
   return { dashboards: await getUserDashboards(user, params.campaign) };
 }) satisfies PageServerLoad;
 

@@ -49,7 +49,7 @@
 
 <div id="cards">
   {#each data.campaigns as campaign}
-    <Card link={window.location.pathname + "/" + campaign.id}>
+    <Card link={"./Campaign/" + campaign.id}>
       <h3 class="w3-padding-32">{campaign.name}</h3>
     </Card>
   {/each}

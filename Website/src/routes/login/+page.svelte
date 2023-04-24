@@ -41,7 +41,7 @@
                 <input required type="password" name="password" id="password_input" class='w3-input w3-border'/>
                 {#if form?.password_missing} <p class='w3-panel w3-red'>Missing Password</p> {/if}
 
-                {#if form?.unspecified_error} <p class='w3-panel w3-red'>Error, service might be unavailable</p>
+                {#if form?.server_error} <p class='w3-panel w3-red'>Error, service might be unavailable</p>
                 {:else if form?.login_failed} <p class='w3-panel w3-red'>Username/Email or Password incorrect</p> {/if}
                 <button disabled={disable} type="submit" class='w3-margin-top w3-button w3-teal w3-block'>Login</button>
             </fieldset>
@@ -64,7 +64,7 @@
                 <input required type="password" name="password" id="password_input" class='w3-input w3-border'/>
                 {#if form?.password_missing} <p class='w3-panel w3-padding w3-red'>Missing Password</p> {/if}
 
-                {#if form?.unspecified_error} <p class='w3-panel w3-padding w3-red'>Error, service might be unavailable</p> {/if}
+                {#if form?.server_error} <p class='w3-panel w3-padding w3-red'>Error, service might be unavailable</p> {/if}
                 <button disabled={disable} type="submit" class='w3-button w3-teal w3-block'>Register</button>
             </fieldset>
         </form>

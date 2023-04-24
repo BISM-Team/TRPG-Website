@@ -26,13 +26,12 @@ export const actions: Actions = {
       const { user, error } = await getUser(identifier, password);
       if (error) {
         return fail(422, error);
-      } else if (user) {
+      } else {
         setToken(event.cookies, user);
-      } else
-        return fail(500, { identifier: identifier, unspecified_error: true });
+      }
     } catch (exc) {
       console.error(exc);
-      return fail(500, { unspecified_error: true });
+      return fail(500, { server_error: true });
     }
 
     if (redirect_url) throw redirect(302, redirect_url);
@@ -57,15 +56,11 @@ export const actions: Actions = {
     try {
       const { user, error } = await createUser(email, name, password);
 
-      if (error) {
-        return fail(422, error);
-      } else if (user) {
-        setToken(event.cookies, user);
-      } else
-        return fail(500, { email: email, name: name, unspecified_error: true });
+      if (error) return fail(422, error);
+      else setToken(event.cookies, user);
     } catch (exc) {
       console.error(exc);
-      throw fail(500, { unspecified_error: true });
+      return fail(500, { server_error: true });
     }
 
     if (redirect_url) throw redirect(302, redirect_url);

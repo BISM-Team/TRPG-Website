@@ -116,7 +116,7 @@
     {/if}
     {#if $page.error}
       <p class="w3-panel w3-red">
-        Unspecified Error, please contact us to investigate the cause!
+        Server Error, please contact us to investigate the cause!
       </p>
     {/if}
     {#await stringifyTree(data.tree)}

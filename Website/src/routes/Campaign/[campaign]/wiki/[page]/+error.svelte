@@ -35,25 +35,14 @@
   {#if $page.status === 404}
     <h1 class="w3-section w3-padding">Page not yet created</h1>
     <p>Do you want to create it?</p>
-    <form
-      id="btnContainer"
-      class="w3-container"
-      method="post"
-      use:enhance={createPage}
-    >
+    <form id="btnContainer" class="w3-container" method="post" use:enhance={createPage}>
       <input type="hidden" name="text" value="" />
-      <button
-        disabled={disable}
-        class="w3-margin w3-button w3-grey"
-        type="button"
-        on:click={goBack}>No</button
-      >
-      <button
-        disabled={disable}
-        class="w3-margin w3-button w3-teal"
-        type="submit">Yes</button
-      >
+      <button disabled={disable} class="w3-margin w3-button w3-grey" type="button" on:click={goBack}>No</button>
+      <button disabled={disable} class="w3-margin w3-button w3-teal" type="submit">Yes</button>
     </form>
+  {:else if $page.status === 403}
+    <h1 class="w3-section w3-padding">You are not allowed to view this page!</h1>
+    <button disabled={disable} class="w3-margin w3-button w3-teal" type="submit">Yes</button>
   {:else if $page.status === 500}
     <h1 class="w3-center">Server Error, please try again.</h1>
   {:else if $page.status === 400 && $page.error}

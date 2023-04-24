@@ -41,13 +41,7 @@ export async function getUser(email: string, password: string) {
   });
 
   if (user) {
-    let compare_result: boolean;
-    try {
-      compare_result = await bcrypt.compare(password, user.password);
-    } catch (exc) {
-      console.error(exc);
-      return { user: null, server_error: true };
-    }
+    const compare_result = await bcrypt.compare(password, user.password);
     return compare_result
       ? { user: user, error: null }
       : {
@@ -70,17 +64,12 @@ export async function createUser(
   if (user_with_email)
     return { user: null, error: { email, name, email_already_existing: true } };
 
-  try {
-    const user = await db.user.create({
-      data: {
-        email,
-        name,
-        password: await bcrypt.hash(password, 10),
-      },
-    });
-    return { user: user, error: null };
-  } catch (exc) {
-    console.error(exc);
-    return { user: null, error: { email, name, server_error: true } };
-  }
+  const user = await db.user.create({
+    data: {
+      email,
+      name,
+      password: await bcrypt.hash(password, 10),
+    },
+  });
+  return { user: user, error: null };
 }

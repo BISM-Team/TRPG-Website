@@ -1,4 +1,4 @@
-import { error, fail } from "@sveltejs/kit";
+import { error, fail, type HttpError } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { allowed_page_names_regex_whole_word } from "$lib/WorldWiki/constants";
 import type { Root } from "mdast";
@@ -42,6 +42,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       user.id,
       gm_id
     );
+    if (!tree.children.length) {
+      throw error(403, "Page not viewable");
+    }
     const headings: (Omit<Heading, "index"> & {
       viewers: string[];
       modifiers: string[];
@@ -69,6 +72,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       ),
     };
   } catch (exc) {
+    if ((exc as HttpError).status === 403) throw exc;
     console.log(exc);
     throw error(500, "Errors in parsing page, try again");
   }

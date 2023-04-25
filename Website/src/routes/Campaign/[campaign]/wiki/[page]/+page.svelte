@@ -4,9 +4,9 @@
   import { stringifyTree } from "$lib/WorldWiki/tree/tree";
   import { onMount } from "svelte";
   import { enhance } from "$app/forms";
-  import { page } from "$app/stores";
   import { addHash } from "$lib/WorldWiki/tree/heading";
   import Modal from "$lib/components/modal.svelte";
+  import { invalidateAll } from "$app/navigation";
 
   export let data: PageData;
   export let form: ActionData;
@@ -25,33 +25,30 @@
   onMount(() => {
     window.onclick = function (event) {
       let modal: HTMLElement | null;
-      if (
-        show_modal &&
-        (modal = document.getElementById("modalWrapper")) &&
-        event.target == modal
-      )
+      if (show_modal && (modal = document.getElementById("modalWrapper")) && event.target == modal)
         show_modal = false;
-    };
+      };
   });
 
   const handleDelete: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      edit = false;
-      show_modal = false;
       disable = false;
-      if (result.type === "success" && result.data?.deleted) {
-        result.status = 404;
-        (result.type as any) = "error";
+      if (result.type === "success") { 
+        show_modal = false;
+        edit = false; 
       }
       await update();
+      await invalidateAll();
     };
   };
 
   const handleSubmit: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      if (result.type === "success") edit = false;
+      if (result.type === "success") { 
+        edit = false; 
+      }
       disable = false;
       await update();
     };

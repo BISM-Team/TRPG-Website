@@ -32,7 +32,9 @@
 </script>
 
 <div id="content" class="w3-center w3-padding-32">
-  {#if $page.status === 404}
+  {#if $page.status === 200}
+    <span></span>
+  {:else if $page.status === 404}
     <h1 class="w3-section w3-padding">Page not yet created</h1>
     <p>Do you want to create it?</p>
     <form id="btnContainer" class="w3-container" method="post" use:enhance={createPage}>

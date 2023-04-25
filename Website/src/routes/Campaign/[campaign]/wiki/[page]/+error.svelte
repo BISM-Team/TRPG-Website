@@ -9,12 +9,10 @@
 
   afterNavigate(({ from, to }) => {
     previousUrl = from !== to ? from?.url.toString() : "./index";
-    console.log(from?.url.toString(), to?.url.toString());
-    if (
-      from?.url.toString().includes(`/index`) &&
-      to?.url.toString().includes(`/index`)
-    )
+    console.log(from?.url.pathname.toString(), to?.url.pathname.toString());
+    if (from?.url.pathname.toString().endsWith(`/index`) && to?.url.toString().endsWith(`/index`)) {
       goto("/Campaign/" + $page.params.campaign);
+    }
     if ($page.status === 401) goto("/login");
   });
 

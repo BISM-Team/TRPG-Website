@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { SubmitFunction } from "@sveltejs/kit";
-  import type { PageData } from "./$types";
+  import type { ActionData, PageData } from "./$types";
   import { stringifyTree } from "$lib/WorldWiki/tree/tree";
   import { onMount } from "svelte";
   import { enhance } from "$app/forms";
@@ -9,6 +9,7 @@
   import Modal from "$lib/components/modal.svelte";
 
   export let data: PageData;
+  export let form: ActionData;
   let edit = false;
   let disable = false;
   let show_modal = false;
@@ -83,27 +84,23 @@
 
 <div class="w3-container" id="page">
   {#if edit}
-    {#if $page.status === 409}
-      <p class="w3-panel w3-red">
-        Oops... this page has been edited while you were working on it... Please 
-        <strong>copy the information you were editing</strong> 
-        and reload the page to get the updated version!
-      </p>
-    {/if}
-    {#if $page.error}
-      <p class="w3-panel w3-red">
-        Server Error, please contact us to investigate the cause!
-      </p>
-    {/if}
     {#await stringifyTree(data.tree)}
       Stringifying markdown...
     {:then src}
       <form class="w3-container w3-padding-32" method="post" use:enhance={handleSubmit}>
+        {#if form?.creation_conflict || form?.update_conflict} 
+          <p class="w3-panel w3-red">Someone updated this page just now, please refresh the page and try again. <br /> If this happens again please contact us.</p> 
+        {/if}
+        {#if form?.invalid_campaign_id_or_page_name || form?.missing_text_or_tree} 
+          <p class="w3-panel w3-red">Client Error, please contact us to investigate the cause!</p> 
+        {/if}
         <input type="hidden" name="version" value={data.version} />
         <textarea name="text" id="textArea" value={src} />
         <br />
-        <button disabled={disable} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
-        <button disabled={disable} class="w3-button w3-teal" type="submit">Done</button>
+        <div class="buttonContainer w3-center w3-block">
+          <button disabled={disable} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
+          <button disabled={disable} class="w3-button w3-teal" type="submit">Done</button>
+        </div>
       </form>
     {/await}
   {:else}
@@ -174,5 +171,11 @@
 
   #toc a:hover {
     text-decoration: underline solid rgba(0, 0, 0, 1) 1px;
+  }
+
+  .buttonContainer button {
+    width: 30%;
+    margin: 0 5%;
+    margin-top: 1em;
   }
 </style>

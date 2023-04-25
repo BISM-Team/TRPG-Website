@@ -19,7 +19,7 @@
 </script>
 
 <div bind:this={wrapper} id="modalWrapper">
-  <div id="modalContent">
+  <div id="modalContent" class="w3-center w3-container">
     <slot />
   </div>
 </div>
@@ -32,6 +32,7 @@
     justify-content: space-around;
     align-items: flex-start;
     padding: 5vh;
+    padding-bottom: 15vh;
     z-index: 1; /* Sit on top */
     left: 0;
     top: 0;
@@ -48,6 +49,6 @@
     padding: 2em;
     margin: auto;
     min-height: 20vh;
-    width: 40vw;
+    max-width: 40vw;
   }
 </style>

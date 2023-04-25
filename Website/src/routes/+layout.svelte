@@ -10,11 +10,7 @@
     <a href="/GameWiki" class="w3-block w3-button">Game Wiki</a>
     <a href="/Campaign" class="w3-block w3-button">Campaign</a>
     {#if data.auth}
-      <a
-        href="/logout"
-        data-sveltekit-preload-data="tap"
-        class="w3-block w3-button">Logout</a
-      >
+      <a href="/logout" data-sveltekit-preload-data="tap" data-sveltekit-preload-code="hover" class="w3-block w3-button">Logout</a>
     {:else}
       <a href="/login" class="w3-block w3-button">Login/Signup</a>
     {/if}

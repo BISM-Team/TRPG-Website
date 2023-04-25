@@ -17,7 +17,7 @@
   ];
 </script>
 
-<div id="cards" class="w3-container w3-padding-48">
+<div class="cards">
   {#each cards as data}
     <Card link={data.link}>
       <h3 class="w3-center w3-padding-16 w3-border-bottom">{data.name}</h3>
@@ -27,14 +27,6 @@
 </div>
 
 <style>
-  #cards {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-  }
-
   h3 {
     margin: 0;
   }

@@ -6,11 +6,20 @@
   import { enhance } from "$app/forms";
   import { page } from "$app/stores";
   import { addHash } from "$lib/WorldWiki/tree/heading";
+  import Modal from "$lib/components/modal.svelte";
 
   export let data: PageData;
   let edit = false;
   let disable = false;
   let show_modal = false;
+
+  function toggleEdit() {
+    edit=!edit;
+  }
+
+  function toggleShowModal() {
+    show_modal=!show_modal;
+  }
 
   onMount(() => {
     window.onclick = function (event) {
@@ -49,69 +58,36 @@
 </script>
 
 {#if show_modal}
-  <div id="modalWrapper">
-    <div id="modalContent" class="w3-center w3-container w3-padding-16">
-      <h2 class="w3-padding">Do you want to delete this page?</h2>
-      <p>
-        <em
-          >Note that only the content you are allowed to modify will be deleted</em
-        >
-      </p>
-      <form
-        id="deleteConfirmationButtons"
-        class="w3-container"
-        method="post"
-        use:enhance={handleDelete}
-      >
-        <input type="hidden" name="version" value={data.version} />
-        <input type="hidden" name="text" value="" />
-        <button
-          disabled={disable}
-          class="w3-button w3-margin w3-grey"
-          type="button"
-          on:click={() => {
-            show_modal = false;
-          }}>Cancel</button
-        >
-        <button
-          disabled={disable}
-          class="w3-button w3-margin w3-teal"
-          type="submit">Yes</button
-        >
-      </form>
-    </div>
-  </div>
+  <Modal {disable} on:close={toggleShowModal}>
+    <h2 class="w3-padding">Do you want to delete this page?</h2>
+    <p>
+      <em>Note that only the content you are allowed to modify will be deleted</em>
+    </p>
+    <form id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={handleDelete}>
+      <input type="hidden" name="version" value={data.version} />
+      <input type="hidden" name="text" value="" />
+      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleShowModal}>Cancel</button>
+      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
+    </form>
+  </Modal>
 {/if}
 
 <div id="topRightButtonContainer" class="w3-block">
-  <button
-    disabled={disable}
-    id="editButton"
-    class="w3-button"
-    on:click={() => {
-      edit = !edit;
-    }}
-    ><span class="material-symbols-outlined"
-      >{edit ? "visibility" : "edit"}</span
-    ></button
-  >
-  <button
-    disabled={disable}
-    id="deleteButton"
-    class="w3-button"
-    on:click={() => {
-      show_modal = true;
-    }}><span class="material-symbols-outlined">delete</span></button
-  >
+  <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
+    <span class="material-symbols-outlined">{edit ? "visibility" : "edit"}</span>
+  </button>
+  <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleShowModal}>
+    <span class="material-symbols-outlined">delete</span>
+  </button>
 </div>
 
 <div class="w3-container" id="page">
   {#if edit}
     {#if $page.status === 409}
       <p class="w3-panel w3-red">
-        Oops... this page has been edited while you were working on it... Please <strong
-          >copy the information you were editing</strong
-        > and reload the page to get the updated version!
+        Oops... this page has been edited while you were working on it... Please 
+        <strong>copy the information you were editing</strong> 
+        and reload the page to get the updated version!
       </p>
     {/if}
     {#if $page.error}
@@ -122,38 +98,22 @@
     {#await stringifyTree(data.tree)}
       Stringifying markdown...
     {:then src}
-      <form
-        class="w3-container w3-padding-32"
-        id="form"
-        method="post"
-        use:enhance={handleSubmit}
-      >
+      <form class="w3-container w3-padding-32" method="post" use:enhance={handleSubmit}>
         <input type="hidden" name="version" value={data.version} />
         <textarea name="text" id="textArea" value={src} />
         <br />
-        <button
-          disabled={disable}
-          class="w3-button w3-grey"
-          type="button"
-          on:click={() => {
-            edit = false;
-          }}>Cancel</button
-        >
-        <button disabled={disable} class="w3-button w3-teal" type="submit"
-          >Done</button
-        >
+        <button disabled={disable} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
+        <button disabled={disable} class="w3-button w3-teal" type="submit">Done</button>
       </form>
     {/await}
   {:else}
     <div id="toc_container">
       <div id="toc" class="w3-card-2">
         {#each data.headings as heading}
-          <a class="w3-block w3-container w3-padding" href="#{heading.id}"
-            ><span class="w3-text-gray"
-              >{addHash("", heading.level).trim()}</span
-            >
-            {heading.text}</a
-          >
+          <a class="w3-block w3-container w3-padding" href="#{heading.id}">
+            <span class="w3-text-gray">{addHash("", heading.level).trim()}</span>
+            {heading.text}
+          </a>
         {/each}
       </div>
     </div>
@@ -181,9 +141,6 @@
     height: 24px;
     transition: 0.1s ease-out;
   }
-  #form {
-    margin-top: 1.5em;
-  }
   #textArea {
     width: 90%;
     height: 74vh;
@@ -193,27 +150,6 @@
     border-radius: 4px;
     background-color: #f8f8f8;
     resize: none;
-  }
-  #modalWrapper {
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-  }
-
-  #modalContent {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    border: 1px solid #888;
-    max-width: 40em;
-  }
-  #modalContent button {
-    width: 6em;
   }
 
   #toc_container {

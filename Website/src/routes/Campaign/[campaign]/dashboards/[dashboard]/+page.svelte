@@ -310,58 +310,17 @@
     <h3 class="w3-center">Create Card</h3>
     <form action="?/createCard" method="post" use:enhance={submitCreateCard}>
       <label for="heightInput">Height (px)</label>
-      <input
-        type="number"
-        name="height"
-        id="heightInput"
-        class="w3-input w3-border w3-margin-bottom"
-        value={form?.height || 200}
-      />
+      <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={form?.height || 200} />
       <label for="widthInput">Width (px)</label>
-      <input
-        type="number"
-        name="width"
-        id="widthInput"
-        class="w3-input w3-border w3-margin-bottom"
-        value={form?.width || 200}
-      />
-      <input
-        type="hidden"
-        name="zoom"
-        id="nameInput"
-        value={1}
-        class="w3-input w3-border w3-margin-bottom"
-      />
+      <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={form?.width || 200} />
+      <input type="hidden" name="zoom" id="nameInput" value={1} class="w3-input w3-border w3-margin-bottom"/>
       <label for="sourceInput">Source</label>
-      <input
-        type="text"
-        name="source"
-        id="sourceInput"
-        class="w3-input w3-border w3-margin-bottom"
-        value={form?.source || ""}
-      />
+      <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={form?.source || ""}/>
       <label for="typeInput">Type</label>
-      <input
-        type="text"
-        name="type"
-        id="typeInput"
-        class="w3-input w3-border w3-margin-bottom"
-        value={form?.type || "text"}
-      />
-      <input
-        type="hidden"
-        name="dashboardId"
-        class="w3-input w3-border w3-margin-bottom"
-        value={data.dashboard.id}
-      />
-      <button
-        type="button"
-        on:click={toggleCreateDialog}
-        class="w3-margin-top w3-button w3-block">Cancel</button
-      >
-      <button type="submit" class="w3-margin-top w3-button w3-teal w3-block"
-        >Create</button
-      >
+      <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={form?.type || "text"}/>
+      <input type="hidden" name="dashboardId" class="w3-input w3-border w3-margin-bottom" value={data.dashboard.id}/>
+      <button type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
+      <button type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
     </form>
   </Modal>
 {/if}
@@ -369,17 +328,11 @@
 {#if removeDialog.show}
   <Modal {disable} on:close={toggleRemoveDialog}>
     <h3 class="w3-center">Remove Card</h3>
-    <form action="?/removeCard" method="post" use:enhance={submitRemoveCard}>
+    <form action="?/removeCard" id="removeForm" method="post" use:enhance={submitRemoveCard}>
       <input type="hidden" name="cardId" value={removeDialog.id} />
       <input type="hidden" name="dashboardId" value={data.dashboard.id} />
-      <button
-        type="button"
-        on:click={toggleRemoveDialog}
-        class="w3-margin-top w3-button w3-block">Cancel</button
-      >
-      <button type="submit" class="w3-margin-top w3-button w3-teal w3-block"
-        >Remove</button
-      >
+      <button type="button" on:click={toggleRemoveDialog} class="w3-margin-top w3-button">Cancel</button>
+      <button type="submit" class="w3-margin-top w3-button w3-teal">Remove</button>
     </form>
   </Modal>
 {/if}
@@ -413,14 +366,5 @@
   .pickedCard {
     position: absolute;
     z-index: 100;
-  }
-
-  form label {
-    display: block;
-    margin-bottom: 0.5em;
-  }
-  form input {
-    display: block;
-    margin-bottom: 1em;
   }
 </style>

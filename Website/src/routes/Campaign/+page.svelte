@@ -27,27 +27,15 @@
   <Modal {disable} on:close={toggleCreateDialog}>
     <form action="?/create" method="post" use:enhance={submitCreate}>
       <label for="nameInput">Name</label>
-      <input
-        type="text"
-        name="name"
-        id="nameInput"
-        class="w3-input w3-border w3-margin-bottom"
-        value={form?.name || ""}
-      />
+      <input type="text" name="name" id="nameInput" class="w3-input w3-border w3-margin-bottom" value={form?.name || ""}/>
 
-      <button
-        type="button"
-        on:click={toggleCreateDialog}
-        class="w3-margin-top w3-button w3-block">Cancel</button
-      >
-      <button type="submit" class="w3-margin-top w3-button w3-teal w3-block"
-        >Create</button
-      >
+      <button type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
+      <button type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
     </form>
   </Modal>
 {/if}
 
-<div id="cards">
+<div class="cards">
   {#each data.campaigns as campaign}
     <Card link={"./Campaign/" + campaign.id}>
       <h3 class="w3-padding-32">{campaign.name}</h3>
@@ -60,21 +48,4 @@
 </div>
 
 <style>
-  #cards {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    margin-top: 4em;
-  }
-
-  form label {
-    display: block;
-    margin-bottom: 0.5em;
-  }
-  form input {
-    display: block;
-    margin-bottom: 1em;
-  }
 </style>

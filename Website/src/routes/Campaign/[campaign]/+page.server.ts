@@ -13,7 +13,10 @@ export const load = (async ({ locals, params }) => {
   const user = getLoginOrRedirect(locals);
   if (!(await getUserCampaign(user, params.campaign)))
     throw error(404, "Campaign not found");
-  return { dashboards: await getUserDashboards(user, params.campaign) };
+  return {
+    dashboards: await getUserDashboards(user, params.campaign),
+    params: params,
+  };
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {

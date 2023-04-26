@@ -216,7 +216,7 @@
       const index = data.dashboard.cards.findIndex(
         (element) => element.id === id
       );
-      if (index === -1) throw new Error("Id not found in cards", id, data.dashboard.cards);
+      if (index === -1) throw new Error("Id not found in cards" + id + ";\n " + data.dashboard.cards);
       if (index !== picked.index) {
         arraymove(data.dashboard.cards, picked.index, index);
         picked.index = index;

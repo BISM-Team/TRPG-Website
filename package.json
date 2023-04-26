@@ -14,7 +14,6 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
-		"@prisma/client": "^4.11.0",
 		"@sveltejs/adapter-auto": "^1.0.0",
 		"@sveltejs/adapter-node": "^1.2.3",
 		"@sveltejs/kit": "^1.15.6",
@@ -52,6 +51,7 @@
 	"type": "module",
 	"dependencies": {
 		"@vitejs/plugin-basic-ssl": "^1.0.1",
+    "@prisma/client": "^4.13.0",
 		"bcrypt": "^5.1.0",
 		"devalue": "^4.3.0",
 		"jsonwebtoken": "^9.0.0",

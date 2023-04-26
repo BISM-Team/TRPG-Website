@@ -27,9 +27,13 @@ export async function getDashboard(
       userId: user.id,
     },
     include: {
-      cards: true,
       numericVariables: true,
       stringVariables: true,
+      cards: {
+        orderBy: {
+          index: "asc",
+        },
+      },
     },
   });
 }
@@ -103,13 +107,29 @@ export async function createCard(
 export async function updateCards(
   user: User,
   dashboardId: string,
-  cards: CardData[]
+  cards: CardData[],
+  removed: string[]
 ) {
+  const _cards = cards.map((card) => {
+    const { dashboardId, ...card_with_id } = card;
+    return card_with_id;
+  });
   return await db.dashboard.update({
     where: { userId: user.id, id: dashboardId },
     data: {
       cards: {
-        set: cards,
+        upsert: _cards.map((card) => ({
+          where: {
+            id: card.id,
+          },
+          create: card,
+          update: card,
+        })),
+        deleteMany: {
+          id: {
+            in: removed,
+          },
+        },
       },
     },
   });

@@ -12,6 +12,7 @@
   import { enhance, type SubmitFunction } from "$app/forms";
   import type { CardData } from "@prisma/client";
   import { stringify } from "devalue";
+  import Error from "../../../../+error.svelte";
 
   export let data: PageData;
   export let form: ActionData;
@@ -23,7 +24,6 @@
   let edit = false;
   let edited = false;
   let showSaveDialog = false;
-  let removeDialog = { show: false, id: "" };
   let showCreateDialog = false;
   let disable = false;
 
@@ -32,13 +32,14 @@
         index: number;
         id: string;
         geometry: DOMRect;
-        data: CardData;
+        card: CardData;
         refractary: boolean;
       } | undefined = undefined;
 
   let resizing: {
         index: number;
         id: string;
+        card: CardData;
         starting_top_left: { top: number; left: number };
       } | undefined = undefined;
 
@@ -46,6 +47,7 @@
     { x_or_width: 0, y_or_height: 0 },
     { stiffness, damping }
   );
+  let removed: string[] = [];
 
   onMount(() => {
     document.addEventListener("mousemove", moveWhileDragging);
@@ -74,12 +76,6 @@
     showCreateDialog = !showCreateDialog;
   }
 
-  function toggleRemoveDialog(ev: any) {
-    removeDialog = removeDialog.show
-      ? { show: false, id: "" }
-      : { show: true, id: ev.detail.id };
-  }
-
   function startDragElement(ev: any) {
     cancelAction();
     const index = data.dashboard.cards.findIndex(
@@ -91,7 +87,7 @@
       index: index,
       id: ev.detail.id,
       geometry: ev.detail.geometry,
-      data: data.dashboard.cards[index],
+      card: data.dashboard.cards[index],
       refractary: false,
     };
     actionData = spring(
@@ -117,6 +113,7 @@
     resizing = {
       index: index,
       id: ev.detail.id,
+      card: data.dashboard.cards[index],
       starting_top_left: {
         top: ev.detail.geometry.top + window.scrollY,
         left: ev.detail.geometry.left + window.scrollX,
@@ -145,22 +142,16 @@
 
   function confirmAction() {
     if (resizing) {
-      data.dashboard.cards[resizing.index].width = $actionData.x_or_width;
-      data.dashboard.cards[resizing.index].height = $actionData.y_or_height;
+      resizing.card.width = $actionData.x_or_width;
+      resizing.card.height = $actionData.y_or_height;
       resizing = undefined;
     }
-    if(picked) {
-      picked.data.index=picked.index;
-    }
     picked = undefined;
-    edited=true;
+    edited = true;
   }
 
   function keydown(ev: KeyboardEvent) {
-    if (
-      (picked || resizing) &&
-      (ev.key === "Escape" || ev.key === "Delete" || ev.key === "Backspace")
-    ) {
+    if ((picked || resizing) && (ev.key === "Escape" || ev.key === "Delete" || ev.key === "Backspace")) {
       ev.preventDefault();
       ev.stopPropagation();
       cancelAction();
@@ -226,7 +217,7 @@
       const index = data.dashboard.cards.findIndex(
         (element) => element.id === id
       );
-      if (index === -1) throw new Error("Id not found in cards");
+      if (index === -1) console.error("Id not found in cards", id, data.dashboard.cards);
       if (index !== picked.index) {
         arraymove(data.dashboard.cards, picked.index, index);
         picked.index = index;
@@ -235,7 +226,8 @@
   }
 
   const submitSave: SubmitFunction = async function(request) {
-    request.data.set("cards", stringify(data.dashboard.cards));
+    request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; return card; })));
+    request.data.set("removed", stringify(removed));
     disable=true;
     return async ({ result, update }) => {
       if (result.type === "success") { 
@@ -250,34 +242,66 @@
 
   const submitCreateCard: SubmitFunction = async function (request) {
     disable = true;
-    request.data.set("index", data.dashboard.cards.length.toString());
-    return async ({ result, update }) => {
-      if (result.type === "success") toggleCreateDialog();
-      disable = false;
-      await update();
-      const new_dashboard = form?.dashboard;
-      if (new_dashboard) data.dashboard = new_dashboard;
+
+    const width = request.data.get("width")?.toString();
+    const height = request.data.get("height")?.toString();
+    const zoom = request.data.get("zoom")?.toString();
+    const source = request.data.get("source")?.toString();
+    const type = request.data.get("type")?.toString();
+    const dashboardId = request.data.get("dashboardId")?.toString();
+
+    if (!width || !height || !zoom || !source || !type || !dashboardId) {
+      request.cancel();
+      return;
+    }
+
+    let randomId = crypto.randomUUID();
+    while(data.dashboard.cards.findIndex((card) => card.id===randomId) !== -1) 
+      randomId = crypto.randomUUID();
+
+    const card: CardData = {
+      id: randomId,
+      index: data.dashboard.cards.length,
+      width: parseInt(width),
+      height: parseInt(height),
+      zoom: parseInt(zoom),
+      source: source,
+      type: type,
+      dashboardId: dashboardId,
+      templateId: null
     };
+    request.cancel();
+    edited = true;
+    data.dashboard.cards.push(card);
+    data.dashboard.cards = data.dashboard.cards;
+    toggleCreateDialog();
+    disable = false;
   };
 
-  const submitRemoveCard: SubmitFunction = async function () {
-    disable = true;
-    return async ({ result, update }) => {
-      if (result.type === "success") toggleRemoveDialog({});
-      disable = false;
-      await update();
-      const new_dashboard = form?.dashboard;
-      if (new_dashboard) data.dashboard = new_dashboard;
-    };
-  };
+  function removeCard(ev: any) {
+    disable=true;
+    const id = ev.detail.id;
+    const index = data.dashboard.cards.findIndex((card) => card.id===id);
+    if(index !== -1) {
+      removed.push(id);
+      edited = true;
+      data.dashboard.cards.splice(index, 1);
+      data.dashboard.cards = data.dashboard.cards;
+    } else {
+      console.error(id, data.dashboard.cards);
+    }
+    disable=false;
+  }
 </script>
 
 <Toolbar>
-  <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
-    <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
-  </button>
+  {#if edit}
   <button disabled={disable} id="newButton" class="w3-button" on:click={toggleCreateDialog}>
     <span class="material-symbols-outlined w3-text-white">add</span>
+  </button>
+  {/if}
+  <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
+    <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
   </button>
 </Toolbar>
 
@@ -300,37 +324,25 @@
 {#if showCreateDialog}
   <Modal {disable} on:close={toggleCreateDialog}>
     <h3 class="w3-center">Create Card</h3>
-    <form action="?/createCard" method="post" use:enhance={submitCreateCard}>
+    <form method="post" use:enhance={submitCreateCard}>
       <label for="heightInput">Height (px)</label>
-      <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={form?.height || 200} />
+      <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={200} />
       
       <label for="widthInput">Width (px)</label>
-      <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={form?.width || 200} />
+      <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={200} />
       
       <input type="hidden" name="zoom" id="nameInput" value={1} class="w3-input w3-border w3-margin-bottom"/>
       
       <label for="sourceInput">Source</label>
-      <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={form?.source || ""}/>
+      <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={""}/>
       
       <label for="typeInput">Type</label>
-      <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={form?.type || "text"}/>
+      <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={"text"}/>
       
       <input type="hidden" name="dashboardId" class="w3-input w3-border w3-margin-bottom" value={data.dashboard.id}/>
       
       <button type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
       <button type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
-    </form>
-  </Modal>
-{/if}
-
-{#if removeDialog.show}
-  <Modal {disable} on:close={toggleRemoveDialog}>
-    <h3 class="w3-center">Remove Card</h3>
-    <form action="?/removeCard" id="removeForm" method="post" use:enhance={submitRemoveCard}>
-      <input type="hidden" name="cardId" value={removeDialog.id} />
-      <input type="hidden" name="dashboardId" value={data.dashboard.id} />
-      <button type="button" on:click={toggleRemoveDialog} class="w3-margin-top w3-button">Cancel</button>
-      <button type="submit" class="w3-margin-top w3-button w3-teal">Remove</button>
     </form>
   </Modal>
 {/if}
@@ -346,7 +358,7 @@
       {:else if resizing && card.id === resizing.id}
         <Prototype data={{ id: card.id, width: $actionData.x_or_width, height: $actionData.y_or_height }}/>
       {:else}
-        <Card {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={toggleRemoveDialog} />
+        <Card {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={removeCard} />
       {/if}
     </div>
   {/each}
@@ -354,7 +366,7 @@
 
 {#if picked}
   <div class="pickedCard" style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
-    <Card card={picked.data} picked={true} {edit}/>
+    <Card card={picked.card} picked={true} {edit}/>
   </div>
 {/if}
 

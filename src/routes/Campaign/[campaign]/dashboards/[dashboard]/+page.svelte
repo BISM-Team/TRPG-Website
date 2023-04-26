@@ -12,7 +12,6 @@
   import { enhance, type SubmitFunction } from "$app/forms";
   import type { CardData } from "@prisma/client";
   import { stringify } from "devalue";
-  import Error from "../../../../+error.svelte";
 
   export let data: PageData;
   export let form: ActionData;
@@ -81,7 +80,7 @@
     const index = data.dashboard.cards.findIndex(
       (element) => element.id === ev.detail.id
     );
-    if (index === -1) console.error("Id not found in cards");
+    if (index === -1) throw new Error("Id not found in cards");
     picked = {
       startingIndex: index,
       index: index,
@@ -109,7 +108,7 @@
     const index = data.dashboard.cards.findIndex(
       (element) => element.id === ev.detail.id
     );
-    if (index === -1) console.error("Id not found in cards");
+    if (index === -1) throw new Error("Id not found in cards");
     resizing = {
       index: index,
       id: ev.detail.id,
@@ -217,7 +216,7 @@
       const index = data.dashboard.cards.findIndex(
         (element) => element.id === id
       );
-      if (index === -1) console.error("Id not found in cards", id, data.dashboard.cards);
+      if (index === -1) throw new Error("Id not found in cards", id, data.dashboard.cards);
       if (index !== picked.index) {
         arraymove(data.dashboard.cards, picked.index, index);
         picked.index = index;

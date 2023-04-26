@@ -1,10 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import {
-  createCard,
-  getDashboard,
-  removeCard,
-  updateCards,
-} from "$lib/db/dashboard.server";
+import { getDashboard, updateCards } from "$lib/db/dashboard.server";
 import { error, type Actions, fail } from "@sveltejs/kit";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { parse } from "devalue";

@@ -7,13 +7,13 @@
     let disable=false;
     let login_or_register=true;
     export let form: ActionData;
-    let previousUrl: string = "/";
+    let previousUrl = "/";
 
     afterNavigate(({ from }) => {
         if(from) previousUrl = from.url.toString();
     })
 
-    const onSubmit: SubmitFunction = async function({ data, cancel }) {
+    const onSubmit: SubmitFunction = async function() {
         return async ({ result, update }) => {
             if(result.type==='redirect') await invalidateAll();
             await update();

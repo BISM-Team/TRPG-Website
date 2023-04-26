@@ -4,7 +4,7 @@ import { stripHash, addHash, type AdvancedHeading } from "./heading";
 import { visit } from "unist-util-visit";
 import { remove } from "unist-util-remove";
 import { isNodeModifiable } from "./modifications";
-import { getHeadingViewers, isNodeVisible } from "./visibility";
+import { isNodeVisible } from "./visibility";
 import { isTreeVisible } from "./tree";
 import { getTags } from "./tags";
 import { randomHex } from "$lib/utils";

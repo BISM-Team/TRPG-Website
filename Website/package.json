@@ -16,6 +16,7 @@
 		"@playwright/test": "^1.28.1",
 		"@prisma/client": "^4.11.0",
 		"@sveltejs/adapter-auto": "^1.0.0",
+		"@sveltejs/adapter-node": "^1.2.3",
 		"@sveltejs/kit": "^1.15.6",
 		"@types/bcrypt": "^5.0.0",
 		"@types/jsonwebtoken": "^9.0.1",
@@ -53,6 +54,7 @@
 		"@vitejs/plugin-basic-ssl": "^1.0.1",
 		"bcrypt": "^5.1.0",
 		"devalue": "^4.3.0",
+		"dotenv": "^16.0.3",
 		"jsonwebtoken": "^9.0.0",
 		"prisma": "^4.10.1"
 	}

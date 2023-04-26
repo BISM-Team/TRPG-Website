@@ -81,7 +81,7 @@
     const index = data.dashboard.cards.findIndex(
       (element) => element.id === ev.detail.id
     );
-    if (index === -1) throw new Error("Id not found in cards");
+    if (index === -1) console.error("Id not found in cards");
     picked = {
       startingIndex: index,
       index: index,
@@ -109,7 +109,7 @@
     const index = data.dashboard.cards.findIndex(
       (element) => element.id === ev.detail.id
     );
-    if (index === -1) throw new Error("Id not found in cards");
+    if (index === -1) console.error("Id not found in cards");
     resizing = {
       index: index,
       id: ev.detail.id,

@@ -91,7 +91,26 @@ export async function createCard(
     include: {
       numericVariables: true,
       stringVariables: true,
-      cards: true,
+      cards: {
+        orderBy: {
+          index: "asc",
+        },
+      },
+    },
+  });
+}
+
+export async function updateCards(
+  user: User,
+  dashboardId: string,
+  cards: CardData[]
+) {
+  return await db.dashboard.update({
+    where: { userId: user.id, id: dashboardId },
+    data: {
+      cards: {
+        set: cards,
+      },
     },
   });
 }

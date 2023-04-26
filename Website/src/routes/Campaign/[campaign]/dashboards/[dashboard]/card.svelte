@@ -1,26 +1,23 @@
 <script lang="ts">
+  import type { CardData } from "@prisma/client";
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
   const default_width = "auto";
   const default_height = "auto";
 
-  export let data: {
-    picked: boolean;
-    id: string;
-    source: string;
-    width?: number;
-    height?: number;
-  };
+  export let card: CardData;
+  export let picked: boolean;
+  export let edit: boolean;
 
   function pick(ev: MouseEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    const element = document.getElementById("content" + data.id);
+    const element = document.getElementById("content" + card.id);
     if (!element) throw new Error("Could not find root element of Card");
     let computedGeometry: DOMRect = element.getBoundingClientRect();
     dispatch("pick", {
-      id: data.id,
+      id: card.id,
       geometry: computedGeometry,
       mousepos: { x: ev.pageX, y: ev.pageY },
     });
@@ -29,11 +26,11 @@
   function resize(ev: MouseEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    const element = document.getElementById("content" + data.id);
+    const element = document.getElementById("content" + card.id);
     if (!element) throw new Error("Could not find root element of Card");
     let computedGeometry: DOMRect = element.getBoundingClientRect();
     dispatch("resize", {
-      id: data.id,
+      id: card.id,
       geometry: computedGeometry,
       mousepos: { x: ev.pageX, y: ev.pageY },
     });
@@ -41,26 +38,23 @@
 </script>
 
 <div
-  id="content{data.id}"
+  id="content{card.id}"
   class="card-content w3-card-4"
-  style="width:{data.width
-    ? Math.max(6, data.width) + 'px'
-    : default_width}; height:{data.height
-    ? Math.max(6, data.height) + 'px'
-    : default_height}; {data.picked ? 'cursor: grabbing;' : ''}"
+  style="width:{card.width
+    ? Math.max(6, card.width) + 'px'
+    : default_width}; height:{card.height
+    ? Math.max(6, card.height) + 'px'
+    : default_height}; {picked ? 'cursor: grabbing;' : ''}"
 >
+  {#if edit}
   <div id="controlBar">
     <div id="pickArea" on:mousedown={pick} />
-    <button
-      on:click={() => {
-        dispatch("remove", { id: data.id });
-      }}
-      id="removeButton"
-      class="w3-button"
-    />
+    <button on:click={() => { dispatch("remove", { id: card.id }) }} id="removeButton" class="w3-button"/>
   </div>
-  <p>{data.source}</p>
   <div id="resizeArea" on:mousedown={resize} />
+  {/if}
+
+  <p>{card.source}</p>
 </div>
 
 <style>

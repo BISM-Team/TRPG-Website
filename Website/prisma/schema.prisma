@@ -133,6 +133,7 @@ model StringVariable {
 
 model CardData {
   id     String @id @default(cuid())
+  index  Int
   width  Float
   height Float
   zoom   Float

@@ -5,46 +5,47 @@
   import Card from "./card.svelte";
   import Prototype from "./prototype.svelte";
   import Modal from "$lib/components/modal.svelte";
+  import Toolbar from "$lib/components/toolbar.svelte";
   import { spring, type Spring } from "svelte/motion";
   import { onMount } from "svelte";
   import { arraymove } from "$lib/utils";
   import { enhance, type SubmitFunction } from "$app/forms";
+  import type { CardData } from "@prisma/client";
+  import { stringify } from "devalue";
 
   export let data: PageData;
   export let form: ActionData;
-  const transition_delay = 0,
-    transition_duration = 300;
-  const animate_delay = 0,
-    animate_duration = 20;
-  const stiffness = 0.6,
-    damping = 1.0;
-  const trace_refractary_perioid = 200,
-    drag_refractary_period = 500;
-  let picked:
-    | {
+  const transition_delay = 0, transition_duration = 300;
+  const animate_delay = 0, animate_duration = 20;
+  const stiffness = 0.6, damping = 1.0;
+  const trace_refractary_perioid = 200, drag_refractary_period = 500;
+  
+  let edit = false;
+  let edited = false;
+  let showSaveDialog = false;
+  let removeDialog = { show: false, id: "" };
+  let showCreateDialog = false;
+  let disable = false;
+
+  let picked: {
         startingIndex: number;
         index: number;
         id: string;
         geometry: DOMRect;
-        data: (typeof data.dashboard.cards)[0];
+        data: CardData;
         refractary: boolean;
-      }
-    | undefined = undefined;
-  let resizing:
-    | {
+      } | undefined = undefined;
+
+  let resizing: {
         index: number;
         id: string;
         starting_top_left: { top: number; left: number };
-      }
-    | undefined = undefined;
+      } | undefined = undefined;
+
   let actionData: Spring<{ x_or_width: number; y_or_height: number }> = spring(
     { x_or_width: 0, y_or_height: 0 },
     { stiffness, damping }
   );
-
-  let removeDialog = { show: false, id: "" };
-  let showCreateDialog = false;
-  let disable = false;
 
   onMount(() => {
     document.addEventListener("mousemove", moveWhileDragging);
@@ -58,6 +59,16 @@
       document.removeEventListener("keydown", keydown);
     };
   });
+
+  function toggleEdit() {
+    if(edit && edited) {
+      toggleSaveDialog();
+    } else edit=!edit;
+  }
+
+  function toggleSaveDialog() {
+    showSaveDialog=!showSaveDialog;
+  }
 
   function toggleCreateDialog() {
     showCreateDialog = !showCreateDialog;
@@ -133,12 +144,16 @@
   }
 
   function confirmAction() {
-    picked = undefined;
     if (resizing) {
       data.dashboard.cards[resizing.index].width = $actionData.x_or_width;
       data.dashboard.cards[resizing.index].height = $actionData.y_or_height;
       resizing = undefined;
     }
+    if(picked) {
+      picked.data.index=picked.index;
+    }
+    picked = undefined;
+    edited=true;
   }
 
   function keydown(ev: KeyboardEvent) {
@@ -166,11 +181,7 @@
         y_or_height: mousepos.y - picked.geometry.height / 2,
       });
       if (!picked.refractary) {
-        const element = document
-          .elementsFromPoint(
-            mousepos.x - window.scrollX,
-            mousepos.y - window.scrollY
-          )
+        const element = document.elementsFromPoint(mousepos.x - window.scrollX,mousepos.y - window.scrollY)
           .find((element) => {
             return (
               picked &&
@@ -182,16 +193,12 @@
           picked.refractary = true;
           hoverWhileDragging(element.id.replace("content", ""));
           setTimeout(() => {
-            if (picked) {
-              picked.refractary = false;
-            }
+            if (picked) picked.refractary = false;
           }, drag_refractary_period);
         } else {
           picked.refractary = true;
           setTimeout(() => {
-            if (picked) {
-              picked.refractary = false;
-            }
+            if (picked) picked.refractary = false;
           }, trace_refractary_perioid);
         }
       }
@@ -227,8 +234,23 @@
     }
   }
 
-  const submitCreateCard: SubmitFunction = async function () {
+  const submitSave: SubmitFunction = async function(request) {
+    request.data.set("cards", stringify(data.dashboard.cards));
+    disable=true;
+    return async ({ result, update }) => {
+      if (result.type === "success") { 
+        toggleSaveDialog();
+        edited=false;
+        edit=false;
+      }
+      disable=false;
+      await update();
+    }
+  }
+
+  const submitCreateCard: SubmitFunction = async function (request) {
     disable = true;
+    request.data.set("index", data.dashboard.cards.length.toString());
     return async ({ result, update }) => {
       if (result.type === "success") toggleCreateDialog();
       disable = false;
@@ -250,60 +272,30 @@
   };
 </script>
 
-<button on:click={toggleCreateDialog} class="w3-center w3-teal w3-block"
-  >New Card</button
->
+<Toolbar>
+  <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
+    <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
+  </button>
+  <button disabled={disable} id="newButton" class="w3-button" on:click={toggleCreateDialog}>
+    <span class="material-symbols-outlined w3-text-white">add</span>
+  </button>
+</Toolbar>
 
-<div id="grid">
-  {#each data.dashboard.cards as card (card.id)}
-    <div
-      class="card"
-      in:scale={{
-        delay: transition_delay,
-        duration: transition_duration,
-      }}
-      out:scale={{
-        delay: transition_delay,
-        duration: transition_duration,
-      }}
-      animate:flip={{
-        delay: animate_delay,
-        duration: (d) => Math.sqrt(d) * animate_duration,
-      }}
-    >
-      {#if picked && card.id === picked.id}
-        <Prototype
-          data={{
-            id: card.id,
-            width: picked.geometry.width,
-            height: picked.geometry.height,
-          }}
-        />
-      {:else if resizing && card.id === resizing.id}
-        <Prototype
-          data={{
-            id: card.id,
-            width: $actionData.x_or_width,
-            height: $actionData.y_or_height,
-          }}
-        />
-      {:else}
-        <Card
-          data={{
-            picked: false,
-            id: card.id,
-            source: card.source,
-            width: card.width,
-            height: card.height,
-          }}
-          on:pick={startDragElement}
-          on:resize={startResizeElement}
-          on:remove={toggleRemoveDialog}
-        />
+{#if showSaveDialog}
+  <Modal {disable} on:close={toggleSaveDialog}>
+    <h3 class="w3-padding">Do you want to save your changes?</h3>
+    <form action="?/save" method="post" use:enhance={submitSave}>
+      {#if form?.save_error && form?.invalid_data}
+        <p>Client Error, please contact us!</p>
+      {:else if form?.save_error && form?.server_error}
+        <p>Server Error, please contact us!</p>
       {/if}
-    </div>
-  {/each}
-</div>
+      <input type="hidden" name="dashboardId" value={data.dashboard.id} />
+      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleSaveDialog}>No</button>
+      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
+    </form>
+  </Modal>
+{/if}
 
 {#if showCreateDialog}
   <Modal {disable} on:close={toggleCreateDialog}>
@@ -311,14 +303,20 @@
     <form action="?/createCard" method="post" use:enhance={submitCreateCard}>
       <label for="heightInput">Height (px)</label>
       <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={form?.height || 200} />
+      
       <label for="widthInput">Width (px)</label>
       <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={form?.width || 200} />
+      
       <input type="hidden" name="zoom" id="nameInput" value={1} class="w3-input w3-border w3-margin-bottom"/>
+      
       <label for="sourceInput">Source</label>
       <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={form?.source || ""}/>
+      
       <label for="typeInput">Type</label>
       <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={form?.type || "text"}/>
+      
       <input type="hidden" name="dashboardId" class="w3-input w3-border w3-margin-bottom" value={data.dashboard.id}/>
+      
       <button type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
       <button type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
     </form>
@@ -337,20 +335,26 @@
   </Modal>
 {/if}
 
+<div id="grid">
+  {#each data.dashboard.cards as card (card.id)}
+    <div class="card"
+      in:scale={{ delay: transition_delay, duration: transition_duration }}
+      out:scale={{ delay: transition_delay, duration: transition_duration }}
+      animate:flip={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}>
+      {#if picked && card.id === picked.id}
+        <Prototype data={{ id: card.id, width: picked.geometry.width, height: picked.geometry.height, }} />
+      {:else if resizing && card.id === resizing.id}
+        <Prototype data={{ id: card.id, width: $actionData.x_or_width, height: $actionData.y_or_height }}/>
+      {:else}
+        <Card {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={toggleRemoveDialog} />
+      {/if}
+    </div>
+  {/each}
+</div>
+
 {#if picked}
-  <div
-    class="pickedCard"
-    style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;"
-  >
-    <Card
-      data={{
-        picked: true,
-        id: picked.id,
-        source: picked.data.source,
-        width: picked.data.width,
-        height: picked.data.height,
-      }}
-    />
+  <div class="pickedCard" style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
+    <Card card={picked.data} picked={true} {edit}/>
   </div>
 {/if}
 

@@ -34,7 +34,7 @@
                 <input type="hidden" name="redirect" value={previousUrl}>
 
                 <label for="email_input">Email</label>
-                <input required type="text" autocomplete="email" name="email" id="email_input" value={form?.email ?? ''}  class='w3-input w3-border w3-margin-bottom'/>
+                <input required type="text" autocomplete="email" name="email" id="email_input" value={form?.login_email ?? ''}  class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.login_email_missing} <p class='w3-panel w3-red'>Missing Email</p> {/if}
 
                 <label for="password_input">Password</label>
@@ -52,11 +52,11 @@
                 <input type="hidden" name="redirect" value={previousUrl}>
 
                 <label for="username_input">Username</label>
-                <input required type="text" name="name" id="username_input" value={form?.name ?? ''} class='w3-input w3-border w3-margin-bottom'/>
+                <input required type="text" name="name" id="username_input" value={form?.register_name ?? ''} class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.register_name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>{/if}
 
                 <label for="email_input">Email</label>
-                <input required type="email" autocomplete="email" name="email" id="email_input" value={form?.email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
+                <input required type="email" autocomplete="email" name="email" id="email_input" value={form?.register_email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.register_email_missing} <p class='w3-panel w3-padding w3-red'>Missing Email</p>
                 {:else if form?.email_already_existing} <p class='w3-panel w3-padding w3-red'>Email already registered</p> {/if}
                 

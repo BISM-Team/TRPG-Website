@@ -6,6 +6,7 @@
   import { enhance } from "$app/forms";
   import { addHash } from "$lib/WorldWiki/tree/heading";
   import Modal from "$lib/components/modal.svelte";
+  import Toolbar from "$lib/components/toolbar.svelte";
   import { invalidateAll } from "$app/navigation";
 
   export let data: PageData;
@@ -70,14 +71,14 @@
   </Modal>
 {/if}
 
-<div id="topRightButtonContainer" class="w3-block">
+<Toolbar>
   <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
-    <span class="material-symbols-outlined">{edit ? "visibility" : "edit"}</span>
+    <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
   </button>
   <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleShowModal}>
-    <span class="material-symbols-outlined">delete</span>
+    <span class="material-symbols-outlined w3-text-white">delete</span>
   </button>
-</div>
+</Toolbar>
 
 <div class="w3-container" id="page">
   {#if edit}
@@ -120,20 +121,6 @@
 <style>
   #page {
     position: relative;
-  }
-  #topRightButtonContainer {
-    background-color: teal;
-    display: flex;
-    justify-content: right;
-    padding: 0em 1em;
-    gap: 1em;
-  }
-  #topRightButtonContainer button {
-    text-align: center;
-    box-sizing: content-box;
-    width: 4em;
-    height: 24px;
-    transition: 0.1s ease-out;
   }
   #textArea {
     width: 90%;

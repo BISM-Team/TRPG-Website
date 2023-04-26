@@ -54,7 +54,6 @@
 		"@vitejs/plugin-basic-ssl": "^1.0.1",
 		"bcrypt": "^5.1.0",
 		"devalue": "^4.3.0",
-		"dotenv": "^16.0.3",
 		"jsonwebtoken": "^9.0.0",
 		"prisma": "^4.10.1"
 	}

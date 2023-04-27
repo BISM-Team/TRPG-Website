@@ -15,15 +15,14 @@ export function getHeadingVisibility(
   user_id: string,
   gm_id: string
 ): boolean {
-  const trimmed_user_id = user_id;
-  if (trimmed_user_id === gm_id) return true;
+  if (user_id === gm_id) return true;
   if (node.attributes && node.attributes.viewers) {
     const viewers: string[] = node.attributes.viewers
       .split(";")
       .map((viewer: string) => {
         return viewer;
       });
-    return includes(viewers, trimmed_user_id) || includes(viewers, "all");
+    return includes(viewers, user_id) || includes(viewers, "all");
   } else return false;
 }
 

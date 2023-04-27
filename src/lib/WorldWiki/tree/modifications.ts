@@ -15,15 +15,14 @@ export function getHeadingModifiability(
   user_id: string,
   gm_id: string
 ): boolean {
-  const trimmed_user_id = user_id;
-  if (trimmed_user_id === gm_id) return true;
+  if (user_id === gm_id) return true;
   if (node.attributes && node.attributes.modifiers) {
     const modifiers: string[] = node.attributes.modifiers
       .split(";")
       .map((modifier: string) => {
         return modifier;
       });
-    return includes(modifiers, trimmed_user_id) || includes(modifiers, "all");
+    return includes(modifiers, user_id) || includes(modifiers, "all");
   } else return false;
 }
 

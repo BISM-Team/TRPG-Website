@@ -1,0 +1,169 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique"]
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  email     String   @unique
+  name      String
+  password  String
+
+  modifier_in Heading[] @relation("Modifier")
+  viewer_in   Heading[] @relation("Viewer")
+
+  dashboards Dashboard[]
+
+  dashboards_templates DashboardTemplate[]
+
+  Campaign_User Campaign_User[]
+}
+
+enum Role {
+  gm
+  member
+}
+
+model Campaign_User {
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  role Role
+
+  @@id([userId, campaignId])
+  @@index([userId])
+  @@index([campaignId])
+}
+
+model Campaign {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  name      String
+
+  Page          Page[]
+  Dashboard     Dashboard[]
+  Campaign_User Campaign_User[]
+}
+
+model Page {
+  name       String
+  createdAt  DateTime  @default(now())
+  content    Json
+  version    Int       @default(0)
+  headings   Heading[]
+  campaignId String
+  campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([name, campaignId])
+  @@index([campaignId])
+}
+
+model Heading {
+  id             String @id
+  text           String
+  level          Int
+  index          Int
+  pageName       String
+  pageCampaignId String
+  page           Page   @relation(fields: [pageName, pageCampaignId], references: [name, campaignId], onDelete: Cascade, onUpdate: Cascade)
+  modifiers      User[] @relation("Modifier")
+  viewers        User[] @relation("Viewer")
+
+  @@index([pageName, pageCampaignId])
+}
+
+model DashboardTemplate {
+  id               String            @id @default(cuid())
+  createdAt        DateTime          @default(now())
+  name             String
+  numericVariables NumericVariable[]
+  stringVariables  StringVariable[]
+  cards            CardData[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  dashboards Dashboard[]
+
+  @@index([userId])
+}
+
+model Dashboard {
+  id               String            @id @default(cuid())
+  name             String
+  numericVariables NumericVariable[]
+  stringVariables  StringVariable[]
+  cards            CardData[]
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([templateId])
+  @@index([userId])
+  @@index([campaignId])
+}
+
+model NumericVariable {
+  id    String @id @default(cuid())
+  name  String
+  value Int
+
+  dashboardId String?
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dashboardId])
+  @@index([templateId])
+}
+
+model StringVariable {
+  id    String @id @default(cuid())
+  name  String
+  value String
+
+  dashboardId String?
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dashboardId])
+  @@index([templateId])
+}
+
+model CardData {
+  id     String @id @default(cuid())
+  index  Int
+  width  Float
+  height Float
+  zoom   Float
+  source String
+  type   String
+
+  dashboardId String?
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dashboardId])
+  @@index([templateId])
+}

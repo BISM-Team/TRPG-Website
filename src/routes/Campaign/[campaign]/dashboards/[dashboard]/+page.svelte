@@ -12,6 +12,7 @@
   import { enhance, type SubmitFunction } from "$app/forms";
   import type { CardData } from "@prisma/client";
   import { stringify } from "devalue";
+  import { invalidateAll } from "$app/navigation";
 
   export let data: PageData;
   export let form: ActionData;
@@ -63,7 +64,7 @@
 
   function toggleEdit() {
     if(edit && edited) {
-      toggleSaveDialog();
+      showSaveDialog=true;
     } else edit=!edit;
   }
 
@@ -225,17 +226,30 @@
   }
 
   const submitSave: SubmitFunction = async function(request) {
+    disable=true;
+
     request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; return card; })));
     request.data.set("removed", stringify(removed));
-    disable=true;
-    return async ({ result, update }) => {
-      if (result.type === "success") { 
-        toggleSaveDialog();
-        edited=false;
-        edit=false;
-      }
+    const save = request.data.get("save")?.toString();
+    const _switch = request.data.get("switch")?.toString();
+
+    if(save && save === "false") {
+      request.cancel();
+      showSaveDialog=false;
+      edit=false;
+      edited=false;
       disable=false;
-      await update();
+      await invalidateAll();
+    } else {
+      return async ({ result, update }) => {
+        if (result.type === "success") { 
+          showSaveDialog=false;
+          edited=false;
+          if(_switch && _switch==="true") edit=false;
+        }
+        disable=false;
+        await update();
+      }
     }
   }
 
@@ -273,7 +287,7 @@
     edited = true;
     data.dashboard.cards.push(card);
     data.dashboard.cards = data.dashboard.cards;
-    toggleCreateDialog();
+    showCreateDialog=false;
     disable = false;
   };
 
@@ -295,6 +309,13 @@
 
 <Toolbar>
   {#if edit}
+  <form action="?/save" style="display: none" id="hiddenSaveForm" method="post" use:enhance={submitSave}>
+    <input type="hidden" name="dashboardId" value={data.dashboard.id} />
+    <input type="hidden" name="switch" value="false">
+  </form>
+  <button disabled={disable || !edited} id="saveButton" class="w3-button" type="submit" form="hiddenSaveForm">
+    <span class="material-symbols-outlined w3-text-white">save</span>
+  </button>
   <button disabled={disable} id="newButton" class="w3-button" on:click={toggleCreateDialog}>
     <span class="material-symbols-outlined w3-text-white">add</span>
   </button>
@@ -314,8 +335,9 @@
         <p>Server Error, please contact us!</p>
       {/if}
       <input type="hidden" name="dashboardId" value={data.dashboard.id} />
-      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleSaveDialog}>No</button>
-      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
+      <input type="hidden" name="switch" value="true">
+      <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">No</button>
+      <button disabled={disable} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}

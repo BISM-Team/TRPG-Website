@@ -15,7 +15,7 @@ export const actions: Actions = {
     const password = data.get("password")?.toString();
     const redirect_url = data.get("redirect")?.toString();
 
-    if (!email || !password)
+    if (!email || !password || !redirect_url)
       return fail(400, {
         login_email: email,
         login_email_missing: !email,
@@ -34,7 +34,7 @@ export const actions: Actions = {
       return fail(500, { login_server_error: true });
     }
 
-    if (redirect_url) throw redirect(303, redirect_url);
+    throw redirect(303, redirect_url);
   },
 
   register: async (event) => {

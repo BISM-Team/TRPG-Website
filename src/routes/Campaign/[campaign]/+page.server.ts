@@ -9,8 +9,8 @@ import { error, fail } from "@sveltejs/kit";
 import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 
-export const load = (async ({ locals, params }) => {
-  const user = getLoginOrRedirect(locals);
+export const load = (async ({ locals, params, url }) => {
+  const user = getLoginOrRedirect(locals, url);
   if (!(await getUserCampaign(user, params.campaign)))
     throw error(404, "Campaign not found");
   return {
@@ -20,8 +20,8 @@ export const load = (async ({ locals, params }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-  create: async function ({ locals, request, params }) {
-    const user = getLoginOrRedirect(locals);
+  create: async function ({ locals, request, params, url }) {
+    const user = getLoginOrRedirect(locals, url);
 
     const data = await request.formData();
     const name = data.get("name")?.toString();
@@ -68,8 +68,8 @@ export const actions: Actions = {
     }
   },
 
-  remove: async function ({ locals, request, params }) {
-    const user = getLoginOrRedirect(locals);
+  remove: async function ({ locals, request, params, url }) {
+    const user = getLoginOrRedirect(locals, url);
 
     const data = await request.formData();
     const id = data.get("id")?.toString();

@@ -3,14 +3,14 @@ import { createUserCampaign, getUserCampaigns } from "$lib/db/campaign.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { fail, type Actions } from "@sveltejs/kit";
 
-export const load = (async ({ locals }) => {
-  const user = getLoginOrRedirect(locals);
+export const load = (async ({ locals, url }) => {
+  const user = getLoginOrRedirect(locals, url);
   return { campaigns: getUserCampaigns(user) };
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-  create: async function ({ locals, request }) {
-    const user = getLoginOrRedirect(locals);
+  create: async function ({ locals, request, url }) {
+    const user = getLoginOrRedirect(locals, url);
 
     const data = await request.formData();
     const name = data.get("name")?.toString();

@@ -20,8 +20,8 @@ import type { Heading, Prisma } from "@prisma/client";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-  const user = getLoginOrRedirect(locals);
+export const load: PageServerLoad = async ({ params, locals, url }) => {
+  const user = getLoginOrRedirect(locals, url);
   const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
 
   if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
@@ -79,8 +79,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ locals, params, request }) => {
-    const user = getLoginOrRedirect(locals);
+  default: async ({ locals, params, request, url }) => {
+    const user = getLoginOrRedirect(locals, url);
     const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
 
     if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))

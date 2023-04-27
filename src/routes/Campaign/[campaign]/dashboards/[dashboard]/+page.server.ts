@@ -5,16 +5,16 @@ import { getLoginOrRedirect } from "$lib/utils.server";
 import { parse } from "devalue";
 import type { CardData } from "@prisma/client";
 
-export const load = (async ({ locals, params }) => {
-  const user = getLoginOrRedirect(locals);
+export const load = (async ({ locals, params, url }) => {
+  const user = getLoginOrRedirect(locals, url);
   const dashboard = await getDashboard(user, params.campaign, params.dashboard);
   if (!dashboard) throw error(404, "Dashboard not found");
   return { dashboard: dashboard };
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-  save: async function ({ request, locals }) {
-    const user = getLoginOrRedirect(locals);
+  save: async function ({ request, locals, url }) {
+    const user = getLoginOrRedirect(locals, url);
 
     const data = await request.formData();
     const _cards = data.get("cards");

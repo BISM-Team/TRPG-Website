@@ -9,8 +9,8 @@
     export let form: ActionData;
     let previousUrl = "/";
 
-    afterNavigate(({ from }) => {
-        if(from) previousUrl = from.url.toString();
+    afterNavigate(({ from, to }) => {
+        previousUrl = to?.url.searchParams.get("redirect") || from?.url.toString() || previousUrl;
     })
 
     const onSubmit: SubmitFunction = async function() {

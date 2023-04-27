@@ -1,2 +1,2 @@
 web: node build
-release: npx prisma db push
+release: npx prisma migrate deploy

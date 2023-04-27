@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
@@ -40,6 +41,8 @@ model Campaign_User {
   role Role
 
   @@id([userId, campaignId])
+  @@index([userId])
+  @@index([campaignId])
 }
 
 model Campaign {
@@ -62,6 +65,7 @@ model Page {
   campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([name, campaignId])
+  @@index([campaignId])
 }
 
 model Heading {
@@ -74,6 +78,8 @@ model Heading {
   page           Page   @relation(fields: [pageName, pageCampaignId], references: [name, campaignId], onDelete: Cascade, onUpdate: Cascade)
   modifiers      User[] @relation("Modifier")
   viewers        User[] @relation("Viewer")
+
+  @@index([pageName, pageCampaignId])
 }
 
 model DashboardTemplate {
@@ -88,6 +94,8 @@ model DashboardTemplate {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   dashboards Dashboard[]
+
+  @@index([userId])
 }
 
 model Dashboard {
@@ -105,6 +113,10 @@ model Dashboard {
 
   campaignId String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([templateId])
+  @@index([userId])
+  @@index([campaignId])
 }
 
 model NumericVariable {
@@ -117,6 +129,9 @@ model NumericVariable {
 
   templateId String?
   template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dashboardId])
+  @@index([templateId])
 }
 
 model StringVariable {
@@ -129,6 +144,9 @@ model StringVariable {
 
   templateId String?
   template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dashboardId])
+  @@index([templateId])
 }
 
 model CardData {
@@ -145,4 +163,7 @@ model CardData {
 
   templateId String?
   template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dashboardId])
+  @@index([templateId])
 }

@@ -29,8 +29,8 @@
       <label for="nameInput">Name</label>
       <input type="text" name="name" id="nameInput" class="w3-input w3-border w3-margin-bottom" value={form?.name || ""}/>
 
-      <button type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
-      <button type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+      <button disabled={disable} type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
+      <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
     </form>
   </Modal>
 {/if}

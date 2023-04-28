@@ -23,8 +23,8 @@
   const createPage: SubmitFunction = async function () {
     disable = true;
     return async ({ update }) => {
-      disable = false;
       await update();
+      disable = false;
     };
   };
 </script>

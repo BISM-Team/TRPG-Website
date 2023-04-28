@@ -39,8 +39,8 @@ export const actions: Actions = {
 
   register: async (event) => {
     const data = await event.request.formData();
-    const email = data.get("email")?.toString();
-    const name = data.get("username")?.toString();
+    const email = data.get("username")?.toString();
+    const name = data.get("name")?.toString();
     const password = data.get("password")?.toString();
     const repeat_password = data.get("repeat_password")?.toString();
     const redirect_url = data.get("redirect")?.toString();

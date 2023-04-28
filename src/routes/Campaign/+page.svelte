@@ -16,8 +16,8 @@
   const submitCreate: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      if (result.type === "success") toggleCreateDialog();
       await update();
+      if (result.type === "success") toggleCreateDialog();
       disable = false;
     };
   };

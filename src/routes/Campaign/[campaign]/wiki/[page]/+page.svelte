@@ -34,24 +34,24 @@
   const handleDelete: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      disable = false;
+      await update();
+      await invalidateAll();
       if (result.type === "success") { 
         show_modal = false;
         edit = false; 
       }
-      await update();
-      await invalidateAll();
+      disable = false;
     };
   };
 
   const handleSubmit: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
+      await update();
       if (result.type === "success") { 
         edit = false; 
       }
       disable = false;
-      await update();
     };
   };
 </script>

@@ -15,8 +15,8 @@
 
     const onSubmit: SubmitFunction = async function() {
         return async ({ result, update }) => {
-            if(result.type==='redirect') await invalidateAll();
-            await update();
+          await update();
+          if(result.type==='redirect') await invalidateAll();
         }
     }
 

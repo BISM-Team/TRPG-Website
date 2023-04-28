@@ -17,8 +17,8 @@
     disable = true;
     return async ({ result, update }) => {
       if (result.type === "success") show_modal = false;
-      disable = false;
       await update();
+      disable = false;
     };
   };
 </script>

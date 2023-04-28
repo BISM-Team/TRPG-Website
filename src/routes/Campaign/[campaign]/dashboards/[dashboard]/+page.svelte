@@ -242,7 +242,7 @@
       await invalidateAll();
     } else {
       return async ({ result, update }) => {
-        await update();
+        await update({reset: false});
         if (result.type === "success") { 
           showSaveDialog=false;
           edited=false;

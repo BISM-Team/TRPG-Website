@@ -34,7 +34,7 @@
   const handleDelete: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      await update();
+      await update({reset: false});
       await invalidateAll();
       if (result.type === "success") { 
         show_modal = false;
@@ -47,7 +47,7 @@
   const handleSubmit: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      await update();
+      await update({reset: false});
       if (result.type === "success") { 
         edit = false; 
       }

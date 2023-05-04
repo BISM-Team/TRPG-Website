@@ -1,31 +1,57 @@
-import type { Campaign, Heading, Page, Prisma, User } from "@prisma/client";
+import {
+  Role,
+  type Campaign,
+  type Campaign_User,
+  type Heading,
+  type Page,
+  type Prisma,
+  type User,
+} from "@prisma/client";
 import { db } from "./db.server";
 
-export async function getViewablePages(user: User, campaign: Campaign) {
+export async function getViewablePages(
+  user: User,
+  campaign: Campaign & {
+    Campaign_User: Campaign_User[];
+  }
+) {
+  const gm = campaign.Campaign_User.find(
+    (campaign_user) => campaign_user.role === Role.gm
+  );
   const pages = await db.page.findMany({
     where: { campaignId: campaign.id },
     include: { headings: { include: { viewers: true, modifiers: true } } },
   });
   return pages.filter((page) => {
     return (
+      (gm && user.id === gm.userId) ||
       page.headings[0].viewers.findIndex((viewer) => viewer.id === user.id) !==
-      -1
+        -1
     );
   });
 }
 
-export async function getModifiablePages(user: User, campaign: Campaign) {
+export async function getModifiablePages(
+  user: User,
+  campaign: Campaign & {
+    Campaign_User: Campaign_User[];
+  }
+) {
+  const gm = campaign.Campaign_User.find(
+    (campaign_user) => campaign_user.role === Role.gm
+  );
   const pages = await db.page.findMany({
     where: { campaignId: campaign.id },
     include: { headings: { include: { viewers: true, modifiers: true } } },
   });
   return pages.filter((page) => {
     return (
-      page.headings[0].viewers.findIndex((viewer) => viewer.id === user.id) !==
+      (gm && user.id === gm.userId) ||
+      (page.headings[0].viewers.findIndex((viewer) => viewer.id === user.id) !==
         -1 &&
-      page.headings[0].modifiers.findIndex(
-        (modifier) => modifier.id === user.id
-      ) !== -1
+        page.headings[0].modifiers.findIndex(
+          (modifier) => modifier.id === user.id
+        ) !== -1)
     );
   });
 }

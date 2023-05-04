@@ -11,7 +11,7 @@ export const load = (async ({ locals }) => {
 export const actions: Actions = {
   login: async (event) => {
     const data = await event.request.formData();
-    const email = data.get("email")?.toString(); // email or name
+    const email = data.get("username")?.toString(); // email or name
     const password = data.get("password")?.toString();
     const redirect_url = data.get("redirect")?.toString();
 
@@ -39,7 +39,7 @@ export const actions: Actions = {
 
   register: async (event) => {
     const data = await event.request.formData();
-    const email = data.get("email")?.toString();
+    const email = data.get("username")?.toString();
     const name = data.get("name")?.toString();
     const password = data.get("password")?.toString();
     const repeat_password = data.get("repeat_password")?.toString();

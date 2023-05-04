@@ -242,13 +242,13 @@
       await invalidateAll();
     } else {
       return async ({ result, update }) => {
+        await update({reset: false});
         if (result.type === "success") { 
           showSaveDialog=false;
           edited=false;
           if(_switch && _switch==="true") edit=false;
         }
         disable=false;
-        await update();
       }
     }
   }

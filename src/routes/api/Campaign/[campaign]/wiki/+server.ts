@@ -1,19 +1,31 @@
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { getModifiablePages, getViewablePages } from "$lib/db/page.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
-import { error, json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
+import { BadRequest, Ok } from "sveltekit-zero-api/http";
+import type { RequestEvent } from "./$types";
+import { querySpread, type KitEvent } from "sveltekit-zero-api";
 
-export const GET: RequestHandler = async ({ locals, params, url }) => {
+interface Get {
+  query: {
+    modifiable: boolean;
+  };
+}
+
+export async function GET(event: KitEvent<Get, RequestEvent>) {
+  const { locals, params, url } = event;
+  const { modifiable } = querySpread(event);
   const user = getLoginOrRedirect(locals, url);
   const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
-  const modifiable = url.searchParams.get("modifiable");
 
-  if (!campaign) throw error(400, "Campaign not existing or not accessible");
+  if (!campaign) return BadRequest();
 
   const result = modifiable
     ? await getModifiablePages(user, campaign)
     : await getViewablePages(user, campaign);
 
-  return json(result);
-};
+  return Ok({
+    body: {
+      pages: result,
+    },
+  });
+}

@@ -8,7 +8,7 @@ export async function GET(event: RequestEvent) {
   const { locals, url } = event;
   const user = getLoginOrRedirect(locals, url);
   const campaigns = await getUserCampaigns(user);
-  return (json as typeof TypedJson)({
+  return json({
     campaigns,
   });
 }

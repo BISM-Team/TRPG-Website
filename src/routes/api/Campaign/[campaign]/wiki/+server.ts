@@ -16,7 +16,7 @@ export async function GET(event: RequestEvent) {
     ? await getModifiablePages(user, campaign)
     : await getViewablePages(user, campaign);
 
-  return (json as typeof TypedJson)({
+  return json({
     pages: result,
   });
 }

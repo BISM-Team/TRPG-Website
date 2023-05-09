@@ -1,7 +1,6 @@
 <script lang="ts">
   import api from "$lib/api";
   import { createEventDispatcher } from "svelte";
-  import { onMount } from "svelte";
   import type { ResponseBody } from "sveltekit-zero-api/helpers";
   const dispatch = createEventDispatcher();
 
@@ -19,14 +18,6 @@
   function close() {
     dispatch("close");
   }
-
-  onMount(() => {
-    window.addEventListener("keyup", keyUp);
-    return () => {
-      window.removeEventListener("keyup", keyUp);
-    }
-  })
-
 </script>
 
 <div id="container">

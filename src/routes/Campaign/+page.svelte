@@ -42,9 +42,9 @@
     </Card>
   {/each}
 
-  <Card on:buttonClick={toggleCreateDialog}
-    ><h3 class="w3-padding-32">Create a campaign</h3></Card
-  >
+  <Card on:buttonClick={toggleCreateDialog}>
+    <h3 class="w3-padding-32">Create a campaign</h3>
+  </Card>
 </div>
 
 <style>

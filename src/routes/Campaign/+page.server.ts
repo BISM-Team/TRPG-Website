@@ -1,12 +1,6 @@
-import type { PageServerLoad } from "./$types";
-import { createUserCampaign, getUserCampaigns } from "$lib/db/campaign.server";
+import { createUserCampaign } from "$lib/db/campaign.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { fail, type Actions } from "@sveltejs/kit";
-
-export const load = (async ({ locals, url }) => {
-  const user = getLoginOrRedirect(locals, url);
-  return { campaigns: getUserCampaigns(user) };
-}) satisfies PageServerLoad;
 
 export const actions: Actions = {
   create: async function ({ locals, request, url }) {

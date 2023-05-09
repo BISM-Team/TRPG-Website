@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import type { TypedFetch } from "../../../$api";
-  import type { TypedResponse } from "@sveltejs/kit";
   const dispatch = createEventDispatcher();
 
   export let campaignId: string;

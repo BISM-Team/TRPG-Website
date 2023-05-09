@@ -2,7 +2,6 @@ import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { getModifiablePages, getViewablePages } from "$lib/db/page.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { error, json } from "@sveltejs/kit";
-import type { TypedJson } from "../../../../../../$api";
 import type { RequestEvent } from "./$types";
 
 export async function GET(event: RequestEvent) {

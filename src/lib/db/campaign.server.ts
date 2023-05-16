@@ -1,25 +1,25 @@
 import { Role, type Campaign, type User } from "@prisma/client";
 import { db } from "./db.server";
 
-export async function getUserCampaigns(user: User) {
+export async function getUserCampaigns(user_id: string) {
   return await db.campaign.findMany({
     where: {
       Campaign_User: {
         some: {
-          userId: user.id,
+          userId: user_id,
         },
       },
     },
   });
 }
 
-export async function getUserCampaign(user: User, campaignId: string) {
+export async function getUserCampaign(user_id: string, campaignId: string) {
   return await db.campaign.findUnique({
     where: {
       id: campaignId,
       Campaign_User: {
         some: {
-          userId: user.id,
+          userId: user_id,
         },
       },
     },
@@ -27,7 +27,7 @@ export async function getUserCampaign(user: User, campaignId: string) {
 }
 
 export async function getUserCampaignWithGmInfo(
-  user: User,
+  user_id: string,
   campaignId: string
 ) {
   return await db.campaign.findUnique({
@@ -35,7 +35,7 @@ export async function getUserCampaignWithGmInfo(
       id: campaignId,
       Campaign_User: {
         some: {
-          userId: user.id,
+          userId: user_id,
         },
       },
     },
@@ -50,7 +50,7 @@ export async function getUserCampaignWithGmInfo(
 }
 
 export async function createUserCampaign(
-  user: User,
+  user_id: string,
   campaign: Omit<Campaign, "id" | "createdAt">
 ) {
   return await db.campaign.create({
@@ -61,7 +61,7 @@ export async function createUserCampaign(
           {
             user: {
               connect: {
-                id: user.id,
+                id: user_id,
               },
             },
             role: Role.gm,
@@ -72,13 +72,13 @@ export async function createUserCampaign(
   });
 }
 
-export async function deleteUserCampaign(user: User, campaignId: string) {
+export async function deleteUserCampaign(user_id: string, campaignId: string) {
   return await db.campaign.delete({
     where: {
       id: campaignId,
       Campaign_User: {
         some: {
-          userId: user.id,
+          userId: user_id,
           role: Role.gm,
         },
       },

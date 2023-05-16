@@ -9,14 +9,14 @@ import type {
 } from "@prisma/client";
 import { db } from "./db.server";
 
-export async function getUserDashboards(user: User, campaignId: string) {
+export async function getUserDashboards(user_id: string, campaignId: string) {
   return await db.dashboard.findMany({
-    where: { userId: user.id, campaignId: campaignId },
+    where: { userId: user_id, campaignId: campaignId },
   });
 }
 
 export async function getDashboard(
-  user: User,
+  user_id: string,
   campaignId: string,
   dashboardId: string
 ) {
@@ -24,7 +24,7 @@ export async function getDashboard(
     where: {
       id: dashboardId,
       campaignId: campaignId,
-      userId: user.id,
+      userId: user_id,
     },
     include: {
       numericVariables: true,
@@ -39,7 +39,7 @@ export async function getDashboard(
 }
 
 export async function createDashboard(
-  user: User,
+  user_id: string,
   campaign: Campaign,
   dashboard: Omit<Dashboard, "id" | "userId" | "campaignId"> & {
     numericVariables: Omit<NumericVariable, "id">[];
@@ -52,7 +52,7 @@ export async function createDashboard(
       name: dashboard.name,
       templateId: dashboard.templateId,
       campaignId: campaign.id,
-      userId: user.id,
+      userId: user_id,
       numericVariables: {
         create: dashboard.numericVariables,
       },
@@ -67,7 +67,7 @@ export async function createDashboard(
 }
 
 export async function deleteDashboard(
-  user: User,
+  user_id: string,
   campaignId: string,
   dashboardId: string
 ) {
@@ -75,18 +75,18 @@ export async function deleteDashboard(
     where: {
       id: dashboardId,
       campaignId: campaignId,
-      userId: user.id,
+      userId: user_id,
     },
   });
 }
 
 export async function createCard(
-  user: User,
+  user_id: string,
   dashboardId: string,
   cardData: Prisma.CardDataCreateWithoutDashboardInput
 ) {
   return await db.dashboard.update({
-    where: { userId: user.id, id: dashboardId },
+    where: { userId: user_id, id: dashboardId },
     data: {
       cards: {
         create: cardData,
@@ -105,7 +105,7 @@ export async function createCard(
 }
 
 export async function updateCards(
-  user: User,
+  user_id: string,
   dashboardId: string,
   cards: CardData[],
   removed: string[]
@@ -115,7 +115,7 @@ export async function updateCards(
     return card_with_id;
   });
   return await db.dashboard.update({
-    where: { userId: user.id, id: dashboardId },
+    where: { userId: user_id, id: dashboardId },
     data: {
       cards: {
         upsert: _cards.map((card) => ({
@@ -136,12 +136,12 @@ export async function updateCards(
 }
 
 export async function removeCard(
-  user: User,
+  user_id: string,
   dashboardId: string,
   cardId: string
 ) {
   return await db.dashboard.update({
-    where: { userId: user.id, id: dashboardId },
+    where: { userId: user_id, id: dashboardId },
     data: {
       cards: {
         delete: { id: cardId },

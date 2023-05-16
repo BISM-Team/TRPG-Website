@@ -2,20 +2,19 @@ import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { getModifiablePages, getViewablePages } from "$lib/db/page.server";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { error, json } from "@sveltejs/kit";
-import type { RequestEvent } from "./$types";
+import type { RequestHandler } from "./$types";
 
-export async function GET(event: RequestEvent) {
-  const { locals, url, params } = event;
+export const GET = async function ({ locals, url, params }) {
   const user = getLoginOrRedirect(locals, url);
-  const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
+  const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
   if (!campaign) throw error(400);
 
   const result = url.searchParams.get("modifiable")
-    ? await getModifiablePages(user, campaign)
-    : await getViewablePages(user, campaign);
+    ? await getModifiablePages(user.id, campaign)
+    : await getViewablePages(user.id, campaign);
 
   return json({
     pages: result,
   });
-}
+} satisfies RequestHandler;

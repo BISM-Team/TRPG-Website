@@ -5,16 +5,22 @@ import { AUTH_SECRET } from "$env/static/private";
 import bcrypt from "bcrypt";
 import { db } from "./db.server";
 
+export interface MyJwtPayload extends JwtPayload, Pick<User, "id" | "name"> {
+  id: string;
+  name: string;
+}
+
 export async function getUserFromToken(token: string | undefined) {
   let jwtUser: string | JwtPayload;
   if (token && (jwtUser = jwt.verify(token, AUTH_SECRET))) {
     if (typeof jwtUser === "string") throw error(400, "Invalid Token");
-    return await db.user.findUnique({ where: { id: jwtUser.id } });
+    return jwtUser as MyJwtPayload;
   } else return null;
 }
 
 export function createToken(user: User) {
-  return jwt.sign({ id: user.id, username: user.name }, AUTH_SECRET, {
+  const payload: MyJwtPayload = { id: user.id, name: user.name };
+  return jwt.sign(payload, AUTH_SECRET, {
     expiresIn: "8h",
   });
 }

@@ -1,13 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import type { TypedFetch } from "../../../$api";
+  import { fetch } from "../../../$api";
   const dispatch = createEventDispatcher();
 
   export let campaignId: string;
   let searchText = "";
   let searchInput: HTMLElement;
-  let initial_load = (async () => {
-    return (await (await (fetch as typeof TypedFetch)(`/api/Campaign/${campaignId}/wiki`)).json()).pages;
+  let initial_load = (async () => {;
+    return (await (await fetch(`/api/Campaign/${campaignId}/wiki`)).json()).pages;
   })();
 
   function close() {

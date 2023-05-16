@@ -5,12 +5,11 @@ import {
   type Heading,
   type Page,
   type Prisma,
-  type User,
 } from "@prisma/client";
 import { db } from "./db.server";
 
 export async function getViewablePages(
-  user: User,
+  user_id: string,
   campaign: Campaign & {
     Campaign_User: Campaign_User[];
   }
@@ -24,15 +23,15 @@ export async function getViewablePages(
   });
   return pages.filter((page) => {
     return (
-      (gm && user.id === gm.userId) ||
-      page.headings[0].viewers.findIndex((viewer) => viewer.id === user.id) !==
+      (gm && user_id === gm.userId) ||
+      page.headings[0].viewers.findIndex((viewer) => viewer.id === user_id) !==
         -1
     );
   });
 }
 
 export async function getModifiablePages(
-  user: User,
+  user_id: string,
   campaign: Campaign & {
     Campaign_User: Campaign_User[];
   }
@@ -46,11 +45,11 @@ export async function getModifiablePages(
   });
   return pages.filter((page) => {
     return (
-      (gm && user.id === gm.userId) ||
-      (page.headings[0].viewers.findIndex((viewer) => viewer.id === user.id) !==
+      (gm && user_id === gm.userId) ||
+      (page.headings[0].viewers.findIndex((viewer) => viewer.id === user_id) !==
         -1 &&
         page.headings[0].modifiers.findIndex(
-          (modifier) => modifier.id === user.id
+          (modifier) => modifier.id === user_id
         ) !== -1)
     );
   });

@@ -7,7 +7,11 @@ import type { CardData } from "@prisma/client";
 
 export const load = (async ({ locals, params, url }) => {
   const user = getLoginOrRedirect(locals, url);
-  const dashboard = await getDashboard(user, params.campaign, params.dashboard);
+  const dashboard = await getDashboard(
+    user.id,
+    params.campaign,
+    params.dashboard
+  );
   if (!dashboard) throw error(404, "Dashboard not found");
   return { dashboard: dashboard };
 }) satisfies PageServerLoad;
@@ -28,7 +32,7 @@ export const actions: Actions = {
     const removed: string[] = parse(_removed.toString());
 
     try {
-      await updateCards(user, dashboardId, cards, removed);
+      await updateCards(user.id, dashboardId, cards, removed);
     } catch (exc) {
       console.error(exc);
       return fail(500, { save_error: true, server_error: true });

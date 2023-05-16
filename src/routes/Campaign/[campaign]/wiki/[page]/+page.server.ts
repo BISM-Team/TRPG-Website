@@ -1,12 +1,8 @@
-import { error, fail, type HttpError } from "@sveltejs/kit";
-import type { Actions, PageServerLoad } from "./$types";
+import { fail } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 import { allowed_page_names_regex_whole_word } from "$lib/WorldWiki/constants";
 import type { Root } from "mdast";
-import {
-  filterOutTree,
-  parseSource,
-  renderTree,
-} from "$lib/WorldWiki/tree/tree";
+import { parseSource } from "$lib/WorldWiki/tree/tree";
 import {
   createPage,
   deletePage,
@@ -15,73 +11,15 @@ import {
 } from "$lib/db/page.server";
 import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
 import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
-import { capitalizeFirstLetter, includes } from "$lib/utils";
-import type { Heading, Prisma } from "@prisma/client";
+import { capitalizeFirstLetter } from "$lib/utils";
+import type { Prisma } from "@prisma/client";
 import { getLoginOrRedirect } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
-
-export const load: PageServerLoad = async ({ params, locals, url }) => {
-  const user = getLoginOrRedirect(locals, url);
-  const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
-
-  if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
-    throw error(400, "Invalid campaign or page name");
-
-  const gm_id = campaign.Campaign_User[0]
-    ? campaign.Campaign_User[0].userId
-    : "";
-
-  const page = await getPage(params.page, campaign);
-  if (!page) {
-    throw error(404, "Page not found, want to create it?");
-  }
-
-  try {
-    const tree = await filterOutTree(
-      page.content as unknown as Root,
-      user.id,
-      gm_id
-    );
-    if (!tree.children.length) {
-      throw error(403, "Page not viewable");
-    }
-    const headings: (Omit<Heading, "index"> & {
-      viewers: string[];
-      modifiers: string[];
-    })[] = page.headings.map((heading) => {
-      return {
-        pageCampaignId: heading.pageCampaignId,
-        pageName: heading.pageName,
-        id: heading.id,
-        text: heading.text,
-        level: heading.level,
-        viewers: heading.viewers.map((viewer) => viewer.id),
-        modifiers: heading.modifiers.map((modifier) => modifier.id),
-      };
-    });
-    return {
-      version: page.version,
-      headings: headings.filter((heading) => {
-        return user.id === gm_id || includes(heading.viewers, user.id);
-      }),
-      tree: tree,
-      renderedTree: await renderTree(
-        JSON.parse(JSON.stringify(tree)),
-        user.id,
-        gm_id
-      ),
-    };
-  } catch (exc) {
-    if ((exc as HttpError).status === 403) throw exc;
-    console.log(exc);
-    throw error(500, "Errors in parsing page, try again");
-  }
-};
 
 export const actions: Actions = {
   default: async ({ locals, params, request, url }) => {
     const user = getLoginOrRedirect(locals, url);
-    const campaign = await getUserCampaignWithGmInfo(user, params.campaign);
+    const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
     if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
       return fail(400, { invalid_campaign_id_or_page_name: true });

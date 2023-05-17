@@ -16,9 +16,9 @@
   const handleSubmit: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
+      await update({reset: false});
       if (result.type === "success") show_modal = false;
       disable = false;
-      await update();
     };
   };
 </script>

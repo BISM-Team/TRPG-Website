@@ -2,62 +2,60 @@
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { ActionData, PageData } from "./$types";
   import { stringifyTree } from "$lib/WorldWiki/tree/tree";
-  import { onMount } from "svelte";
   import { enhance } from "$app/forms";
   import { addHash } from "$lib/WorldWiki/tree/heading";
   import Modal from "$lib/components/modal.svelte";
   import Toolbar from "$lib/components/toolbar.svelte";
   import { invalidateAll } from "$app/navigation";
+  import WikiSearch from "$lib/components/wiki_search.svelte";
+  import { page } from "$app/stores";
 
   export let data: PageData;
   export let form: ActionData;
   let edit = false;
   let disable = false;
-  let show_modal = false;
+  let showDeleteModal = false;
+  let showSearchModal = false;
 
   function toggleEdit() {
     edit=!edit;
   }
 
-  function toggleShowModal() {
-    show_modal=!show_modal;
+  function toggleDeleteModal() {
+    showDeleteModal=!showDeleteModal;
   }
 
-  onMount(() => {
-    window.onclick = function (event) {
-      let modal: HTMLElement | null;
-      if (show_modal && (modal = document.getElementById("modalWrapper")) && event.target == modal)
-        show_modal = false;
-      };
-  });
+  function toggleSearchModal() {
+    showSearchModal=!showSearchModal;
+  }
 
   const handleDelete: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
-      disable = false;
+      await update({reset: false});
+      await invalidateAll();
       if (result.type === "success") { 
-        show_modal = false;
+        showDeleteModal = false;
         edit = false; 
       }
-      await update();
-      await invalidateAll();
+      disable = false;
     };
   };
 
   const handleSubmit: SubmitFunction = async function () {
     disable = true;
     return async ({ result, update }) => {
+      await update({reset: false});
       if (result.type === "success") { 
         edit = false; 
       }
       disable = false;
-      await update();
     };
   };
 </script>
 
-{#if show_modal}
-  <Modal {disable} on:close={toggleShowModal}>
+{#if showDeleteModal}
+  <Modal {disable} on:close={toggleDeleteModal}>
     <h2 class="w3-padding">Do you want to delete this page?</h2>
     <p>
       <em>Note that only the content you are allowed to modify will be deleted</em>
@@ -65,18 +63,30 @@
     <form id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={handleDelete}>
       <input type="hidden" name="version" value={data.version} />
       <input type="hidden" name="text" value="" />
-      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleShowModal}>Cancel</button>
+      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteModal}>Cancel</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}
 
+{#if showSearchModal}
+  <Modal {disable} on:close={toggleSearchModal}>
+    <WikiSearch campaignId={$page.params.campaign} on:close={toggleSearchModal}></WikiSearch>
+  </Modal>
+{/if}
+
 <Toolbar>
+  {#if edit}
+    <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleDeleteModal}>
+      <span class="material-symbols-outlined w3-text-white">delete</span>
+    </button>
+  {:else}
+    <button disabled={disable} id="searchButton" class="w3-button" on:click={toggleSearchModal}>
+      <span class="material-symbols-outlined w3-text-white">search</span>
+    </button>
+  {/if}
   <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
     <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
-  </button>
-  <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleShowModal}>
-    <span class="material-symbols-outlined w3-text-white">delete</span>
   </button>
 </Toolbar>
 

@@ -14,9 +14,11 @@
     })
 
     const onSubmit: SubmitFunction = async function() {
+      disable=true;
         return async ({ result, update }) => {
-            if(result.type==='redirect') await invalidateAll();
-            await update();
+          await update({reset: false});
+          if(result.type==='redirect') await invalidateAll();
+          disable=false;
         }
     }
 
@@ -34,7 +36,7 @@
                 <input type="hidden" name="redirect" value={previousUrl}>
 
                 <label for="email_input">Email</label>
-                <input required type="text" autocomplete="email" name="email" id="email_input" value={form?.login_email ?? ''}  class='w3-input w3-border w3-margin-bottom'/>
+                <input required type="text" autocomplete="username email" name="username" id="email_input" value={form?.login_email ?? ''}  class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.login_email_missing} <p class='w3-panel w3-red'>Missing Email</p> {/if}
 
                 <label for="password_input">Password</label>
@@ -56,7 +58,7 @@
                 {#if form?.register_name_missing} <p class='w3-panel w3-padding w3-red'>Missing Username</p>{/if}
 
                 <label for="email_input">Email</label>
-                <input required type="email" autocomplete="email" name="email" id="email_input" value={form?.register_email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
+                <input required type="email" autocomplete="username email" name="username" id="email_input" value={form?.register_email ?? ''} class='w3-input w3-border w3-margin-bottom'/>
                 {#if form?.register_email_missing} <p class='w3-panel w3-padding w3-red'>Missing Email</p>
                 {:else if form?.email_already_existing} <p class='w3-panel w3-padding w3-red'>Email already registered</p> {/if}
                 

@@ -6,14 +6,24 @@
   export let disable: boolean;
   let wrapper: HTMLElement;
 
-  function closeModal(event: MouseEvent) {
-    if (!disable && wrapper && event.target == wrapper) dispatch("close");
+  function closeModal() {
+    if(!disable && wrapper) dispatch("close")
+  }
+
+  function clickOutside(event: MouseEvent) {
+    if (event.target == wrapper) closeModal();
+  }
+
+  function keyUp(ev: KeyboardEvent) {
+    if(ev.key === "Escape") closeModal();
   }
 
   onMount(() => {
-    window.addEventListener("click", closeModal);
+    window.addEventListener("click", clickOutside);
+    window.addEventListener("keyup", keyUp);
     return () => {
-      window.removeEventListener("click", closeModal);
+      window.removeEventListener("click", clickOutside);
+      window.removeEventListener("keyup", keyUp);
     };
   });
 </script>

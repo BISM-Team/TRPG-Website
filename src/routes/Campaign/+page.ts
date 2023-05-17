@@ -1,6 +1,10 @@
+import { error, redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
+import { handleFetchError } from "$lib/utils";
 
-export const load: PageLoad = async ({ fetch }) => {
-  const response_1 = await (await fetch("/api/Campaign")).json();
-  return { campaigns: response_1.campaigns };
+export const load: PageLoad = async ({ fetch, url }) => {
+  const response = await fetch("/api/Campaign");
+  await handleFetchError(response, url);
+  const data = await response.json();
+  return { campaigns: data.campaigns };
 };

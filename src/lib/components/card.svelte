@@ -8,13 +8,13 @@
   }
 </script>
 
-<div id="container" class="card-container w3-container w3-card-4 w3-margin">
+<div id="container" class="card-container w3-card-4 w3-margin w3-center">
   {#if link}
-    <a href={link}>
+    <a href={link} class="w3-container">
       <slot />
     </a>
   {:else}
-    <button on:click={onClick}>
+    <button on:click={onClick} class="w3-container w3-block">
       <slot />
     </button>
   {/if}
@@ -22,7 +22,7 @@
 
 <style>
   #container {
-    max-width: 20%;
+    min-width: 20%;
     transition: ease-out 200ms;
   }
 
@@ -31,11 +31,13 @@
   }
 
   a {
+    display: block;
     text-decoration: none;
   }
 
   button {
     background-color: transparent;
     border: none;
+    cursor: pointer;
   }
 </style>

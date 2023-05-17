@@ -9,7 +9,7 @@ export const handle = async function ({ event, resolve }) {
 } satisfies Handle;
 
 export const handleError = async function ({ error }) {
-  console.error("UNEXPECTED: ", error);
+  console.error("SERVER ERROR: ", error);
 
   return {
     code: 500,

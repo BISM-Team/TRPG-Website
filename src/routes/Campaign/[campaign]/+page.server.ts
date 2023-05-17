@@ -3,11 +3,11 @@ import { createDashboard, deleteDashboard } from "$lib/db/dashboard.server";
 import { getDashboardTemplate } from "$lib/db/dashboard_template.server";
 import { fail } from "@sveltejs/kit";
 import { getUserCampaign } from "$lib/db/campaign.server";
-import { getLoginOrRedirect } from "$lib/utils.server";
+import { getLogin } from "$lib/utils.server";
 
 export const actions: Actions = {
   create: async function ({ locals, request, params, url }) {
-    const user = getLoginOrRedirect(locals, url);
+    const user = getLogin(locals, url);
 
     const data = await request.formData();
     const name = data.get("name")?.toString();
@@ -55,7 +55,7 @@ export const actions: Actions = {
   },
 
   remove: async function ({ locals, request, params, url }) {
-    const user = getLoginOrRedirect(locals, url);
+    const user = getLogin(locals, url);
 
     const data = await request.formData();
     const id = data.get("id")?.toString();

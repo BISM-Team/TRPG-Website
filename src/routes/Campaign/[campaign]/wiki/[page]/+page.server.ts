@@ -13,12 +13,12 @@ import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
 import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
 import { capitalizeFirstLetter } from "$lib/utils";
 import type { Prisma } from "@prisma/client";
-import { getLoginOrRedirect } from "$lib/utils.server";
+import { getLogin } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 
 export const actions: Actions = {
   default: async ({ locals, params, request, url }) => {
-    const user = getLoginOrRedirect(locals, url);
+    const user = getLogin(locals, url);
     const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
     if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))

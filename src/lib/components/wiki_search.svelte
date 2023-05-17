@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { fetch } from "../../../$api";
   const dispatch = createEventDispatcher();
 
   export let campaignId: string;

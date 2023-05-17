@@ -1,13 +1,13 @@
-.DS_Store
+.DS*Store
 node_modules
 /build
 /.svelte-kit
 /package
 .env
-.env._
+.env.*
 !.env.example
-_.db
-\*\*/sveltekit-zero-api.d.ts
+\_.db
+.vercel
 
 # Ignore files for PNPM, NPM and YARN
 

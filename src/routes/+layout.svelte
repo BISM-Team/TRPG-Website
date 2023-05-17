@@ -17,7 +17,9 @@
   </nav>
 </header>
 
-<slot />
+<main>
+  <slot />
+</main>
 
 <style>
   header {

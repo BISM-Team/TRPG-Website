@@ -1,32 +1,17 @@
 <script lang="ts">
-  import api from "$lib/api";
   import { createEventDispatcher } from "svelte";
-  import { onMount } from "svelte";
-  import type { ResponseBody } from "sveltekit-zero-api/helpers";
   const dispatch = createEventDispatcher();
 
   export let campaignId: string;
   let searchText = "";
   let searchInput: HTMLElement;
-
-  const route = api.Campaign.campaign$(campaignId).wiki.GET;
-  const initial_load = new Promise<ResponseBody<typeof route, "Ok">["pages"]>((resolve, reject) => {
-    route({query: { modifiable: false }}).Ok(result => { 
-      resolve(result.body.pages);
-    }).Any(() => reject());
-  });
+  let initial_load = (async () => {;
+    return (await (await fetch(`/api/Campaign/${campaignId}/wiki`)).json()).pages;
+  })();
 
   function close() {
     dispatch("close");
   }
-
-  onMount(() => {
-    window.addEventListener("keyup", keyUp);
-    return () => {
-      window.removeEventListener("keyup", keyUp);
-    }
-  })
-
 </script>
 
 <div id="container">

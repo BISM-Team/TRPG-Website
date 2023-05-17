@@ -1,4 +1,3 @@
-import { error, redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 import { handleFetchError } from "$lib/utils";
 

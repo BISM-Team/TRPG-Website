@@ -31,10 +31,6 @@ export const GET = async function ({
     throw error(404, "Page not found, want to create it?");
   }
 
-  setHeaders({
-    ETag: page.version.toString(),
-  });
-
   try {
     const tree = await filterOutTree(
       page.content as unknown as Root,

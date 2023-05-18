@@ -1,6 +1,6 @@
 import { error, json, type HttpError } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { getLoginOrRedirect } from "$lib/utils.server";
+import { getLogin } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { allowed_page_names_regex_whole_word } from "$lib/WorldWiki/constants";
 import { getPage } from "$lib/db/page.server";
@@ -10,7 +10,7 @@ import type { Heading } from "@prisma/client";
 import { includes } from "$lib/utils";
 
 export const GET = async function ({ params, locals, url }) {
-  const user = getLoginOrRedirect(locals, url);
+  const user = getLogin(locals, url);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
   if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))

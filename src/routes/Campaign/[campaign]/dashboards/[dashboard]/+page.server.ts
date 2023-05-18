@@ -1,12 +1,12 @@
 import type { PageServerLoad } from "./$types";
 import { getDashboard, updateCards } from "$lib/db/dashboard.server";
 import { error, type Actions, fail } from "@sveltejs/kit";
-import { getLoginOrRedirect } from "$lib/utils.server";
+import { getLogin } from "$lib/utils.server";
 import { parse } from "devalue";
 import type { CardData } from "@prisma/client";
 
 export const load = (async ({ locals, params, url }) => {
-  const user = getLoginOrRedirect(locals, url);
+  const user = getLogin(locals, url);
   const dashboard = await getDashboard(
     user.id,
     params.campaign,
@@ -18,7 +18,7 @@ export const load = (async ({ locals, params, url }) => {
 
 export const actions: Actions = {
   save: async function ({ request, locals, url }) {
-    const user = getLoginOrRedirect(locals, url);
+    const user = getLogin(locals, url);
 
     const data = await request.formData();
     const _cards = data.get("cards");

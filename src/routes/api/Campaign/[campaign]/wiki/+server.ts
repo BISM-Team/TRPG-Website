@@ -1,11 +1,11 @@
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { getModifiablePages, getViewablePages } from "$lib/db/page.server";
-import { getLoginOrRedirect } from "$lib/utils.server";
+import { getLogin } from "$lib/utils.server";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET = async function ({ locals, url, params }) {
-  const user = getLoginOrRedirect(locals, url);
+  const user = getLogin(locals, url);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
   if (!campaign) throw error(400);

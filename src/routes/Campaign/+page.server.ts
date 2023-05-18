@@ -1,10 +1,10 @@
 import { createUserCampaign } from "$lib/db/campaign.server";
-import { getLoginOrRedirect } from "$lib/utils.server";
+import { getLogin } from "$lib/utils.server";
 import { fail, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
   create: async function ({ locals, request, url }) {
-    const user = getLoginOrRedirect(locals, url);
+    const user = getLogin(locals, url);
 
     const data = await request.formData();
     const name = data.get("name")?.toString();

@@ -1,7 +1,7 @@
-import { redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 
-export function getLoginOrRedirect(locals: App.Locals, current_url: URL) {
+export function getLogin(locals: App.Locals, current_url: URL) {
   const user = locals.user;
-  if (!user) throw redirect(307, "/login?redirect=" + current_url.toString());
+  if (!user) throw error(401);
   return user;
 }

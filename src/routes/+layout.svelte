@@ -42,4 +42,30 @@
     width: 100%;
     justify-content: space-evenly;
   }
+
+  :global(form label) {
+    display: block;
+    margin-bottom: 0.5em;
+  }
+
+  :global(form input) {
+    display: block;
+    margin-bottom: 1em;
+  }
+
+  :global(form button) {
+    width: 6em;
+    margin: 0 1.5em;
+    margin-top: 0.5em;
+  }
+
+  :global(.cards) {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin-top: 4em;
+    padding: 3em;
+  }
 </style>

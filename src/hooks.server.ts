@@ -5,7 +5,14 @@ export const handle = async function ({ event, resolve }) {
   const token = event.cookies.get("Authorization");
   event.locals.user = await getUserFromToken(token);
   if (!event.locals.user && token) deleteToken(event.cookies);
-  return await resolve(event);
+  const before = Date.now();
+  const result = await resolve(event);
+  const after = Date.now();
+  const url = new URL(event.request.url);
+  console.log(
+    `Request ${event.request.method} ${url.pathname} took ${after - before}ms`
+  );
+  return result;
 } satisfies Handle;
 
 export const handleError = async function ({ error }) {

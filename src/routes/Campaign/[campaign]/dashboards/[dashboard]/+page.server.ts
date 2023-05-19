@@ -1,20 +1,8 @@
-import type { PageServerLoad } from "./$types";
-import { getDashboard, updateCards } from "$lib/db/dashboard.server";
-import { error, type Actions, fail } from "@sveltejs/kit";
+import { updateCards } from "$lib/db/dashboard.server";
+import { type Actions, fail } from "@sveltejs/kit";
 import { getLogin } from "$lib/utils.server";
 import { parse } from "devalue";
 import type { CardData } from "@prisma/client";
-
-export const load = (async ({ locals, params, url }) => {
-  const user = getLogin(locals, url);
-  const dashboard = await getDashboard(
-    user.id,
-    params.campaign,
-    params.dashboard
-  );
-  if (!dashboard) throw error(404, "Dashboard not found");
-  return { dashboard: dashboard };
-}) satisfies PageServerLoad;
 
 export const actions: Actions = {
   save: async function ({ request, locals, url }) {

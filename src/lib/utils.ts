@@ -46,11 +46,13 @@ export function arraymove<type>(
   arr.splice(toIndex, 0, ...arr.splice(fromIndex, 1));
 }
 
-export async function handleFetch(response: Response, url: URL) {
+export async function propagateErrors(response: Response, url: URL) {
   if (!response.ok) {
     console.log("page fetch", response.status);
     if (response.status === 401)
       throw redirect(307, "/login?redirect=" + url.toString());
-    else throw error(response.status, await response.text());
+    else {
+      throw error(response.status, await response.json());
+    }
   }
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { propagateErrors } from "$lib/utils";
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
@@ -6,7 +7,11 @@
   let searchText = "";
   let searchInput: HTMLElement;
   let initial_load = (async () => {;
-    return (await (await fetch(`/api/Campaign/${campaignId}/wiki`)).json()).pages;
+    const response = await fetch(`/api/Campaign/${campaignId}/wiki`);
+    await propagateErrors(response, new URL(window.location.href));
+    if (response.ok) {
+      return (await response.json()).pages;
+    } else throw new Error("unexpected branch");
   })();
 
   function close() {

@@ -1,7 +1,7 @@
 import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLogin } from "$lib/utils.server";
 import { error, json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
+import type { RequestHandler } from "../$types";
 import { getUserDashboards } from "$lib/db/dashboard.server";
 
 export const GET = async function ({ locals, params, url }) {

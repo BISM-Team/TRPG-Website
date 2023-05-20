@@ -48,7 +48,6 @@ export function arraymove<type>(
 
 export async function propagateErrors(response: Response, url: URL) {
   if (!response.ok) {
-    console.log("page fetch", response.status);
     if (response.status === 401)
       throw redirect(307, "/login?redirect=" + url.toString());
     else {

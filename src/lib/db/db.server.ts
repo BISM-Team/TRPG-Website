@@ -36,7 +36,9 @@ export const db = new PrismaClient(
 );
 
 if (LOG_LEVEL.includes("DBQUERY")) {
+  // @ts-ignore
   db.$on("query", (e) => {
+    // @ts-ignore
     console.log("Query duration: " + e.duration + "ms");
   });
 }

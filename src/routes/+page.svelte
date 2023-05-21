@@ -3,10 +3,10 @@
 
   const cards = [
     {
-      name: "Game Wiki",
+      name: "Characters",
       description:
-        "A place to find all the informations for a specific Game System, such as DnD or others",
-      link: "/GameWiki",
+        "View and edit your characters, or create new ones to use in campaigns",
+      link: "/Characters",
     },
     {
       name: "Campaign",

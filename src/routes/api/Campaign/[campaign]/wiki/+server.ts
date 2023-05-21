@@ -5,7 +5,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET = async function ({ locals, url, params }) {
-  const user = getLogin(locals, url);
+  const user = getLogin(locals);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
   if (!campaign) throw error(400);

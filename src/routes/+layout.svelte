@@ -7,7 +7,7 @@
   <h1>BISM Website</h1>
   <nav>
     <a href="/" class="w3-block w3-button">Home</a>
-    <a href="/GameWiki" class="w3-block w3-button">Game Wiki</a>
+    <a href="/Characters" class="w3-block w3-button">Characters</a>
     <a href="/Campaign" class="w3-block w3-button">Campaign</a>
     {#if data.auth}
       <a href="/logout" data-sveltekit-preload-data="tap" data-sveltekit-preload-code="hover" class="w3-block w3-button">Logout</a>

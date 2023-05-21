@@ -4,8 +4,8 @@ import { getLogin } from "$lib/utils.server";
 import { fail, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
-  create: async function ({ locals, request, url }) {
-    const user = getLogin(locals, url);
+  create: async function ({ locals, request }) {
+    const user = getLogin(locals);
 
     const data = await request.formData();
     const name = data.get("name")?.toString();

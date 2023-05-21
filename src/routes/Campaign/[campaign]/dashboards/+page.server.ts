@@ -6,8 +6,8 @@ import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLogin } from "$lib/utils.server";
 
 export const actions: Actions = {
-  create: async function ({ locals, request, params, url }) {
-    const user = getLogin(locals, url);
+  create: async function ({ locals, request, params }) {
+    const user = getLogin(locals);
 
     const data = await request.formData();
     const name = data.get("name")?.toString();
@@ -54,8 +54,8 @@ export const actions: Actions = {
     }
   },
 
-  remove: async function ({ locals, request, params, url }) {
-    const user = getLogin(locals, url);
+  remove: async function ({ locals, request, params }) {
+    const user = getLogin(locals);
 
     const data = await request.formData();
     const id = data.get("id")?.toString();

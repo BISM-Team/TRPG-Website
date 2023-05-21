@@ -1,6 +1,15 @@
-import { Character, Effect } from "./Classes";
+import type { Ability, Character, Effect, Item } from "@prisma/client";
 
-export function buildTree(character: Character): Tree {
+export function buildTree(
+  character: Pick<Character, "name"> & {
+    abilities: (Ability & {
+      effects: Effect[];
+    })[];
+    items: (Item & {
+      effects: Effect[];
+    })[];
+  }
+): Tree {
   let effects: Effect[] = [];
 
   for (const ability of character.abilities) {
@@ -16,23 +25,33 @@ export function buildTree(character: Character): Tree {
   for (const effect of effects) {
     const new_node = new Node("", effect);
 
-    effect.incoming_refs.forEach((ref) => {
+    new_node.effect.reads.split(" ").forEach((ref) => {
       let node = nodes.find((node) => {
         return node.name == ref;
       });
       if (node == undefined) {
-        node = new Node(ref, new Effect(() => {}, [], []));
+        node = new Node(ref, {
+          fn: "",
+          modifies: "",
+          reads: "",
+          priority: 0,
+        });
         nodes.push(node);
       }
       new_node.addChild(node);
     });
 
-    effect.outgoing_refs.forEach((ref) => {
+    new_node.effect.modifies.split(" ").forEach((ref) => {
       let node = nodes.find((node) => {
         return node.name == ref;
       });
       if (node == undefined) {
-        node = new Node(ref, new Effect(() => {}, [], []));
+        node = new Node(ref, {
+          fn: "",
+          modifies: "",
+          reads: "",
+          priority: 0,
+        });
         nodes.push(node);
       }
       node.addChild(new_node);
@@ -74,11 +93,15 @@ class Tree {
 
 class Node {
   name: string;
-  effect: Effect;
+  effect: Omit<Effect, "id" | "itemId" | "abilityId">;
   priority: number;
   children: { node: Node; explored: boolean }[];
   evaluated: boolean;
-  constructor(name: string, effect: Effect, children: Node[] = []) {
+  constructor(
+    name: string,
+    effect: Omit<Effect, "id" | "itemId" | "abilityId">,
+    children: Node[] = []
+  ) {
     this.invoke = this.invoke.bind(this);
     this.name = name;
     this.effect = effect;
@@ -103,7 +126,7 @@ class Node {
     });
   }
 
-  invoke(scope: any) {
+  invoke(scope: Record<string, any>) {
     if (this.evaluated) return;
 
     for (const child of this.children) {
@@ -114,7 +137,7 @@ class Node {
     }
     if (!this.evaluated) {
       this.evaluated = true;
-      this.effect.invoke(scope);
+      eval(this.effect.fn);
     }
   }
 }

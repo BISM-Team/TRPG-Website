@@ -5,8 +5,8 @@ import { parse } from "devalue";
 import type { CardData } from "@prisma/client";
 
 export const actions: Actions = {
-  save: async function ({ request, locals, url }) {
-    const user = getLogin(locals, url);
+  save: async function ({ request, locals }) {
+    const user = getLogin(locals);
 
     const data = await request.formData();
     const _cards = data.get("cards");

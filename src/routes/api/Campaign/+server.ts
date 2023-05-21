@@ -5,7 +5,7 @@ import { json } from "@sveltejs/kit";
 
 export async function GET(event: RequestEvent) {
   const { locals, url } = event;
-  const user = getLogin(locals, url);
+  const user = getLogin(locals);
   const campaigns = await getUserCampaigns(user.id);
   return json({
     campaigns,

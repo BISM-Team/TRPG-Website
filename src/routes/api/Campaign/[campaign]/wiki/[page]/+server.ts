@@ -9,8 +9,8 @@ import type { Root } from "mdast";
 import type { Heading } from "@prisma/client";
 import { includes } from "$lib/utils";
 
-export const GET = async function ({ params, locals, url }) {
-  const user = getLogin(locals, url);
+export const GET = async function ({ params, locals }) {
+  const user = getLogin(locals);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
   if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
@@ -49,7 +49,7 @@ export const GET = async function ({ params, locals, url }) {
       };
     });
     return json({
-      version: page.version,
+      updatedAt: page.updatedAt.toDateString(),
       headings: headings.filter((heading) => {
         return user.id === gm_id || includes(heading.viewers, user.id);
       }),

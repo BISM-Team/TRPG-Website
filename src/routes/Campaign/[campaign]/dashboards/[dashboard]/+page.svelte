@@ -16,6 +16,7 @@
 
   export let data: PageData;
   export let form: ActionData;
+  let gridArea: HTMLElement;
   const transition_delay = 0, transition_duration = 300;
   const animate_delay = 0, animate_duration = 20;
   const stiffness = 0.6, damping = 1.0;
@@ -50,15 +51,15 @@
   let removed: string[] = [];
 
   onMount(() => {
-    document.addEventListener("mousemove", moveWhileDragging);
-    document.addEventListener("mouseup", endAction);
+    document.addEventListener("pointermove", moveWhileDragging);
+    document.addEventListener("pointerup", endAction);
     document.addEventListener("keydown", keydown);
-    document.addEventListener("mouseleave", cancelAction);
-
+    document.addEventListener("pointerleave", cancelAction);
     return () => {
-      document.removeEventListener("mousemove", moveWhileDragging);
-      document.removeEventListener("mouseup", endAction);
+      document.removeEventListener("pointermove", moveWhileDragging);
+      document.removeEventListener("pointerup", endAction);
       document.removeEventListener("keydown", keydown);
+      document.removeEventListener("pointerleave", cancelAction);
     };
   });
 
@@ -265,6 +266,7 @@
 
     if (!width || !height || !zoom || !source || !type || !dashboardId) {
       request.cancel();
+      disable = false;
       return;
     }
 
@@ -287,7 +289,7 @@
     edited = true;
     data.dashboard.cards.push(card);
     data.dashboard.cards = data.dashboard.cards;
-    showCreateDialog=false;
+    showCreateDialog = false;
     disable = false;
   };
 
@@ -368,7 +370,7 @@
   </Modal>
 {/if}
 
-<div id="grid">
+<div id="grid" bind:this={gridArea} style="touch-action: none">
   {#each data.dashboard.cards as card (card.id)}
     <div class="card"
       in:scale={{ delay: transition_delay, duration: transition_duration }}

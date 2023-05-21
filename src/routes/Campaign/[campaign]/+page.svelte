@@ -4,7 +4,7 @@
     export let data: PageData;
 </script>
 
-<h2 class="w3-center">{data.params.campaign}</h2>
+<h2 class="w3-center w3-padding-16">{data.campaign.name}</h2>
 
 <div class="cards">
   <Card link={"./" + data.params.campaign + "/dashboards"}>

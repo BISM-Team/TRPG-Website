@@ -19,10 +19,10 @@
   }
 
   onMount(() => {
-    window.addEventListener("click", clickOutside);
+    window.addEventListener("pointerup", clickOutside);
     window.addEventListener("keyup", keyUp);
     return () => {
-      window.removeEventListener("click", clickOutside);
+      window.removeEventListener("pointerup", clickOutside);
       window.removeEventListener("keyup", keyUp);
     };
   });
@@ -30,6 +30,7 @@
 
 <div bind:this={wrapper} id="modalWrapper">
   <div id="modalContent" class="w3-center w3-container">
+    <button id="closeButton" class="w3-button" disabled={disable} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
     <slot />
   </div>
 </div>
@@ -43,7 +44,7 @@
     align-items: flex-start;
     padding: 5vh;
     padding-bottom: 15vh;
-    z-index: 1; /* Sit on top */
+    z-index: 100; /* Sit on top */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -54,11 +55,24 @@
   }
 
   #modalContent {
+    position: relative;
     background-color: #fefefe;
     border: 1px solid #888;
     padding: 2em;
     margin: auto;
     min-height: 20vh;
     max-width: 40vw;
+  }
+
+  #closeButton {
+    position: absolute;
+    background-color: transparent;
+    top: 0;
+    right: 0;
+    padding: 0.7em 1em;
+  }
+
+  #closeButton > span {
+    display: block;
   }
 </style>

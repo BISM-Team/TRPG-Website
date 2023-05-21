@@ -40,50 +40,45 @@
 <div
   id="content{card.id}"
   class="card-content w3-card-4"
-  style="width:{card.width
-    ? Math.max(6, card.width) + 'px'
-    : default_width}; height:{card.height
-    ? Math.max(6, card.height) + 'px'
-    : default_height}; {picked ? 'cursor: grabbing;' : ''}"
+  style="{picked ? 'cursor: grabbing;' : ''}"
 >
   {#if edit}
-  <div id="controlBar">
-    <div id="pickArea" on:mousedown={pick} />
-    <button on:click={() => { dispatch("remove", { id: card.id }) }} id="removeButton" class="w3-button"/>
-  </div>
-  <div id="resizeArea" on:mousedown={resize} />
+  <div id="pickArea" on:pointerdown={pick} />
+  <button id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
+  <div id="resizeArea" on:pointerdown={resize} />
   {/if}
 
-  <p>{card.source}</p>
+  <div class="content" style="width:{card.width ? Math.max(6, card.width) + 'px' : default_width}; 
+              height:{card.height ? Math.max(6, card.height) + 'px' : default_height};">
+    <p>{card.source}</p>
+  </div>
 </div>
 
 <style>
   .card-content {
     position: relative;
-    padding: 2em;
-    overflow: auto;
     background-color: white;
     box-sizing: border-box;
   }
 
-  #controlBar {
-    position: absolute;
-    top: 1em;
-    left: 0;
-    width: 85%;
-    margin-left: 10%;
-    margin-right: 5%;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-evenly;
+  .content {
+    padding: 2em;
+    overflow: auto;
   }
 
   #pickArea {
+    position: absolute;
+    top: 0.7em;
+    left: 10%;
+    margin: auto;
     background-color: #f1f1f1;
-    border-radius: 6px;
+    border-radius: 0.7em;
     height: 0.7em;
-    width: 60%;
+    width: 80%;
     cursor: grab;
+    position: absolute;
+    top: 1em;
+    z-index: 1;
   }
 
   #pickArea:hover {
@@ -91,11 +86,18 @@
   }
 
   #removeButton {
-    height: 0.7em;
-    padding: 0;
-    width: 15%;
-    border-radius: 6px;
+    position: absolute;
+    top: 0em;
+    right: 0em;
+    transform: translateX(40%) translateY(-40%);
+    padding: 0.1em;
+    border-radius: 0.7em;
     background-color: #f1f1f1;
+    z-index: 1;
+  }
+
+  #removeButton > span {
+    display: block;
   }
 
   #resizeArea {
@@ -104,9 +106,10 @@
     right: 0;
     background-color: #f1f1f1;
     border-radius: 6px;
-    height: 0.7em;
-    width: 0.7em;
+    height: 1em;
+    width: 1em;
     cursor: se-resize;
+    z-index: 1;
   }
 
   ::-webkit-scrollbar {

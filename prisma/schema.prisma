@@ -94,8 +94,6 @@ model DashboardTemplate {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  dashboards Dashboard[]
-
   @@index([userId])
 }
 
@@ -106,24 +104,21 @@ model Dashboard {
   stringVariables  StringVariable[]
   cards            CardData[]
 
-  templateId String?
-  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull, onUpdate: SetNull)
-
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   campaignId String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@index([templateId])
   @@index([userId])
   @@index([campaignId])
 }
 
 model NumericVariable {
-  id    String @id @default(cuid())
+  id    String  @id @default(cuid())
   name  String
   value Int
+  show  Boolean @default(false)
 
   dashboardId String?
   dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -136,9 +131,10 @@ model NumericVariable {
 }
 
 model StringVariable {
-  id    String @id @default(cuid())
+  id    String  @id @default(cuid())
   name  String
   value String
+  show  Boolean @default(false)
 
   dashboardId String?
   dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)

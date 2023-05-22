@@ -8,5 +8,5 @@ export const load = (async ({ params, fetch, url }) => {
   await propagateErrors(response, url);
   if (!response.ok) throw new Error("unexpected error");
   const data = await response.json();
-  return { dashboard: data.dashboard };
+  return { dashboard: data.dashboard, params };
 }) satisfies PageLoad;

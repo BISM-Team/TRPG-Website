@@ -12,7 +12,7 @@
   import { enhance, type SubmitFunction } from "$app/forms";
   import type { CardData } from "@prisma/client";
   import { stringify } from "devalue";
-  import { invalidateAll } from "$app/navigation";
+  import { invalidateAll, goto } from "$app/navigation";
 
   export let data: PageData;
   export let form: ActionData;
@@ -26,6 +26,8 @@
   let edited = false;
   let showSaveDialog = false;
   let showCreateDialog = false;
+  let showSaveAsDialog = false;
+  let showDeleteDialog = false;
   let disable = false;
 
   let picked: {
@@ -75,6 +77,14 @@
 
   function toggleCreateDialog() {
     showCreateDialog = !showCreateDialog;
+  }
+
+  function toggleSaveAsDialog() {
+    showSaveAsDialog = !showSaveAsDialog;
+  }
+
+  function toggleDeleteDialog() {
+    showDeleteDialog = !showDeleteDialog;
   }
 
   function startDragElement(ev: any) {
@@ -307,6 +317,20 @@
     }
     disable=false;
   }
+
+  const submitDelete: SubmitFunction = function() {
+    disable = true;
+    return async ({ result, update }) => {
+      if (result.type === "success") { 
+        await goto(`/Campaign/${data.params.campaign}/dashboards`);
+        showDeleteDialog = false;
+        edit = false; 
+      } else {
+        await update({ reset: false });
+      }
+      disable = false;
+    };
+  }
 </script>
 
 <Toolbar>
@@ -317,6 +341,12 @@
   </form>
   <button disabled={disable || !edited} id="saveButton" class="w3-button" type="submit" form="hiddenSaveForm">
     <span class="material-symbols-outlined w3-text-white">save</span>
+  </button>
+  <button disabled={disable} id="saveAsButton" class="w3-button" on:click={toggleSaveAsDialog}>
+    <span class="material-symbols-outlined w3-text-white">save_as</span>
+  </button>
+  <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleDeleteDialog}>
+    <span class="material-symbols-outlined w3-text-white">delete</span>
   </button>
   <button disabled={disable} id="newButton" class="w3-button" on:click={toggleCreateDialog}>
     <span class="material-symbols-outlined w3-text-white">add</span>
@@ -366,6 +396,22 @@
       
       <button disabled={disable} type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
       <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+    </form>
+  </Modal>
+{/if}
+
+{#if showSaveAsDialog}
+  <Modal {disable} on:close={toggleSaveAsDialog}>
+    <h3 class="w3-center">Save As</h3>
+  </Modal>
+{/if}
+
+{#if showDeleteDialog}
+  <Modal {disable} on:close={toggleDeleteDialog}>
+    <h4 class="w3-padding">Do you want to delete this dashboard</h4>
+    <form action="?/delete" id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={submitDelete}>
+      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteDialog}>Cancel</button>
+      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}

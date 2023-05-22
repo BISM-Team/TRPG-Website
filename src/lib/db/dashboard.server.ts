@@ -41,26 +41,21 @@ export async function getDashboard(
 export async function createDashboard(
   user_id: string,
   campaign: Campaign,
-  dashboard: Omit<Dashboard, "id" | "userId" | "campaignId"> & {
-    numericVariables: Omit<NumericVariable, "id">[];
-    stringVariables: Omit<StringVariable, "id">[];
-    cards: Omit<CardData, "id">[];
-  }
+  name: string
 ) {
   return await db.dashboard.create({
     data: {
-      name: dashboard.name,
-      templateId: dashboard.templateId,
+      name: name,
       campaignId: campaign.id,
       userId: user_id,
       numericVariables: {
-        create: dashboard.numericVariables,
+        create: [],
       },
       stringVariables: {
-        create: dashboard.stringVariables,
+        create: [],
       },
       cards: {
-        create: dashboard.cards,
+        create: [],
       },
     },
   });

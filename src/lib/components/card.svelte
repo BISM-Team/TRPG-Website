@@ -39,5 +39,6 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
+    margin: 0;
   }
 </style>

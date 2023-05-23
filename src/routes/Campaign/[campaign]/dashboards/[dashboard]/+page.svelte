@@ -1,69 +1,35 @@
 <script lang="ts">
   import type { ActionData, PageData } from "./$types";
-  import { scale } from "svelte/transition";
-  import { flip } from "$lib/Campaign/better_animations";
-  import Card from "./card.svelte";
-  import Prototype from "./prototype.svelte";
   import Modal from "$lib/components/modal.svelte";
   import Toolbar from "$lib/components/toolbar.svelte";
-  import { spring, type Spring } from "svelte/motion";
-  import { onMount } from "svelte";
-  import { arraymove } from "$lib/utils";
   import { enhance, type SubmitFunction } from "$app/forms";
-  import type { CardData } from "@prisma/client";
+  import type { CardData, DashboardTemplate } from "@prisma/client";
   import { stringify } from "devalue";
   import { invalidateAll, goto } from "$app/navigation";
+  import DashboardGrid from "./dashboardGrid.svelte";
+  import { propagateErrors } from "$lib/utils";
+  import Card from "$lib/components/card.svelte";
 
   export let data: PageData;
   export let form: ActionData;
-  let gridArea: HTMLElement;
-  const transition_delay = 0, transition_duration = 300;
-  const animate_delay = 0, animate_duration = 20;
-  const stiffness = 0.6, damping = 1.0;
-  const trace_refractary_perioid = 200, drag_refractary_period = 500;
   
   let edit = false;
   let edited = false;
   let showSaveDialog = false;
   let showCreateDialog = false;
-  let showSaveAsDialog = false;
+  let menuDialog: { 
+    show: boolean, 
+    save_as: { value: string } | undefined, 
+    load_from_template: { value: string } | undefined 
+  } = {
+    show: false,
+    save_as: undefined,
+    load_from_template: undefined
+  };
   let showDeleteDialog = false;
   let disable = false;
-
-  let picked: {
-        startingIndex: number;
-        index: number;
-        id: string;
-        geometry: DOMRect;
-        card: CardData;
-        refractary: boolean;
-      } | undefined = undefined;
-
-  let resizing: {
-        index: number;
-        id: string;
-        card: CardData;
-        starting_top_left: { top: number; left: number };
-      } | undefined = undefined;
-
-  let actionData: Spring<{ x_or_width: number; y_or_height: number }> = spring(
-    { x_or_width: 0, y_or_height: 0 },
-    { stiffness, damping }
-  );
   let removed: string[] = [];
-
-  onMount(() => {
-    document.addEventListener("pointermove", moveWhileDragging);
-    document.addEventListener("pointerup", endAction);
-    document.addEventListener("keydown", keydown);
-    document.addEventListener("pointerleave", cancelAction);
-    return () => {
-      document.removeEventListener("pointermove", moveWhileDragging);
-      document.removeEventListener("pointerup", endAction);
-      document.removeEventListener("keydown", keydown);
-      document.removeEventListener("pointerleave", cancelAction);
-    };
-  });
+  let templates: DashboardTemplate[] = [];
 
   function toggleEdit() {
     if(edit && edited) {
@@ -79,161 +45,12 @@
     showCreateDialog = !showCreateDialog;
   }
 
-  function toggleSaveAsDialog() {
-    showSaveAsDialog = !showSaveAsDialog;
+  function toggleMenuDialog() {
+    menuDialog = menuDialog.show ? { show: false, save_as: undefined, load_from_template: undefined } : { show: true, save_as: undefined, load_from_template: undefined };
   }
 
   function toggleDeleteDialog() {
     showDeleteDialog = !showDeleteDialog;
-  }
-
-  function startDragElement(ev: any) {
-    cancelAction();
-    const index = data.dashboard.cards.findIndex(
-      (element) => element.id === ev.detail.id
-    );
-    if (index === -1) throw new Error("Id not found in cards");
-    picked = {
-      startingIndex: index,
-      index: index,
-      id: ev.detail.id,
-      geometry: ev.detail.geometry,
-      card: data.dashboard.cards[index],
-      refractary: false,
-    };
-    actionData = spring(
-      {
-        x_or_width: ev.detail.geometry.x + window.scrollX,
-        y_or_height: ev.detail.geometry.y + window.scrollY,
-      },
-      { stiffness, damping }
-    );
-    const mousepos = ev.detail.mousepos;
-    actionData.set({
-      x_or_width: mousepos.x - picked.geometry.width / 2,
-      y_or_height: mousepos.y - picked.geometry.height / 2,
-    });
-  }
-
-  function startResizeElement(ev: any) {
-    cancelAction();
-    const index = data.dashboard.cards.findIndex(
-      (element) => element.id === ev.detail.id
-    );
-    if (index === -1) throw new Error("Id not found in cards");
-    resizing = {
-      index: index,
-      id: ev.detail.id,
-      card: data.dashboard.cards[index],
-      starting_top_left: {
-        top: ev.detail.geometry.top + window.scrollY,
-        left: ev.detail.geometry.left + window.scrollX,
-      },
-    };
-    actionData = spring(
-      {
-        x_or_width: ev.detail.geometry.width,
-        y_or_height: ev.detail.geometry.height,
-      },
-      { stiffness, damping }
-    );
-  }
-
-  function cancelAction() {
-    if (picked) {
-      if (picked.index !== picked.startingIndex) {
-        arraymove(data.dashboard.cards, picked.index, picked.startingIndex);
-      }
-      picked = undefined;
-    }
-    if (resizing) {
-      resizing = undefined;
-    }
-  }
-
-  function confirmAction() {
-    if (resizing) {
-      resizing.card.width = $actionData.x_or_width;
-      resizing.card.height = $actionData.y_or_height;
-      resizing = undefined;
-    }
-    picked = undefined;
-    edited = true;
-  }
-
-  function keydown(ev: KeyboardEvent) {
-    if ((picked || resizing) && (ev.key === "Escape" || ev.key === "Delete" || ev.key === "Backspace")) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      cancelAction();
-    } else if ((picked || resizing) && ev.key === "Enter") {
-      ev.preventDefault();
-      ev.stopPropagation();
-      confirmAction();
-    }
-  }
-
-  function moveWhileDragging(ev: MouseEvent) {
-    if (picked) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const mousepos = { x: ev.pageX, y: ev.pageY };
-      actionData.set({
-        x_or_width: mousepos.x - picked.geometry.width / 2,
-        y_or_height: mousepos.y - picked.geometry.height / 2,
-      });
-      if (!picked.refractary) {
-        const element = document.elementsFromPoint(mousepos.x - window.scrollX,mousepos.y - window.scrollY)
-          .find((element) => {
-            return (
-              picked &&
-              element.id.startsWith("content") &&
-              !element.id.endsWith(`${picked.id}`)
-            );
-          });
-        if (element && element.id.startsWith("content")) {
-          picked.refractary = true;
-          hoverWhileDragging(element.id.replace("content", ""));
-          setTimeout(() => {
-            if (picked) picked.refractary = false;
-          }, drag_refractary_period);
-        } else {
-          picked.refractary = true;
-          setTimeout(() => {
-            if (picked) picked.refractary = false;
-          }, trace_refractary_perioid);
-        }
-      }
-    } else if (resizing) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const mousepos = { x: ev.pageX, y: ev.pageY };
-      actionData.set({
-        x_or_width: mousepos.x - resizing.starting_top_left.left,
-        y_or_height: mousepos.y - resizing.starting_top_left.top,
-      });
-    }
-  }
-
-  function endAction(ev: any) {
-    if (picked || resizing) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      confirmAction();
-    }
-  }
-
-  function hoverWhileDragging(id: string) {
-    if (picked) {
-      const index = data.dashboard.cards.findIndex(
-        (element) => element.id === id
-      );
-      if (index === -1) throw new Error("Id not found in cards" + id + ";\n " + data.dashboard.cards);
-      if (index !== picked.index) {
-        arraymove(data.dashboard.cards, picked.index, index);
-        picked.index = index;
-      }
-    }
   }
 
   const submitSave: SubmitFunction = async function(request) {
@@ -246,11 +63,11 @@
 
     if(save && save === "false") {
       request.cancel();
+      await invalidateAll();
       showSaveDialog=false;
       edit=false;
       edited=false;
       disable=false;
-      await invalidateAll();
     } else {
       return async ({ result, update }) => {
         await update({reset: false});
@@ -303,21 +120,6 @@
     disable = false;
   };
 
-  function removeCard(ev: any) {
-    disable=true;
-    const id = ev.detail.id;
-    const index = data.dashboard.cards.findIndex((card) => card.id===id);
-    if(index !== -1) {
-      removed.push(id);
-      edited = true;
-      data.dashboard.cards.splice(index, 1);
-      data.dashboard.cards = data.dashboard.cards;
-    } else {
-      console.error(id, data.dashboard.cards);
-    }
-    disable=false;
-  }
-
   const submitDelete: SubmitFunction = function() {
     disable = true;
     return async ({ result, update }) => {
@@ -331,26 +133,65 @@
       disable = false;
     };
   }
+
+  const submitMenu: SubmitFunction = async function () {
+    disable = true;
+    return async ({ result, update }) => {
+      await update({reset: false});
+      if (result.type === "success") menuDialog = { show: false, save_as: undefined, load_from_template: undefined };
+      disable = false;
+    };
+  };
+
+  async function loadTemplates() {
+    disable = true;
+    const response = await fetch("/api/DashboardTemplates");
+    await propagateErrors(response, new URL(window.location.href));
+    if(!response.ok) throw new Error("unexpected error")
+    templates = (await response.json()).map(template => {
+      const { createdAt, ...rest } = template;
+      console.log(createdAt, typeof createdAt);
+      return {
+        ...rest,
+        createdAt: new Date(createdAt)
+      }
+    });
+    disable = false;
+  }
+
+  async function openSaveTo() {
+    await loadTemplates();
+    menuDialog = { show: true, save_as: { value: "" }, load_from_template: undefined };
+  }
+
+  async function openLoadFrom() {
+    await loadTemplates();
+    menuDialog = { show: true, save_as: undefined, load_from_template: { value: "" } };
+  }
+
+  function menuBack() {
+    menuDialog = { show: true, save_as: undefined, load_from_template: undefined };
+  }
 </script>
 
 <Toolbar>
   {#if edit}
-  <form action="?/save" style="display: none" id="hiddenSaveForm" method="post" use:enhance={submitSave}>
-    <input type="hidden" name="dashboardId" value={data.dashboard.id} />
-    <input type="hidden" name="switch" value="false">
-  </form>
-  <button disabled={disable || !edited} id="saveButton" class="w3-button" type="submit" form="hiddenSaveForm">
-    <span class="material-symbols-outlined w3-text-white">save</span>
-  </button>
-  <button disabled={disable} id="saveAsButton" class="w3-button" on:click={toggleSaveAsDialog}>
-    <span class="material-symbols-outlined w3-text-white">save_as</span>
-  </button>
-  <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleDeleteDialog}>
-    <span class="material-symbols-outlined w3-text-white">delete</span>
-  </button>
-  <button disabled={disable} id="newButton" class="w3-button" on:click={toggleCreateDialog}>
-    <span class="material-symbols-outlined w3-text-white">add</span>
-  </button>
+    <form action="?/save" style="display: none" id="hiddenSaveForm" method="post" use:enhance={submitSave}>
+      <input type="hidden" name="dashboardId" value={data.dashboard.id} />
+      <input type="hidden" name="switch" value="false">
+    </form>
+    <button disabled={disable || !edited} id="saveButton" class="w3-button" type="submit" form="hiddenSaveForm">
+      <span class="material-symbols-outlined w3-text-white">save</span>
+    </button>
+    <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleDeleteDialog}>
+      <span class="material-symbols-outlined w3-text-white">delete</span>
+    </button>
+    <button disabled={disable} id="newButton" class="w3-button" on:click={toggleCreateDialog}>
+      <span class="material-symbols-outlined w3-text-white">add</span>
+    </button>
+    <button disabled={disable} id="menuButton" class="w3-button" on:click={toggleMenuDialog}>
+      <span class="material-symbols-outlined w3-text-white">more_horiz</span>
+    </button>
   {/if}
   <button disabled={disable} id="editButton" class="w3-button" on:click={toggleEdit}>
     <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
@@ -368,7 +209,7 @@
       {/if}
       <input type="hidden" name="dashboardId" value={data.dashboard.id} />
       <input type="hidden" name="switch" value="true">
-      <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">No</button>
+      <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>
     </form>
   </Modal>
@@ -400,15 +241,50 @@
   </Modal>
 {/if}
 
-{#if showSaveAsDialog}
-  <Modal {disable} on:close={toggleSaveAsDialog}>
-    <h3 class="w3-center">Save As</h3>
+{#if menuDialog.show}
+  <Modal {disable} on:close={toggleMenuDialog}>
+    {#if !menuDialog.save_as && !menuDialog.load_from_template}
+      <h3 class="w3-center w3-margin-bottom">Menu</h3>
+      <button id="gotoSaveTo" class="w3-button w3-block" on:click={openSaveTo}>Save to template</button>
+      <button id="gotoLoadFrom" class="w3-button w3-block" on:click={openLoadFrom}>Load from template</button>
+    {:else if menuDialog.save_as}
+      <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
+      <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <form action="?/saveToTemplate" method="POST" use:enhance={submitMenu}>
+        <input type="text" name="saveAsText" id="saveAs" bind:value={menuDialog.save_as.value}/>
+        <div class="cards">
+          {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.includes(menuDialog.save_as.value)))) as template}
+            <Card>
+              <h5 class="w3-padding-16">{template.name}</h5>
+            </Card>
+          {/each}
+          {#if menuDialog.save_as.value && !templates.find(template => (menuDialog.save_as && (template.name === menuDialog.save_as.value)))}
+            <Card>
+              <h5 class="w3-padding-16">{menuDialog.save_as.value}</h5>
+            </Card>
+          {/if}
+        </div>
+      </form>
+    {:else if menuDialog.load_from_template}
+      <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
+      <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <form action="?/saveToTemplate" method="POST" use:enhance={submitMenu}>
+        <input type="text" name="saveAsText" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
+        <div class="cards">
+          {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.includes(menuDialog.load_from_template.value)))) as template}
+            <Card>
+              <h5 class="w3-padding-16">{template.name}</h5>
+            </Card>
+          {/each}
+        </div>
+      </form>
+    {/if}
   </Modal>
 {/if}
 
 {#if showDeleteDialog}
   <Modal {disable} on:close={toggleDeleteDialog}>
-    <h4 class="w3-padding">Do you want to delete this dashboard</h4>
+    <h4 class="w3-padding">Do you want to delete this dashboard?</h4>
     <form action="?/delete" id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={submitDelete}>
       <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteDialog}>Cancel</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
@@ -416,40 +292,19 @@
   </Modal>
 {/if}
 
-<div id="grid" bind:this={gridArea} style="touch-action: none">
-  {#each data.dashboard.cards as card (card.id)}
-    <div class="card"
-      in:scale={{ delay: transition_delay, duration: transition_duration }}
-      out:scale={{ delay: transition_delay, duration: transition_duration }}
-      animate:flip={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}>
-      {#if picked && card.id === picked.id}
-        <Prototype data={{ id: card.id, width: picked.geometry.width, height: picked.geometry.height, }} />
-      {:else if resizing && card.id === resizing.id}
-        <Prototype data={{ id: card.id, width: $actionData.x_or_width, height: $actionData.y_or_height }}/>
-      {:else}
-        <Card {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={removeCard} />
-      {/if}
-    </div>
-  {/each}
-</div>
-
-{#if picked}
-  <div class="pickedCard" style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
-    <Card card={picked.card} picked={true} {edit}/>
-  </div>
-{/if}
+<DashboardGrid bind:data={data} bind:edited={edited} bind:disable={disable} bind:removed={removed} {edit}/>
 
 <style>
-  #grid {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: flex-start;
-    gap: 2em;
-    margin: 4em;
+  .goBackBtn {
+    position: absolute;
+    background-color: transparent;
+    top: 0;
+    left: 0;
+    padding: 0.7em 1em; 
   }
 
-  .pickedCard {
-    position: absolute;
-    z-index: 100;
+  .cards {
+    margin-top: 1em;
+    padding: 1em 2em;
   }
 </style>

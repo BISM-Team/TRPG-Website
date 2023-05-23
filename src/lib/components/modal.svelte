@@ -58,7 +58,7 @@
     position: relative;
     background-color: #fefefe;
     border: 1px solid #888;
-    padding: 2em;
+    padding: 1em 2em;
     margin: auto;
     min-height: 20vh;
     max-width: 40vw;

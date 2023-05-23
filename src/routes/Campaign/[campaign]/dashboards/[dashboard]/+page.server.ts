@@ -52,9 +52,9 @@ export const actions: Actions = {
     const user = getLogin(locals);
 
     const data = await request.formData();
-    const templateId = data.get("template")?.toString() || "";
-    const options_numVar = Boolean(data.get("options_cards") ?? "true");
-    const options_strVar = Boolean(data.get("options_cards") ?? "true");
+    const templateId = data.get("templateId")?.toString() || "";
+    const options_numVar = Boolean(data.get("options_numVar") ?? "true");
+    const options_strVar = Boolean(data.get("options_strVar") ?? "true");
     const options_cards = Boolean(data.get("options_cards") ?? "true");
     const template = await getDashboardTemplate(user.id, templateId);
 
@@ -83,9 +83,9 @@ export const actions: Actions = {
 
     const data = await request.formData();
     const name = data.get("name")?.toString();
-    const templateId = data.get("template")?.toString();
-    const options_numVar = Boolean(data.get("options_cards") ?? "true");
-    const options_strVar = Boolean(data.get("options_cards") ?? "true");
+    const templateId = data.get("templateId")?.toString();
+    const options_numVar = Boolean(data.get("options_numVar") ?? "true");
+    const options_strVar = Boolean(data.get("options_strVar") ?? "true");
     const options_cards = Boolean(data.get("options_cards") ?? "true");
     const dashboard = await getDashboard(
       user.id,

@@ -22,9 +22,8 @@
     const zoom = request.data.get("zoom")?.toString();
     const source = request.data.get("source")?.toString();
     const type = request.data.get("type")?.toString();
-    const dashboardId = request.data.get("dashboardId")?.toString();
 
-    if (!width || !height || !zoom || !source || !type || !dashboardId) {
+    if (!width || !height || !zoom || !source || !type) {
       disable = false;
       return;
     }
@@ -41,7 +40,7 @@
       zoom: parseInt(zoom),
       source: source,
       type: type,
-      dashboardId: dashboardId,
+      dashboardId: data.params.dashboard,
       templateId: null
     };
     edited = true;
@@ -57,21 +56,19 @@
     <h3 class="w3-center">Create Card</h3>
     <form method="post" use:enhance={submitCreateCard}>
       <label for="heightInput">Height (px)</label>
-      <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={200} />
+      <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={200} required/>
       
       <label for="widthInput">Width (px)</label>
-      <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={200} />
+      <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={200} required/>
       
       <input type="hidden" name="zoom" id="nameInput" value={1} class="w3-input w3-border w3-margin-bottom"/>
       
       <label for="sourceInput">Source</label>
-      <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={""}/>
+      <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={""} required/>
       
       <label for="typeInput">Type</label>
-      <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={"text"}/>
-      
-      <input type="hidden" name="dashboardId" class="w3-input w3-border w3-margin-bottom" value={data.dashboard.id}/>
-      
+      <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={"text"} required/>
+            
       <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
       <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
     </form>

@@ -73,7 +73,6 @@ export const actions: Actions = {
     } catch (exc) {
       console.error(exc);
       return fail(500, {
-        load_from_templateId: templateId,
         server_error: true,
       });
     }
@@ -98,10 +97,8 @@ export const actions: Actions = {
     const cards: CardData[] = parse(_cards.toString());
     const removed: string[] = parse(_removed.toString());
 
-    if (!name || !templateId)
+    if (!name || templateId === undefined)
       return fail(400, {
-        save_to_name: name,
-        save_to_templateId: templateId,
         save_to_name_or_template_missing: true,
       });
 
@@ -120,8 +117,6 @@ export const actions: Actions = {
     } catch (exc) {
       console.error(exc);
       return fail(500, {
-        save_to_name: name,
-        save_to_templateId: templateId,
         server_error: true,
       });
     }

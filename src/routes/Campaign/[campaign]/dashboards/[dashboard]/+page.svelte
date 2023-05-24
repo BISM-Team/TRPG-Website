@@ -37,17 +37,17 @@
     <button disabled={disable} id="newButton" class="w3-button" on:click={create.toggle}>
       <span class="material-symbols-outlined w3-text-white">add</span>
     </button>
-    <button disabled={disable} id="menuButton" class="w3-button" on:click={menu.toggle}>
-      <span class="material-symbols-outlined w3-text-white">more_horiz</span>
-    </button>
   {/if}
+  <button disabled={disable} id="menuButton" class="w3-button" on:click={menu.toggle}>
+    <span class="material-symbols-outlined w3-text-white">more_horiz</span>
+  </button>
   <button disabled={disable} id="editButton" class="w3-button" on:click={save.toggleEdit}>
     <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
   </button>
 </Toolbar>
 
 <Save {data} {form} bind:edit={edit} bind:edited={edited} bind:disable={disable} bind:removed={removed} bind:this={save}/>
-<Create {data} bind:edited={edited} bind:disable={disable} bind:this={create}/>
+<Create bind:data={data} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 <Delete {data} {form} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
 <Menu {data} {form} bind:disable={disable} bind:this={menu} bind:edited={edited} bind:removed={removed}/>
 

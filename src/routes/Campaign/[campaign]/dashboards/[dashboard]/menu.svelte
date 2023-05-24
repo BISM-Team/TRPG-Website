@@ -17,36 +17,43 @@
   let menuDialog: { 
     show: boolean, 
     save_as: { value: string } | undefined, 
-    load_from_template: { value: string } | undefined 
+    load_from_template: { value: string } | undefined,
+    settings: boolean
   } = {
     show: false,
     save_as: undefined,
-    load_from_template: undefined
+    load_from_template: undefined,
+    settings: false
   };
 
   let templates: DashboardTemplate[] = [];
 
   export function toggle() {
-    menuDialog = menuDialog.show ? { show: false, save_as: undefined, load_from_template: undefined } : { show: true, save_as: undefined, load_from_template: undefined };
+    menuDialog = menuDialog.show ? 
+                    { show: false, save_as: undefined, load_from_template: undefined, settings: false } 
+                  : { show: true, save_as: undefined, load_from_template: undefined, settings: false };
   }
 
   const submitSaveTo: SubmitFunction = async function (request) {
     disable = true;
     if(!request.data.has("templateId")) request.data.set("templateId", "");
-    const templateName = templates.find(template => template.id === request.data.get("templateId"))?.name;
-    if(!templateName) { 
-      disable = false;
-      throw new Error("Could not find selected template ??");
+    if(!request.data.has("name")) {
+      const templateName = templates.find(template => template.id === request.data.get("templateId"))?.name;
+      if(!templateName) { 
+        disable = false;
+        request.cancel();
+        throw new Error("Could not find selected template ??");
+      }
+      request.data.set("name", templateName);
     }
-    if(!request.data.has("name")) request.data.set("name", templateName);
 
     request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; return card; })));
     request.data.set("removed", stringify(removed));
 
-    return await submitMenu(request);
+    return await submitTemplateAction(request);
   } 
 
-  const submitMenu: SubmitFunction = async function ({ data }) {
+  const submitTemplateAction: SubmitFunction = async function ({ data }) {
     disable = true;
     data.set("options_numVar", "true")
     data.set("options_strVar", "true")
@@ -54,13 +61,24 @@
     return async ({ result, update }) => {
       await update({reset: false});
       if (result.type === "success") { 
-        menuDialog = { show: false, save_as: undefined, load_from_template: undefined };
+        menuDialog = { show: false, save_as: undefined, load_from_template: undefined, settings: false };
         edited = false;
         removed = [];
       }
       disable = false;
     };
   };
+
+  const submitSettings: SubmitFunction = async function () {
+    disable = true;
+    return async ({ result, update }) => {
+      await update({reset: false});
+      if (result.type === "success") { 
+        menuDialog = { show: false, save_as: undefined, load_from_template: undefined, settings: false };
+      }
+      disable = false;
+    };
+  }
 
   async function loadTemplates() {
     disable = true;
@@ -69,7 +87,6 @@
     if(!response.ok) throw new Error("unexpected error")
     templates = (await response.json()).map((template) => {
       const { createdAt, ...rest } = template;
-      console.log(createdAt, typeof createdAt);
       return {
         ...rest,
         createdAt: new Date(createdAt)
@@ -80,25 +97,64 @@
 
   async function openSaveTo() {
     await loadTemplates();
-    menuDialog = { show: true, save_as: { value: "" }, load_from_template: undefined };
+    menuDialog = { show: true, save_as: { value: "" }, load_from_template: undefined, settings: false };
   }
 
   async function openLoadFrom() {
     await loadTemplates();
-    menuDialog = { show: true, save_as: undefined, load_from_template: { value: "" } };
+    menuDialog = { show: true, save_as: undefined, load_from_template: { value: "" }, settings: false };
+  }
+
+  function openSettings() {
+    menuDialog = { show: true, save_as: undefined, load_from_template: undefined, settings: true };
   }
 
   function menuBack() {
-    menuDialog = { show: true, save_as: undefined, load_from_template: undefined };
+    menuDialog = { show: true, save_as: undefined, load_from_template: undefined, settings: false };
+  }
+
+  function addVariable(type: "string" | "numeric") {
+    let randomId = crypto.randomUUID();
+    while(data.dashboard.numericVariables.findIndex((variable) => variable.id===randomId) !== -1) 
+      randomId = crypto.randomUUID();
+
+      if(type === "string") {
+        data.dashboard.stringVariables.push({
+          id: randomId,
+          name: "New variable",
+          value: "",
+          show: false,
+          dashboardId: data.params.dashboard,
+          templateId: null
+        });
+        data.dashboard.stringVariables = data.dashboard.stringVariables;
+      }
+      else {
+        data.dashboard.numericVariables.push({
+        id: randomId,
+        name: "New variable",
+        value: 0,
+        show: false,
+        dashboardId: data.params.dashboard,
+        templateId: null
+      });
+      data.dashboard.numericVariables = data.dashboard.numericVariables;
+    }
+
+  }
+
+  function deleteVariable(id: string) {
+    data.dashboard.numericVariables = data.dashboard.numericVariables.filter(variable => variable.id !== id);
   }
 </script>
 
 {#if menuDialog.show}
   <Modal {disable} on:close={toggle}>
-    {#if !menuDialog.save_as && !menuDialog.load_from_template}
+    {#if !menuDialog.save_as && !menuDialog.load_from_template && !menuDialog.settings}
       <h3 class="w3-center w3-margin-bottom">Menu</h3>
       <button id="gotoSaveTo" class="w3-button w3-block" on:click={openSaveTo}>Save to template</button>
       <button id="gotoLoadFrom" class="w3-button w3-block" on:click={openLoadFrom}>Load from template</button>
+      <button id="gotoSettings" class="w3-button w3-block" on:click={openSettings}>Settings</button>
     {:else if menuDialog.save_as}
       <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
@@ -125,7 +181,7 @@
     {:else if menuDialog.load_from_template}
       <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
-      <form action="?/loadFromTemplate" method="POST" use:enhance={submitMenu}>
+      <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
         <input type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
@@ -134,6 +190,39 @@
             </Card>
           {/each}
         </div>
+      </form>
+    {:else if menuDialog.settings}
+      <h3 class="w3-center w3-margin-bottom">Settings</h3>
+      <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <form action="?/settings" method="POST" use:enhance={submitSettings}>
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" bind:value={data.dashboard.name}/>
+        <h4 class="w3-margin-top">Numeric Variables</h4>
+        <div class="variablesContainer">
+          {#each data.dashboard.numericVariables as numVar}
+            <div class="variable">
+              <input disabled={disable} type="checkbox" name="show_{numVar.id}" id="show_{numVar.id}" class="show_checkbox" bind:checked={numVar.show}>
+              <input disabled={disable} type="text" bind:value={numVar.name} style="width: {numVar.name.length+1}ch" required/>
+              <input disabled={disable} type="number" name={numVar.name} id={numVar.id} bind:value={numVar.value} style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
+              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(numVar.id)}}><span class="material-symbols-outlined">delete</span></button>
+            </div>
+          {/each}
+          <button disabled={disable} type="button" class="w3-button variable" on:click={() => {addVariable("numeric")}}>Add</button>
+        </div>
+        <h4 class="w3-margin-top">String Variables</h4>
+        <div id="variablesContainer">
+          {#each data.dashboard.stringVariables as strVar}
+            <div class="variable">
+              <input disabled={disable} type="checkbox" name="show_{strVar.id}" id="show_{strVar.id}" class="show_checkbox" bind:checked={strVar.show}>
+              <input disabled={disable} type="text" bind:value={strVar.name} style="width: {strVar.name.length+1}ch" required/>
+              <input disabled={disable} type="text" name={strVar.name} id={strVar.id} bind:value={strVar.value} style="width: {strVar.value.length+1}ch" required>
+              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(strVar.id)}}><span class="material-symbols-outlined">delete</span></button>
+            </div>
+          {/each}
+          <button disabled={disable} type="button" class="w3-button variable" on:click={() => {addVariable("string")}}>Add</button>
+        </div>
+        <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
+        <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
       </form>
     {/if}
   </Modal>
@@ -159,5 +248,22 @@
 
   form input {
     margin: auto
+   }
+
+   .variable {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+   }
+
+   .variable > * {
+    display: block;
+    margin: 1em;
+   }
+
+   .variable label {
+    white-space: nowrap;
+    margin: 1em;
    }
 </style>

@@ -19,7 +19,9 @@
   let edit = false;
   let edited = false;
   let disable = false;
-  let removed: string[] = [];
+  let removedCards: string[] = [];
+  let removedNumVar: string[] = [];
+  let removedStrVar: string[] = [];
 </script>
 
 <Toolbar>
@@ -46,9 +48,14 @@
   </button>
 </Toolbar>
 
-<Save {data} {form} bind:edit={edit} bind:edited={edited} bind:disable={disable} bind:removed={removed} bind:this={save}/>
-<Create bind:data={data} bind:edited={edited} bind:disable={disable} bind:this={create}/>
-<Delete {data} {form} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
-<Menu {data} {form} bind:disable={disable} bind:this={menu} bind:edited={edited} bind:removed={removed}/>
+<Save   {data} {form} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
+        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
 
-<DashboardGrid bind:data={data} bind:edited={edited} bind:disable={disable} bind:removed={removed} {edit}/>
+<Create bind:data={data} bind:edited={edited} bind:disable={disable} bind:this={create}/>
+
+<Delete {data} {form} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+
+<Menu   {data} {form} bind:disable={disable} bind:this={menu} bind:edited={edited} 
+        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
+
+<DashboardGrid bind:data={data} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>

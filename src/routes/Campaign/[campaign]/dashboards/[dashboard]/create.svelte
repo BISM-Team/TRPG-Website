@@ -3,6 +3,7 @@
   import { enhance, type SubmitFunction } from "$app/forms";
   import type { ActionData, PageData } from "./$types";
   import type { CardData } from "@prisma/client";
+  import { _replaceSource } from "./+page";
 
   export let data: PageData;
   export let disable: boolean;
@@ -44,7 +45,7 @@
       templateId: null
     };
     edited = true;
-    data.dashboard.cards.push(card);
+    data.dashboard.cards.push(_replaceSource(card, data.dashboard));
     data.dashboard.cards = data.dashboard.cards;
     showCreateDialog = false;
     disable = false;

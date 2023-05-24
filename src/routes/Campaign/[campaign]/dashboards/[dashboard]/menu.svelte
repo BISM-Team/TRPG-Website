@@ -6,13 +6,16 @@
   import { enhance, type SubmitFunction } from "$app/forms";
   import { stringify } from "devalue";
   import type { ActionData, PageData } from "./$types";
+  import { invalidateAll } from "$app/navigation";
   import ErrorBar from "$lib/components/error_bar.svelte";
 
   export let data: PageData;
   export let form: ActionData;
   export let disable: boolean;
-  export let removed: string[];
   export let edited: boolean;
+  export let removedCards: string[];
+  export let removedNumVar: string[] = [];
+  export let removedStrVar: string[] = [];
 
   let menuDialog: { 
     show: boolean, 
@@ -47,9 +50,12 @@
       request.data.set("name", templateName);
     }
 
-    request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; return card; })));
-    request.data.set("removed", stringify(removed));
-
+    request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; const {mod_source, ...other_card} = card; return other_card;})));
+    request.data.set("numVars", stringify(data.dashboard.numericVariables));
+    request.data.set("strVars", stringify(data.dashboard.stringVariables));
+    request.data.set("removedCards", stringify(removedCards));
+    request.data.set("removedNumVar", stringify(removedNumVar));
+    request.data.set("removedStrVar", stringify(removedStrVar));
     return await submitTemplateAction(request);
   } 
 
@@ -63,18 +69,24 @@
       if (result.type === "success") { 
         menuDialog = { show: false, save_as: undefined, load_from_template: undefined, settings: false };
         edited = false;
-        removed = [];
+        removedCards = [];
       }
       disable = false;
     };
   };
 
-  const submitSettings: SubmitFunction = async function () {
+  const submitSettings: SubmitFunction = async function (request) {
     disable = true;
+    request.data.set("numVars", stringify(data.dashboard.numericVariables));
+    request.data.set("strVars", stringify(data.dashboard.stringVariables));
+    request.data.set("removedNumVars", stringify(removedNumVar));
+    request.data.set("removedStrVars", stringify(removedStrVar));
     return async ({ result, update }) => {
-      await update({reset: false});
       if (result.type === "success") { 
         menuDialog = { show: false, save_as: undefined, load_from_template: undefined, settings: false };
+        if(!edited) await update({reset: false});
+      } else {
+        await update({reset: false});
       }
       disable = false;
     };
@@ -143,8 +155,19 @@
 
   }
 
-  function deleteVariable(id: string) {
-    data.dashboard.numericVariables = data.dashboard.numericVariables.filter(variable => variable.id !== id);
+  function deleteVariable(id: string, type: "string" | "numeric") {
+    if(type === "string") {
+      data.dashboard.stringVariables = data.dashboard.stringVariables.filter(variable => variable.id !== id);
+      removedStrVar.push(id);
+    } else {
+      data.dashboard.numericVariables = data.dashboard.numericVariables.filter(variable => variable.id !== id);
+      removedNumVar.push(id);
+    }
+  }
+
+  async function discard() {
+    toggle();
+    await invalidateAll();
   }
 </script>
 
@@ -160,7 +183,7 @@
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
         <input type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
-        {#if form?.save_to_name_or_template_missing}
+        {#if form?.save_to_invalid_data || form?.save_to_name_or_template_missing}
           <ErrorBar text={'Client Error, please contact us!'}/>
         {:else if form?.server_error}
           <ErrorBar text={'Server Error, please try again or contact us!'}/>
@@ -182,6 +205,11 @@
       <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
+        {#if form?.load_from_template_non_existant}
+          <ErrorBar text={'Client Error, please contact us!'}/>
+        {:else if form?.server_error}
+          <ErrorBar text={'Server Error, please try again or contact us!'}/>
+        {/if}
         <input type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
@@ -195,16 +223,21 @@
       <h3 class="w3-center w3-margin-bottom">Settings</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/settings" method="POST" use:enhance={submitSettings}>
+        {#if form?.settings_invalid_data}
+          <ErrorBar text={'Client Error, please contact us!'}/>
+        {:else if form?.server_error}
+          <ErrorBar text={'Server Error, please try again or contact us!'}/>
+        {/if}
         <label for="name">Name</label>
         <input type="text" name="name" id="name" bind:value={data.dashboard.name}/>
         <h4 class="w3-margin-top">Numeric Variables</h4>
         <div class="variablesContainer">
           {#each data.dashboard.numericVariables as numVar}
             <div class="variable">
-              <input disabled={disable} type="checkbox" name="show_{numVar.id}" id="show_{numVar.id}" class="show_checkbox" bind:checked={numVar.show}>
+              <input disabled={disable} type="checkbox" id="show_{numVar.id}" class="show_checkbox" bind:checked={numVar.show}>
               <input disabled={disable} type="text" bind:value={numVar.name} style="width: {numVar.name.length+1}ch" required/>
-              <input disabled={disable} type="number" name={numVar.name} id={numVar.id} bind:value={numVar.value} style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
-              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(numVar.id)}}><span class="material-symbols-outlined">delete</span></button>
+              <input disabled={disable} type="number" id={numVar.id} bind:value={numVar.value} style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
+              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined">delete</span></button>
             </div>
           {/each}
           <button disabled={disable} type="button" class="w3-button variable" on:click={() => {addVariable("numeric")}}>Add</button>
@@ -213,16 +246,16 @@
         <div id="variablesContainer">
           {#each data.dashboard.stringVariables as strVar}
             <div class="variable">
-              <input disabled={disable} type="checkbox" name="show_{strVar.id}" id="show_{strVar.id}" class="show_checkbox" bind:checked={strVar.show}>
+              <input disabled={disable} type="checkbox" id="show_{strVar.id}" class="show_checkbox" bind:checked={strVar.show}>
               <input disabled={disable} type="text" bind:value={strVar.name} style="width: {strVar.name.length+1}ch" required/>
-              <input disabled={disable} type="text" name={strVar.name} id={strVar.id} bind:value={strVar.value} style="width: {strVar.value.length+1}ch" required>
-              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(strVar.id)}}><span class="material-symbols-outlined">delete</span></button>
+              <input disabled={disable} type="text" id={strVar.id} bind:value={strVar.value} style="width: {strVar.value.length+1}ch">
+              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined">delete</span></button>
             </div>
           {/each}
           <button disabled={disable} type="button" class="w3-button variable" on:click={() => {addVariable("string")}}>Add</button>
         </div>
-        <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
-        <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+        <button disabled={disable} type="button" on:click={discard} class="w3-margin-top w3-button w3-grey">Discard</button>
+        <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Save</button>
       </form>
     {/if}
   </Modal>
@@ -248,22 +281,18 @@
 
   form input {
     margin: auto
-   }
+  }
 
-   .variable {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-   }
+  .variable {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    width: auto;
+  }
 
-   .variable > * {
+  .variable > * {
     display: block;
     margin: 1em;
-   }
-
-   .variable label {
-    white-space: nowrap;
-    margin: 1em;
-   }
+  }
 </style>

@@ -6,7 +6,7 @@
   const default_width = "auto";
   const default_height = "auto";
 
-  export let card: CardData;
+  export let card: CardData & { mod_source: string };
   export let picked: boolean;
   export let edit: boolean;
 
@@ -57,6 +57,7 @@
               cursor: {edit ? picked ? 'cursor: grabbing;' : 'grab' : 'default'}; touch-action: {edit ? 'none' : 'auto'};"
               on:pointerdown={pick}>
     <p>{card.source}</p>
+    <p>{card.mod_source}</p>
   </div>
 </div>
 

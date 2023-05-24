@@ -103,7 +103,7 @@ export async function updateCards(
   user_id: string,
   dashboardId: string,
   cards: CardData[],
-  removed: string[]
+  removedCards: string[]
 ) {
   const _cards = cards.map((card) => {
     const { dashboardId, ...card_with_id } = card;
@@ -127,7 +127,65 @@ export async function updateCards(
         })),
         deleteMany: {
           id: {
-            in: removed,
+            in: removedCards,
+          },
+        },
+      },
+    },
+  });
+}
+
+export async function updateDashboard(
+  user_id: string,
+  dashboardId: string,
+  name: string,
+  numVars: NumericVariable[],
+  strVars: StringVariable[],
+  removedNumVars: string[],
+  removedStrVars: string[]
+) {
+  const _numVars = numVars.map((variable) => {
+    const { dashboardId, ...variable_with_id } = variable;
+    return variable_with_id;
+  });
+  const _strVars = strVars.map((variable) => {
+    const { dashboardId, ...variable_with_id } = variable;
+    return variable_with_id;
+  });
+  return await db.dashboard.update({
+    where: { userId: user_id, id: dashboardId },
+    include: {
+      cards: true,
+      numericVariables: true,
+      stringVariables: true,
+    },
+    data: {
+      name: name,
+      numericVariables: {
+        upsert: _numVars.map((variable) => ({
+          where: {
+            id: variable.id,
+          },
+          create: variable,
+          update: variable,
+        })),
+        deleteMany: {
+          id: {
+            in: removedNumVars,
+          },
+        },
+      },
+      stringVariables: {
+        upsert: _strVars.map((variable) => ({
+          where: {
+            id: variable.id,
+          },
+          create: variable,
+          update: variable,
+        })),
+        deleteMany: {
+          id: {
+            in: removedStrVars,
           },
         },
       },

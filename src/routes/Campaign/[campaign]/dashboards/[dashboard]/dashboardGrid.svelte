@@ -6,16 +6,14 @@
   import { spring, type Spring } from "svelte/motion";
   import { onMount } from "svelte";
   import { arraymove } from "$lib/utils";
-  import type { CardData } from "@prisma/client";
   import type { PageData } from "./$types";
 
   export let data: PageData;
   export let disable: boolean;
   export let edited: boolean;
-  export let removed: string[];
+  export let removedCards: string[];
   export let edit: boolean;
 
-  let gridArea: HTMLElement;
   const transition_delay = 0, transition_duration = 300;
   const animate_delay = 0, animate_duration = 20;
   const stiffness = 0.6, damping = 1.0;
@@ -26,14 +24,14 @@
         index: number;
         id: string;
         geometry: DOMRect;
-        card: CardData;
+        card: typeof data.dashboard.cards[number];
         refractary: boolean;
       } | undefined = undefined;
 
   let resizing: {
         index: number;
         id: string;
-        card: CardData;
+        card: typeof data.dashboard.cards[number];
         starting_top_left: { top: number; left: number };
       } | undefined = undefined;
 
@@ -192,7 +190,7 @@
     const id = ev.detail.id;
     const index = data.dashboard.cards.findIndex((card) => card.id===id);
     if(index !== -1) {
-      removed.push(id);
+      removedCards.push(id);
       edited = true;
       data.dashboard.cards.splice(index, 1);
       data.dashboard.cards = data.dashboard.cards;
@@ -216,7 +214,7 @@
   });
 </script>
 
-<div id="grid" bind:this={gridArea} style="touch-action: none">
+<div id="grid" style="touch-action: none">
   {#each data.dashboard.cards as card (card.id)}
     <div class="card"
       in:scale={{ delay: transition_delay, duration: transition_duration }}

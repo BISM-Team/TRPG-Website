@@ -15,9 +15,8 @@
 
     const onSubmit: SubmitFunction = async function() {
       disable=true;
-        return async ({ result, update }) => {
+        return async ({ update }) => {
           await update({reset: false});
-          if(result.type==='redirect') await invalidateAll();
           disable=false;
         }
     }

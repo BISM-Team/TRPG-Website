@@ -8,7 +8,7 @@ export const GET = async function ({ locals, url, params }) {
   const user = getLogin(locals);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
-  if (!campaign) throw error(400);
+  if (!campaign) throw error(404);
 
   const result = url.searchParams.get("modifiable")
     ? await getModifiablePages(user.id, campaign)

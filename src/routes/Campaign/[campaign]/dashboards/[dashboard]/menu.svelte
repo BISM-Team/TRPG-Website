@@ -56,6 +56,7 @@
       if (result.type === "success") { 
         menuDialog = { show: false, save_as: undefined, load_from_template: undefined };
         edited = false;
+        removed = [];
       }
       disable = false;
     };

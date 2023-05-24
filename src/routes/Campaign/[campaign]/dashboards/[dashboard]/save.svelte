@@ -45,6 +45,7 @@
         if (result.type === "success") { 
           showSaveDialog=false;
           edited=false;
+          removed = [];
           if(_switch && _switch==="true") edit=false;
         }
         disable=false;

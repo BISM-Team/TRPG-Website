@@ -4,6 +4,7 @@
   import type { ActionData, PageData } from "./$types";
   import { stringify } from "devalue";
   import { invalidateAll } from "$app/navigation";
+  import ErrorBar from "$lib/components/error_bar.svelte";
 
   export let data: PageData;
   export let disable: boolean;
@@ -56,12 +57,11 @@
   <Modal {disable} on:close={toggleSaveDialog}>
     <h3 class="w3-padding">Do you want to save your changes?</h3>
     <form action="?/save" method="post" use:enhance={submitSave}>
-      {#if form?.save_error && form?.invalid_data}
-        <p>Client Error, please contact us!</p>
-      {:else if form?.save_error && form?.server_error}
-        <p>Server Error, please contact us!</p>
+      {#if form?.save_invalid_data}
+        <ErrorBar text={'Client Error, please contact us!'}/>
+      {:else if form?.server_error}
+        <ErrorBar text={'Server Error, please contact us!'}/>
       {/if}
-      <input type="hidden" name="dashboardId" value={data.dashboard.id} />
       <input type="hidden" name="switch" value="true">
       <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>

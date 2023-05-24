@@ -4,8 +4,15 @@
   import { propagateErrors } from "$lib/utils";
   import type { DashboardTemplate } from "@prisma/client";
   import { enhance, type SubmitFunction } from "$app/forms";
+  import { stringify } from "devalue";
+  import type { ActionData, PageData } from "./$types";
+  import ErrorBar from "$lib/components/error_bar.svelte";
 
+  export let data: PageData;
+  export let form: ActionData;
   export let disable: boolean;
+  export let removed: string[];
+  export let edited: boolean;
 
   let menuDialog: { 
     show: boolean, 
@@ -23,16 +30,32 @@
     menuDialog = menuDialog.show ? { show: false, save_as: undefined, load_from_template: undefined } : { show: true, save_as: undefined, load_from_template: undefined };
   }
 
+  const submitSaveTo: SubmitFunction = async function (request) {
+    disable = true;
+    if(!request.data.has("templateId")) request.data.set("templateId", "");
+    const templateName = templates.find(template => template.id === request.data.get("templateId"))?.name;
+    if(!templateName) { 
+      disable = false;
+      throw new Error("Could not find selected template ??");
+    }
+    if(!request.data.has("name")) request.data.set("name", templateName);
+
+    request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; return card; })));
+    request.data.set("removed", stringify(removed));
+
+    return await submitMenu(request);
+  } 
+
   const submitMenu: SubmitFunction = async function ({ data }) {
     disable = true;
     data.set("options_numVar", "true")
     data.set("options_strVar", "true")
     data.set("options_cards", "true")
-    if(!data.has("templateId")) data.set("templateId", "");
     return async ({ result, update }) => {
       await update({reset: false});
       if (result.type === "success") { 
         menuDialog = { show: false, save_as: undefined, load_from_template: undefined };
+        edited = false;
       }
       disable = false;
     };
@@ -78,10 +101,15 @@
     {:else if menuDialog.save_as}
       <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
-      <form action="?/saveToTemplate" method="POST" use:enhance={submitMenu}>
-        <input type="text" name="saveAsText" id="saveAs" bind:value={menuDialog.save_as.value}/>
+      <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
+        <input type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
+        {#if form?.save_to_name_or_template_missing}
+          <ErrorBar text={'Client Error, please contact us!'}/>
+        {:else if form?.server_error}
+          <ErrorBar text={'Server Error, please try again or contact us!'}/>
+        {/if}
         <div class="cards">
-          {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.includes(menuDialog.save_as.value)))) as template}
+          {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.toLowerCase().includes(menuDialog.save_as.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
               <h5 class="w3-padding-16">{template.name}</h5>
             </Card>
@@ -97,9 +125,9 @@
       <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitMenu}>
-        <input type="text" name="saveAsText" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
+        <input type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
         <div class="cards">
-          {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.includes(menuDialog.load_from_template.value)))) as template}
+          {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
               <h5 class="w3-padding-16">{template.name}</h5>
             </Card>

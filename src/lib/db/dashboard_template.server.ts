@@ -134,7 +134,7 @@ export async function loadTemplateToDashboard(
 export async function saveDashboardToTemplate(
   user_id: string,
   name: string,
-  templateId: string | undefined,
+  templateId: string,
   dashboard: Dashboard & {
     numericVariables: NumericVariable[];
     stringVariables: StringVariable[];

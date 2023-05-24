@@ -111,6 +111,11 @@ export async function updateCards(
   });
   return await db.dashboard.update({
     where: { userId: user_id, id: dashboardId },
+    include: {
+      cards: true,
+      numericVariables: true,
+      stringVariables: true,
+    },
     data: {
       cards: {
         upsert: _cards.map((card) => ({

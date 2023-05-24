@@ -1,7 +1,7 @@
 <script lang="ts">
   import Modal from "$lib/components/modal.svelte";
   import { enhance, type SubmitFunction } from "$app/forms";
-  import type { PageData } from "./$types";
+  import type { ActionData, PageData } from "./$types";
   import type { CardData } from "@prisma/client";
 
   export let data: PageData;
@@ -15,6 +15,7 @@
 
   const submitCreateCard: SubmitFunction = async function (request) {
     disable = true;
+    request.cancel();
 
     const width = request.data.get("width")?.toString();
     const height = request.data.get("height")?.toString();
@@ -24,7 +25,6 @@
     const dashboardId = request.data.get("dashboardId")?.toString();
 
     if (!width || !height || !zoom || !source || !type || !dashboardId) {
-      request.cancel();
       disable = false;
       return;
     }
@@ -44,7 +44,6 @@
       dashboardId: dashboardId,
       templateId: null
     };
-    request.cancel();
     edited = true;
     data.dashboard.cards.push(card);
     data.dashboard.cards = data.dashboard.cards;

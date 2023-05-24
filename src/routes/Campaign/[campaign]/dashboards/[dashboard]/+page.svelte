@@ -48,7 +48,7 @@
 
 <Save {data} {form} bind:edit={edit} bind:edited={edited} bind:disable={disable} bind:removed={removed} bind:this={save}/>
 <Create {data} bind:edited={edited} bind:disable={disable} bind:this={create}/>
-<Delete {data} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
-<Menu bind:disable={disable} bind:this={menu}/>
+<Delete {data} {form} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+<Menu {data} {form} bind:disable={disable} bind:this={menu} bind:edited={edited} bind:removed={removed}/>
 
 <DashboardGrid bind:data={data} bind:edited={edited} bind:disable={disable} bind:removed={removed} {edit}/>

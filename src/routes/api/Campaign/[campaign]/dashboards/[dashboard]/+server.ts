@@ -4,7 +4,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET = async function ({ locals, url, params }) {
-  const user = getLogin(locals, url);
+  const user = getLogin(locals);
   const dashboard = await getDashboard(
     user.id,
     params.campaign,

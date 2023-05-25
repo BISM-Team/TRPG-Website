@@ -5,8 +5,7 @@
 
   export let campaignId: string;
   let searchText = "";
-  let searchInput: HTMLElement;
-  let initial_load = (async () => {;
+  let initial_load = (async () => {
     const response = await fetch(`/api/Campaign/${campaignId}/wiki`);
     await propagateErrors(response, new URL(window.location.href));
     if (response.ok) {
@@ -20,7 +19,7 @@
 </script>
 
 <div id="container">
-  <input class="w3-input" type="text" id="searchInput" autofocus bind:this={searchInput} bind:value={searchText}>
+  <input class="w3-input" type="text" id="searchInput" autofocus bind:value={searchText}>
   {#await initial_load}
     <p>Loading...</p>
   {:then results} 

@@ -61,7 +61,7 @@
       <em>Note that only the content you are allowed to modify will be deleted</em>
     </p>
     <form id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={handleDelete}>
-      <input type="hidden" name="version" value={data.version} />
+      <input type="hidden" name="updatedAt" value={data.updatedAt} />
       <input type="hidden" name="text" value="" />
       <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteModal}>Cancel</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
@@ -102,7 +102,7 @@
         {#if form?.invalid_campaign_id_or_page_name || form?.missing_text_or_tree} 
           <p class="w3-panel w3-red">Client Error, please contact us to investigate the cause!</p> 
         {/if}
-        <input type="hidden" name="version" value={data.version} />
+        <input type="hidden" name="updatedAt" value={data.updatedAt} />
         <textarea name="text" id="textArea" value={src} />
         <br />
         <div class="buttonContainer w3-center w3-block">

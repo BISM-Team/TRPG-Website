@@ -17,8 +17,8 @@ import { getLogin } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 
 export const actions: Actions = {
-  default: async ({ locals, params, request, url }) => {
-    const user = getLogin(locals, url);
+  default: async ({ locals, params, request }) => {
+    const user = getLogin(locals);
     const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
     if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
@@ -31,7 +31,10 @@ export const actions: Actions = {
     const data = await request.formData();
 
     let new_tree: Root;
-    const version = Number(data.get("version") || -1);
+    const updatedAtStr = data.get("updatedAt");
+    const updatedAt = updatedAtStr
+      ? new Date(updatedAtStr.toString())
+      : new Date();
     const text = data.get("text")?.toString();
     const tree = data.get("tree")?.toString();
     if (text !== undefined) {
@@ -68,15 +71,11 @@ export const actions: Actions = {
           campaign,
           mergedTree as unknown as Prisma.JsonObject,
           getHeadingsDb(mergedTree, params.page, campaign.id),
-          version !== null ? version : old_page.version
+          updatedAt
         );
         return { updated: true };
       } else {
-        await deletePage(
-          params.page,
-          campaign,
-          version !== null ? version : old_page.version
-        );
+        await deletePage(params.page, campaign, updatedAt);
         return { deleted: true };
       }
     } catch (exc) {

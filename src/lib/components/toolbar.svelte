@@ -8,11 +8,14 @@
 
 <style>
   #topRightButtonContainer {
+    position: sticky;
+    top: 0;
     background-color: teal;
     display: flex;
     justify-content: right;
     padding: 0em 1em;
     gap: 1em;
+    z-index: 50;
   }
   #topRightButtonContainer > :global(*) {
     text-align: center;

@@ -3,6 +3,11 @@
   const dispatch = createEventDispatcher();
 
   export let link = "";
+  export let button = {
+    role: "button",
+    name: "",
+    value: ""
+  }
   function onClick() {
     dispatch("buttonClick");
   }
@@ -14,7 +19,7 @@
       <slot />
     </a>
   {:else}
-    <button on:click={onClick} class="w3-container w3-block">
+    <button on:click={onClick} role={button.role} name={button.name} value={button.value} class="w3-container w3-block">
       <slot />
     </button>
   {/if}
@@ -39,5 +44,6 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
+    margin: 0;
   }
 </style>

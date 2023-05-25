@@ -1,46 +1,57 @@
-import { Character, Primitive } from "./Classes";
+import type { Ability, Character, Effect, Item } from "@prisma/client";
 
-export function buildTree(character: Character): Tree {
-  let primitives: Primitive[] = [];
+export function buildTree(
+  character: Pick<Character, "name"> & {
+    abilities: (Ability & {
+      effects: Effect[];
+    })[];
+    items: (Item & {
+      effects: Effect[];
+    })[];
+  }
+): Tree {
+  let effects: Effect[] = [];
 
   for (const ability of character.abilities) {
-    primitives = primitives.concat(
-      ability.effects.map((effect) => {
-        return effect.primitive;
-      })
-    );
+    effects = effects.concat(ability.effects);
   }
 
   for (const item of character.items) {
-    primitives = primitives.concat(
-      item.effects.map((effect) => {
-        return effect.primitive;
-      })
-    );
+    effects = effects.concat(item.effects);
   }
 
   const nodes: Node[] = [];
 
-  for (const prim of primitives) {
-    const new_node = new Node("", prim);
+  for (const effect of effects) {
+    const new_node = new Node("", effect);
 
-    prim.incoming_refs.forEach((ref) => {
+    new_node.effect.reads.split(" ").forEach((ref) => {
       let node = nodes.find((node) => {
         return node.name == ref;
       });
       if (node == undefined) {
-        node = new Node(ref, new Primitive(() => {}));
+        node = new Node(ref, {
+          fn: "",
+          modifies: "",
+          reads: "",
+          priority: 0,
+        });
         nodes.push(node);
       }
       new_node.addChild(node);
     });
 
-    prim.outgoing_refs.forEach((ref) => {
+    new_node.effect.modifies.split(" ").forEach((ref) => {
       let node = nodes.find((node) => {
         return node.name == ref;
       });
       if (node == undefined) {
-        node = new Node(ref, new Primitive(() => {}));
+        node = new Node(ref, {
+          fn: "",
+          modifies: "",
+          reads: "",
+          priority: 0,
+        });
         nodes.push(node);
       }
       node.addChild(new_node);
@@ -55,11 +66,12 @@ export function buildTree(character: Character): Tree {
 class Tree {
   name: string;
   nodes: Node[];
-  scope: any;
+  scope: Record<string, any>;
   constructor(name: string, nodes: Node[] = []) {
     this.invoke = this.invoke.bind(this);
     this.name = name;
     this.nodes = nodes;
+    this.scope = {};
     for (const node of this.nodes) {
       node.sortChilds();
     }
@@ -81,15 +93,19 @@ class Tree {
 
 class Node {
   name: string;
-  primitive: Primitive;
+  effect: Omit<Effect, "id" | "itemId" | "abilityId">;
   priority: number;
   children: { node: Node; explored: boolean }[];
   evaluated: boolean;
-  constructor(name: string, primitive: Primitive, children: Node[] = []) {
+  constructor(
+    name: string,
+    effect: Omit<Effect, "id" | "itemId" | "abilityId">,
+    children: Node[] = []
+  ) {
     this.invoke = this.invoke.bind(this);
     this.name = name;
-    this.primitive = primitive;
-    this.priority = primitive.priority;
+    this.effect = effect;
+    this.priority = effect.priority;
     this.children = children
       .map((node) => {
         return { node: node, explored: false };
@@ -110,7 +126,7 @@ class Node {
     });
   }
 
-  invoke(scope: any) {
+  invoke(scope: Record<string, any>) {
     if (this.evaluated) return;
 
     for (const child of this.children) {
@@ -121,7 +137,7 @@ class Node {
     }
     if (!this.evaluated) {
       this.evaluated = true;
-      this.primitive.invoke(scope);
+      eval(this.effect.fn);
     }
   }
 }

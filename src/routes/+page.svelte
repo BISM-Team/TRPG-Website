@@ -3,10 +3,10 @@
 
   const cards = [
     {
-      name: "Game Wiki",
+      name: "Characters",
       description:
-        "A place to find all the informations for a specific Game System, such as DnD or others",
-      link: "/GameWiki",
+        "View and edit your characters, or create new ones to use in campaigns",
+      link: "/Characters",
     },
     {
       name: "Campaign",
@@ -20,8 +20,8 @@
 <div class="cards">
   {#each cards as data}
     <Card link={data.link}>
-      <h3 class="w3-center w3-padding-16 w3-border-bottom">{data.name}</h3>
-      <p class="w3-padding-16">{data.description}</p>
+      <h3 class="w3-center w3-padding-32 w3-border-bottom">{data.name}</h3>
+      <p class="w3-padding-32">{data.description}</p>
     </Card>
   {/each}
 </div>

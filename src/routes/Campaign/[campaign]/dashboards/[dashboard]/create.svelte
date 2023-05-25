@@ -1,9 +1,10 @@
 <script lang="ts">
   import Modal from "$lib/components/modal.svelte";
   import { enhance, type SubmitFunction } from "$app/forms";
-  import type { ActionData, PageData } from "./$types";
+  import type { PageData } from "./$types";
   import type { CardData } from "@prisma/client";
   import { _replaceSource } from "./+page";
+  import { createId } from "@paralleldrive/cuid2"
 
   export let data: PageData;
   export let disable: boolean;
@@ -18,23 +19,19 @@
     disable = true;
     request.cancel();
 
-    const width = request.data.get("width")?.toString();
-    const height = request.data.get("height")?.toString();
-    const zoom = request.data.get("zoom")?.toString();
-    const source = request.data.get("source")?.toString();
-    const type = request.data.get("type")?.toString();
+    const width = request.formData.get("width")?.toString();
+    const height = request.formData.get("height")?.toString();
+    const zoom = request.formData.get("zoom")?.toString();
+    const source = request.formData.get("source")?.toString();
+    const type = request.formData.get("type")?.toString();
 
     if (!width || !height || !zoom || !source || !type) {
       disable = false;
       return;
     }
 
-    let randomId = crypto.randomUUID();
-    while(data.dashboard.cards.findIndex((card) => card.id===randomId) !== -1) 
-      randomId = crypto.randomUUID();
-
     const card: CardData = {
-      id: randomId,
+      id: createId(),
       index: data.dashboard.cards.length,
       width: parseInt(width),
       height: parseInt(height),

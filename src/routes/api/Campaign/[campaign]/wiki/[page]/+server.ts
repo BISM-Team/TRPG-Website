@@ -49,7 +49,7 @@ export const GET = async function ({ params, locals, fetch }) {
       };
     });
     return json({
-      updatedAt: page.updatedAt.toDateString(),
+      hash: page.hash,
       headings: headings.filter((heading) => {
         return user.id === gm_id || includes(heading.viewers, user.id);
       }),

@@ -15,6 +15,7 @@ import { capitalizeFirstLetter } from "$lib/utils";
 import type { Prisma } from "@prisma/client";
 import { getLogin } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
+import { createId } from "@paralleldrive/cuid2";
 
 export const actions: Actions = {
   default: async ({ locals, params, request }) => {
@@ -31,10 +32,7 @@ export const actions: Actions = {
     const data = await request.formData();
 
     let new_tree: Root;
-    const updatedAtStr = data.get("updatedAt");
-    const updatedAt = updatedAtStr
-      ? new Date(updatedAtStr.toString())
-      : new Date();
+    const prev_hash = data.get("hash")?.toString();
     const text = data.get("text")?.toString();
     const tree = data.get("tree")?.toString();
     if (text !== undefined) {
@@ -62,20 +60,22 @@ export const actions: Actions = {
       return { created: true };
     }
 
-    const old_tree = old_page.content as unknown as Root;
-    const mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
+    if (prev_hash === undefined) return fail(400, { missing_hash: true });
     try {
+      const old_tree = old_page.content as unknown as Root;
+      const mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
       if (mergedTree.children.length) {
         await modifyPage(
           params.page,
           campaign,
           mergedTree as unknown as Prisma.JsonObject,
           getHeadingsDb(mergedTree, params.page, campaign.id),
-          updatedAt
+          prev_hash,
+          createId()
         );
         return { updated: true };
       } else {
-        await deletePage(params.page, campaign, updatedAt);
+        await deletePage(params.page, campaign, prev_hash);
         return { deleted: true };
       }
     } catch (exc) {

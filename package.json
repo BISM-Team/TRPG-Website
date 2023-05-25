@@ -13,6 +13,7 @@
 		"lint": "eslint ."
 	},
 	"devDependencies": {
+		"@paralleldrive/cuid2": "^2.2.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^2.0.1",
 		"@sveltejs/adapter-node": "^1.2.4",

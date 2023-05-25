@@ -8,6 +8,7 @@
   import type { ActionData, PageData } from "./$types";
   import { invalidateAll } from "$app/navigation";
   import ErrorBar from "$lib/components/error_bar.svelte";
+  import { createId } from "@paralleldrive/cuid2"
 
   export let data: PageData;
   export let form: ActionData;
@@ -126,13 +127,9 @@
   }
 
   function addVariable(type: "string" | "numeric") {
-    let randomId = crypto.randomUUID();
-    while(data.dashboard.numericVariables.findIndex((variable) => variable.id===randomId) !== -1) 
-      randomId = crypto.randomUUID();
-
       if(type === "string") {
         data.dashboard.stringVariables.push({
-          id: randomId,
+          id: createId(),
           name: "New variable",
           value: "",
           show: false,
@@ -143,7 +140,7 @@
       }
       else {
         data.dashboard.numericVariables.push({
-        id: randomId,
+        id: createId(),
         name: "New variable",
         value: 0,
         show: false,

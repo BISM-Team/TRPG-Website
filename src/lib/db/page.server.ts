@@ -104,7 +104,8 @@ export async function modifyPage(
   campaign: Campaign,
   content: Prisma.JsonObject,
   headings: (Heading & { viewers: string[]; modifiers: string[] })[],
-  updatedAt: Date
+  prev_hash: string,
+  next_hash: string
 ): Promise<Page> {
   const _headings = headings.map((heading) => ({
     id: heading.id,
@@ -121,7 +122,7 @@ export async function modifyPage(
   return await db.page.update({
     where: {
       name_campaignId: { name: name, campaignId: campaign.id },
-      updatedAt: updatedAt,
+      hash: prev_hash,
     },
     data: {
       content: content,
@@ -129,6 +130,7 @@ export async function modifyPage(
         deleteMany: {},
         create: _headings,
       },
+      hash: next_hash,
     },
   });
 }
@@ -136,12 +138,12 @@ export async function modifyPage(
 export async function deletePage(
   name: string,
   campaign: Campaign,
-  updatedAt: Date
+  prev_hash: string
 ) {
   return await db.page.delete({
     where: {
       name_campaignId: { name: name, campaignId: campaign.id },
-      updatedAt: updatedAt,
+      hash: prev_hash,
     },
   });
 }

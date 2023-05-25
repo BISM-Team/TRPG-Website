@@ -60,7 +60,7 @@ model Campaign {
 model Page {
   name       String
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
+  hash       String    @default(cuid())
   content    Json
   headings   Heading[]
   campaignId String
@@ -170,7 +170,6 @@ model Character {
   id         String    @id @default(cuid())
   name       String
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
   properties Json
   abilities  Ability[]
   items      Item[]

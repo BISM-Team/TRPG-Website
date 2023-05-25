@@ -9,7 +9,7 @@ import type { Root } from "mdast";
 import type { Heading } from "@prisma/client";
 import { includes } from "$lib/utils";
 
-export const GET = async function ({ params, locals }) {
+export const GET = async function ({ params, locals, fetch }) {
   const user = getLogin(locals);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 

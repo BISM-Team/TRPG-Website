@@ -2,6 +2,9 @@
 	"name": "trpg-website",
 	"version": "0.0.1",
 	"private": true,
+  "prisma": {
+    "seed": "vite-node src/seed.ts"
+  },
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -58,6 +61,7 @@
 		"@prisma/client": "^4.13.0",
 		"bcrypt": "^5.1.0",
 		"jsonwebtoken": "^9.0.0",
-		"prisma": "^4.13.0"
+		"prisma": "^4.13.0",
+		"vite-node": "^0.31.1"
 	}
 }

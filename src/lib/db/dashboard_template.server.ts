@@ -5,11 +5,13 @@ import type {
   DashboardTemplate,
   NumericVariable,
   StringVariable,
-  User,
+  Type,
 } from "@prisma/client";
 import { db } from "./db.server";
-export async function getUserDashboardTemplates(user_id: string) {
-  return await db.dashboardTemplate.findMany({ where: { userId: user_id } });
+export async function getUserDashboardTemplates(user_id: string, type?: Type) {
+  return await db.dashboardTemplate.findMany({
+    where: { userId: user_id, type: type },
+  });
 }
 
 export async function getDashboardTemplate(
@@ -43,32 +45,31 @@ export async function deleteDashboardTemplate(
 
 export async function createDashboardFromTemplate(
   user_id: string,
-  campaign: Campaign,
   name: string,
   dashboardTemplate: DashboardTemplate & {
     numericVariables: NumericVariable[];
     stringVariables: StringVariable[];
     cards: CardData[];
-  }
+  },
+  campaign?: Campaign
 ) {
-  await db.dashboard.create({
+  return await db.dashboard.create({
     data: {
       name: name,
-      campaignId: campaign.id,
+      campaignId: campaign?.id,
       userId: user_id,
+      type: dashboardTemplate.type,
       numericVariables: {
-        create: dashboardTemplate.numericVariables.map((variable) => ({
-          name: variable.name,
-          value: variable.value,
-          show: variable.show,
-        })),
+        create: dashboardTemplate.numericVariables.map((variable) => {
+          const { id, dashboardId, templateId, ...rest } = variable;
+          return rest;
+        }),
       },
       stringVariables: {
-        create: dashboardTemplate.stringVariables.map((variable) => ({
-          name: variable.name,
-          value: variable.value,
-          show: variable.show,
-        })),
+        create: dashboardTemplate.stringVariables.map((variable) => {
+          const { id, dashboardId, templateId, ...rest } = variable;
+          return rest;
+        }),
       },
       cards: {
         create: dashboardTemplate.cards.map((card) => {
@@ -88,18 +89,19 @@ type TemplateDashboardOptions = {
 
 export async function loadTemplateToDashboard(
   user_id: string,
-  campaign_id: string,
   dashboardId: string,
   dashboardTemplate: DashboardTemplate & {
     numericVariables: NumericVariable[];
     stringVariables: StringVariable[];
     cards: CardData[];
   },
-  options: TemplateDashboardOptions
+  options: TemplateDashboardOptions,
+  campaign_id?: string
 ) {
-  await db.dashboard.update({
+  return await db.dashboard.update({
     where: { id: dashboardId, campaignId: campaign_id, userId: user_id },
     data: {
+      type: dashboardTemplate.type,
       numericVariables: options.numericVariables
         ? {
             deleteMany: {},
@@ -145,6 +147,7 @@ export async function saveDashboardToTemplate(
   return await db.dashboardTemplate.upsert({
     where: { userId: user_id, id: templateId, name: name },
     update: {
+      type: dashboard.type,
       numericVariables: options.numericVariables
         ? {
             deleteMany: {},
@@ -176,6 +179,7 @@ export async function saveDashboardToTemplate(
     create: {
       name: name,
       userId: user_id,
+      type: dashboard.type,
       numericVariables: options.numericVariables
         ? {
             create: dashboard.numericVariables.map((variable) => {

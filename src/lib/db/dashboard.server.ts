@@ -1,11 +1,10 @@
 import type {
   CardData,
-  Dashboard,
   NumericVariable,
   StringVariable,
-  User,
   Campaign,
   Prisma,
+  Type,
 } from "@prisma/client";
 import { db } from "./db.server";
 
@@ -17,8 +16,8 @@ export async function getUserDashboards(user_id: string, campaignId: string) {
 
 export async function getDashboard(
   user_id: string,
-  campaignId: string,
-  dashboardId: string
+  dashboardId: string,
+  campaignId?: string
 ) {
   return await db.dashboard.findUnique({
     where: {
@@ -40,14 +39,16 @@ export async function getDashboard(
 
 export async function createDashboard(
   user_id: string,
-  campaign: Campaign,
-  name: string
+  name: string,
+  type: Type,
+  campaign?: Campaign
 ) {
   return await db.dashboard.create({
     data: {
       name: name,
-      campaignId: campaign.id,
+      campaignId: campaign?.id,
       userId: user_id,
+      type: type,
       numericVariables: {
         create: [],
       },
@@ -142,7 +143,8 @@ export async function updateDashboard(
   numVars: NumericVariable[],
   strVars: StringVariable[],
   removedNumVars: string[],
-  removedStrVars: string[]
+  removedStrVars: string[],
+  type: Type
 ) {
   const _numVars = numVars.map((variable) => {
     const { dashboardId, ...variable_with_id } = variable;
@@ -161,6 +163,7 @@ export async function updateDashboard(
     },
     data: {
       name: name,
+      type: type,
       numericVariables: {
         upsert: _numVars.map((variable) => ({
           where: {

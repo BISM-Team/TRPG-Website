@@ -11,14 +11,22 @@ export async function getCharacters(user_id: string) {
   });
 }
 
-export async function getCharacter(user_id: string, character_id: string) {
+export async function getCharacter(
+  user_id: string,
+  character_id: string,
+  dashboard: boolean
+) {
   return await db.character.findUnique({
     where: { id: character_id, userId: user_id },
+    include: {
+      dashboard: dashboard,
+    },
   });
 }
 
 export async function createCharacter(
   user_id: string,
+  dashboardId: string,
   character: Pick<Character, "name"> & {
     abilities: (Ability & {
       effects: Effect[];
@@ -35,6 +43,7 @@ export async function createCharacter(
       name: character.name,
       userId: user_id,
       properties: tree.scope,
+      dashboardId: dashboardId,
       abilities: {
         connect: character.abilities.map((ability) => ({ id: ability.id })),
       },

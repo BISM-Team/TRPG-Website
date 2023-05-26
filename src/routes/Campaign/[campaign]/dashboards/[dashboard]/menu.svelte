@@ -95,7 +95,7 @@
 
   async function loadTemplates() {
     disable = true;
-    const response = await fetch("/api/DashboardTemplates");
+    const response = await fetch("/api/DashboardTemplates?type=dashboard");
     await propagateErrors(response, new URL(window.location.href));
     if(!response.ok) throw new Error("unexpected error")
     templates = (await response.json()).map((template) => {

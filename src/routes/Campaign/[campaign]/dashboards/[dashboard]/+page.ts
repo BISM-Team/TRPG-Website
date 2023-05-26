@@ -1,5 +1,4 @@
 import { propagateErrors } from "$lib/utils";
-import assert from "assert";
 import type { PageLoad } from "./$types";
 import type {
   CardData,

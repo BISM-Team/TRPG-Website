@@ -1,8 +1,13 @@
 import { seed } from "$lib/GameSystem/seed";
+import { createDashboard } from "$lib/db/dashboard.server";
+import {
+  createDashboardFromTemplate,
+  getDashboardTemplate,
+} from "$lib/db/dashboard_template.server";
 import { db } from "$lib/db/db.server";
 import { createCharacter } from "$lib/db/game_system.server";
-import { logWholeObject } from "$lib/utils";
 import { getLogin } from "$lib/utils.server";
+import { Type } from "@prisma/client";
 import { fail, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -19,15 +24,21 @@ export const actions: Actions = {
     if (!name) return fail(400, { ...savedData, name_missing: true });
 
     try {
-      await seed();
-
+      const character_sheet_default = null; //await getDashboardTemplate(...); ensure type === Type.character_sheet
       const character = {
         name: name,
         abilities: await db.ability.findMany({ include: { effects: true } }),
         items: await db.item.findMany({ include: { effects: true } }),
       };
-      logWholeObject(character);
-      await createCharacter(user.id, character);
+      const dashboardId = character_sheet_default
+        ? await createDashboardFromTemplate(
+            user.id,
+            name,
+            character_sheet_default
+          )
+        : await createDashboard(user.id, name, Type.character_sheet);
+
+      await createCharacter(user.id, dashboardId.id, character);
     } catch (exc) {
       console.error(exc);
       return fail(500, { ...savedData, server_error: true });

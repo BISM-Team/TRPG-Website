@@ -84,6 +84,11 @@ model Heading {
   @@index([pageName, pageCampaignId])
 }
 
+enum Type {
+  dashboard
+  character_sheet
+}
+
 model DashboardTemplate {
   id               String            @id @default(cuid())
   createdAt        DateTime          @default(now())
@@ -91,6 +96,8 @@ model DashboardTemplate {
   numericVariables NumericVariable[]
   stringVariables  StringVariable[]
   cards            CardData[]
+
+  type Type
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -105,11 +112,15 @@ model Dashboard {
   stringVariables  StringVariable[]
   cards            CardData[]
 
+  type Type
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  character Character?
 
   @@index([userId])
   @@index([campaignId])
@@ -177,7 +188,11 @@ model Character {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  dashboardId String    @unique
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
   @@index([userId])
+  @@index([dashboardId])
 }
 
 model Item {

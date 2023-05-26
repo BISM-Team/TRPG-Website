@@ -1,5 +1,5 @@
 import type { Actions } from "./$types";
-import { createDashboard, deleteDashboard } from "$lib/db/dashboard.server";
+import { createDashboard } from "$lib/db/dashboard.server";
 import {
   createDashboardFromTemplate,
   getDashboardTemplate,
@@ -7,6 +7,7 @@ import {
 import { fail } from "@sveltejs/kit";
 import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLogin } from "$lib/utils.server";
+import { Type } from "@prisma/client";
 
 export const actions: Actions = {
   create: async function ({ locals, request, params }) {
@@ -19,26 +20,21 @@ export const actions: Actions = {
       ? await getDashboardTemplate(user.id, templateId)
       : null;
 
-    const savedData = {
-      name: name,
-      templateId: templateId,
-    };
-
-    if (!name) return fail(400, { ...savedData, name_missing: true });
+    if (!name) return fail(400, { name_missing: true });
 
     if (templateId && !template)
-      return fail(400, { ...savedData, template_non_existant: true });
+      return fail(400, { template_non_existant: true });
 
     const campaign = await getUserCampaign(user.id, params.campaign);
-    if (!campaign)
-      return fail(500, { ...savedData, campaign_unaccessible: true });
+    if (!campaign) return fail(500, { campaign_unaccessible: true });
 
     try {
-      if (!template) await createDashboard(user.id, campaign, name);
-      else await createDashboardFromTemplate(user.id, campaign, name, template);
+      if (!template)
+        await createDashboard(user.id, name, Type.dashboard, campaign);
+      else await createDashboardFromTemplate(user.id, name, template, campaign);
     } catch (exc) {
       console.error(exc);
-      return fail(500, { ...savedData, server_error: true });
+      return fail(500, { server_error: true });
     }
   },
 };

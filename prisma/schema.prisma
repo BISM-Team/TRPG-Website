@@ -197,7 +197,7 @@ model Character {
 
 model Item {
   id      String   @id @default(cuid())
-  name    String
+  name    String   @unique
   effects Effect[]
 
   characters Character[]
@@ -205,7 +205,7 @@ model Item {
 
 model Ability {
   id         String      @id @default(cuid())
-  name       String
+  name       String      @unique
   effects    Effect[]
   characters Character[]
 }

@@ -1,5 +1,11 @@
-import { db } from "$lib/db/db.server";
-import type { Ability, Effect, Item } from "@prisma/client";
+import {
+  PrismaClient,
+  type Ability,
+  type Effect,
+  type Item,
+} from "@prisma/client";
+
+const db = new PrismaClient();
 
 const PrepareSpells: Omit<Ability, "id"> & {
   effects: Omit<Effect, "id" | "itemId" | "abilityId">[];
@@ -99,17 +105,26 @@ const prep_modifier_2: Omit<Item, "id"> & {
   ],
 };
 
-export async function seed() {
+async function main() {
   await db.ability.deleteMany({});
   await db.item.deleteMany({});
 
   await Promise.all(
     [PrepareSpells, character_def, nonsense_effect, nonsense_effect_2].map(
       async (ability) => {
-        await db.ability.create({
-          data: {
+        await db.ability.upsert({
+          where: { name: ability.name },
+          create: {
             name: ability.name,
             effects: {
+              createMany: {
+                data: ability.effects,
+              },
+            },
+          },
+          update: {
+            effects: {
+              deleteMany: {},
               createMany: {
                 data: ability.effects,
               },
@@ -122,10 +137,19 @@ export async function seed() {
 
   await Promise.all(
     [prep_modifier, prep_modifier_2].map(async (item) => {
-      await db.item.create({
-        data: {
+      await db.item.upsert({
+        where: { name: item.name },
+        create: {
           name: item.name,
           effects: {
+            createMany: {
+              data: item.effects,
+            },
+          },
+        },
+        update: {
+          effects: {
+            deleteMany: {},
             createMany: {
               data: item.effects,
             },

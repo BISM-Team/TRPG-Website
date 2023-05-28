@@ -68,9 +68,9 @@
 <Save   dashboard={data.dashboard} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
 
-<Create bind:dashboard={data.dashboard} dashboardId={data.character.dashboard.id} bind:edited={edited} bind:disable={disable} bind:this={create}/>
+<Create bind:dashboard={data.dashboard} dashboardId={data.dashboard.id} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 
-<Delete message={"Do you want to delete this Character?"} redirectUrl={`/Characters`} dashboardId={data.character.dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+<Delete message={"Do you want to delete this Character?"} redirectUrl={`/Characters`} dashboardId={data.dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
 
 <Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited} 
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>

@@ -14,8 +14,9 @@ export const load = (async ({ fetch, params, url }) => {
     return replaceCardSource(card, data.character.dashboard);
   });
   const { cards, ...other_dashboard } = data.character.dashboard;
+  const { dashboard, ...other_character } = data.character;
   return {
-    character: (await response.json()).character,
+    character: other_character,
     dashboard: { ...other_dashboard, cards: new_cards },
     params,
   };

@@ -12,7 +12,7 @@ export const handle = async function ({ event, resolve }) {
     const after = Date.now();
     const url = new URL(event.request.url);
     console.log(
-      `Request ${event.request.method} ${url.pathname} took ${after - before}ms`
+      `${event.request.method} ${url.pathname} took ${after - before}ms`
     );
     return result;
   } else return await resolve(event);

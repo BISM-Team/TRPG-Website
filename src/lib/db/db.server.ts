@@ -48,9 +48,7 @@ if (LOG_LEVEL.includes("QUERY")) {
     const before = Date.now();
     const result = await next(params);
     const after = Date.now();
-    console.log(
-      `Query ${params.model}.${params.action} took ${after - before}ms`
-    );
+    console.log(`${params.model}.${params.action} took ${after - before}ms`);
     return result;
   });
 }

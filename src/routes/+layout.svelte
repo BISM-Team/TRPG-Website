@@ -16,7 +16,7 @@
     <a href="/Characters" class="w3-block w3-button">Characters</a>
     <a href="/Campaign" class="w3-block w3-button">Campaign</a>
     {#if data.auth}
-      <a href="/logout" data-sveltekit-preload-data="tap" data-sveltekit-preload-code="hover" class="w3-block w3-button" on:click={logout}>Logout</a>
+      <button class="w3-block w3-button" on:click={logout}>Logout</button>
     {:else}
       <a href="/login" class="w3-block w3-button">Login/Signup</a>
     {/if}

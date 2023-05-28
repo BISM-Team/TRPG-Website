@@ -4,4 +4,5 @@ import type { RequestHandler } from "./$types";
 
 export const POST = async function ({ locals, cookies }) {
   if (getLogin(locals)) deleteToken(cookies);
+  return new Response();
 } satisfies RequestHandler;

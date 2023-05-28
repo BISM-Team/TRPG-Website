@@ -42,7 +42,7 @@ export const actions: Actions = {
     }
   },
 
-  delete: async function ({ locals, request }) {
+  delete: async function ({ locals, request, params }) {
     const user = getLogin(locals);
     const data = await request.formData();
     const dashboardId = data.get("dashboardId")?.toString();
@@ -50,7 +50,7 @@ export const actions: Actions = {
     if (!dashboardId) return fail(400, { client_error: true });
 
     try {
-      await deleteCharacter(user.id, dashboardId);
+      await deleteCharacter(user.id, params.character);
     } catch (exc) {
       console.error(exc);
       return fail(500, { server_error: true });

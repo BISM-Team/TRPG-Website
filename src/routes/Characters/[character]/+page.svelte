@@ -2,11 +2,13 @@
   import type { ActionData, PageData } from "./$types";
   import Toolbar from "$lib/components/toolbar.svelte";
   import { enhance } from "$app/forms";
-  import DashboardGrid from "../../Campaign/[campaign]/dashboards/[dashboard]/dashboardGrid.svelte";
-  import Menu from "./menu.svelte";
-  import Delete from "./delete.svelte";
-  import Create from "./create.svelte";
-  import Save from "./save.svelte";
+  import DashboardGrid from "$lib/components/Dashboard/dashboardGrid.svelte";
+  import Menu from "$lib/components/Dashboard/menu.svelte";
+  import Delete from "$lib/components/Dashboard/delete.svelte";
+  import Create from "$lib/components/Dashboard/create.svelte";
+  import Save from "$lib/components/Dashboard/save.svelte";
+  import Modal from "$lib/components/modal.svelte";
+  import ErrorBar from "$lib/components/error_bar.svelte";
 
   export let data: PageData;
   export let form: ActionData;
@@ -22,6 +24,11 @@
   let removedCards: string[] = [];
   let removedNumVar: string[] = [];
   let removedStrVar: string[] = [];
+
+  function closeError() {
+    if(form?.client_error) form.client_error = false;
+    if(form?.server_error) form.server_error = false;
+  }
 </script>
 
 <Toolbar>
@@ -48,14 +55,24 @@
   </button>
 </Toolbar>
 
-<Save   {data} {form} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
+{#if form?.client_error || form?.server_error}
+  <Modal disable={disable} on:close={closeError}>
+    {#if form?.client_error}
+    <ErrorBar text={'Client Error, please try again or contact us!'}/>
+    {:else if form?.server_error}
+    <ErrorBar text={'Server Error, please contact us!'}/>
+    {/if}
+  </Modal>
+{/if}
+
+<Save   dashboard={data.dashboard} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
 
-<Create bind:data={data} bind:edited={edited} bind:disable={disable} bind:this={create}/>
+<Create bind:dashboard={data.dashboard} dashboardId={data.character.dashboard.id} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 
-<Delete {data} {form} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+<Delete message={"Do you want to delete this Character?"} redirectUrl={`/Characters`} dashboardId={data.character.dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
 
-<Menu   {data} {form} bind:disable={disable} bind:this={menu} bind:edited={edited} 
+<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited} 
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
 
-<DashboardGrid bind:data={data} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>
+<DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>

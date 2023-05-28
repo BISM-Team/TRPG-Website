@@ -20,38 +20,43 @@ import {
 } from "$lib/db/dashboard_template.server";
 
 export const actions: Actions = {
-  save: async function ({ request, locals, params }) {
+  save: async function ({ request, locals }) {
     const user = getLogin(locals);
 
     const data = await request.formData();
     const _cards = data.get("cards");
     const _removedCards = data.get("removedCards");
-    if (!_cards || !_removedCards)
+    const dashboardId = data.get("dashboardId")?.toString();
+    if (!_cards || !_removedCards || !dashboardId)
       return fail(400, { client_error: true, save_invalid_data: true });
 
     const cards: CardData[] = parse(_cards.toString());
     const removedCards: string[] = parse(_removedCards.toString());
 
     try {
-      await updateCards(user.id, params.dashboard, cards, removedCards);
+      await updateCards(user.id, dashboardId, cards, removedCards);
     } catch (exc) {
       console.error(exc);
       return fail(500, { server_error: true });
     }
   },
 
-  delete: async function ({ locals, params }) {
+  delete: async function ({ locals, request }) {
     const user = getLogin(locals);
+    const data = await request.formData();
+    const dashboardId = data.get("dashboardId")?.toString();
+
+    if (!dashboardId) return fail(400, { client_error: true });
 
     try {
-      await deleteDashboard(user.id, params.campaign, params.dashboard);
+      await deleteDashboard(user.id, dashboardId);
     } catch (exc) {
       console.error(exc);
       return fail(500, { server_error: true });
     }
   },
 
-  loadFromTemplate: async function ({ locals, request, params }) {
+  loadFromTemplate: async function ({ locals, request }) {
     const user = getLogin(locals);
 
     const data = await request.formData();
@@ -59,16 +64,17 @@ export const actions: Actions = {
     const options_numVar = Boolean(data.get("options_numVar") ?? "true");
     const options_strVar = Boolean(data.get("options_strVar") ?? "true");
     const options_cards = Boolean(data.get("options_cards") ?? "true");
+    const dashboardId = data.get("dashboardId")?.toString();
     const template = await getDashboardTemplate(user.id, templateId);
 
-    if (!template)
+    if (!template || !dashboardId)
       return fail(400, {
         client_error: true,
         load_from_template_non_existant: true,
       });
 
     try {
-      await loadTemplateToDashboard(user.id, params.dashboard, template, {
+      await loadTemplateToDashboard(user.id, dashboardId, template, {
         numericVariables: options_numVar,
         stringVariables: options_strVar,
         cards: options_cards,
@@ -81,7 +87,7 @@ export const actions: Actions = {
     }
   },
 
-  saveToTemplate: async function ({ locals, request, params }) {
+  saveToTemplate: async function ({ locals, request }) {
     const user = getLogin(locals);
 
     const data = await request.formData();
@@ -90,10 +96,11 @@ export const actions: Actions = {
     const options_numVar = Boolean(data.get("options_numVar") ?? "true");
     const options_strVar = Boolean(data.get("options_strVar") ?? "true");
     const options_cards = Boolean(data.get("options_cards") ?? "true");
+    const dashboardId = data.get("dashboardId")?.toString();
 
     const _cards = data.get("cards");
     const _removedCards = data.get("removedCards");
-    if (!_cards || !_removedCards)
+    if (!_cards || !_removedCards || !dashboardId)
       return fail(400, { client_error: true, save_to_invalid_data: true });
 
     const cards: CardData[] = parse(_cards.toString());
@@ -108,7 +115,7 @@ export const actions: Actions = {
     try {
       const dashboard = await updateCards(
         user.id,
-        params.dashboard,
+        dashboardId,
         cards,
         removedCards
       );
@@ -125,7 +132,7 @@ export const actions: Actions = {
     }
   },
 
-  settings: async function ({ locals, request, params }) {
+  settings: async function ({ locals, request }) {
     const user = getLogin(locals);
 
     const data = await request.formData();
@@ -134,7 +141,15 @@ export const actions: Actions = {
     const _strVars = data.get("strVars");
     const _removedNumVars = data.get("removedNumVars");
     const _removedStrVars = data.get("removedStrVars");
-    if (!name || !_numVars || !_strVars || !_removedNumVars || !_removedStrVars)
+    const dashboardId = data.get("dashboardId")?.toString();
+    if (
+      !name ||
+      !_numVars ||
+      !_strVars ||
+      !_removedNumVars ||
+      !_removedStrVars ||
+      !dashboardId
+    )
       return fail(400, { client_error: true, settings_invalid_data: true });
 
     const numVars: NumericVariable[] = parse(_numVars.toString());
@@ -145,7 +160,7 @@ export const actions: Actions = {
     try {
       await updateDashboard(
         user.id,
-        params.dashboard,
+        dashboardId,
         name,
         numVars,
         strVars,

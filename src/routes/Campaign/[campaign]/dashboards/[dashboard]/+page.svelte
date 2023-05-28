@@ -70,9 +70,9 @@
 
 <Create bind:dashboard={data.dashboard} dashboardId={data.params.dashboard} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 
-<Delete campaignId={data.params.dashboard} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+<Delete message={"Do you want to delete this dashboard?"} redirectUrl={`/Campaign/${data.params.campaign}/dashboards`} dashboardId={data.params.dashboard} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
 
-<Menu   dashboard={data.dashboard} dashboardId={data.params.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited} 
+<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited} 
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
 
 <DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>

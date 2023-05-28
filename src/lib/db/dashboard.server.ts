@@ -62,15 +62,10 @@ export async function createDashboard(
   });
 }
 
-export async function deleteDashboard(
-  user_id: string,
-  campaignId: string,
-  dashboardId: string
-) {
+export async function deleteDashboard(user_id: string, dashboardId: string) {
   return await db.dashboard.delete({
     where: {
       id: dashboardId,
-      campaignId: campaignId,
       userId: user_id,
     },
   });

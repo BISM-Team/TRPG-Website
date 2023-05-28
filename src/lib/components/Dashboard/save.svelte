@@ -68,6 +68,7 @@
     <h3 class="w3-padding">Do you want to save your changes?</h3>
     <form action="?/save" method="post" use:enhance={submitSave}>
       <input type="hidden" name="switch" value="true">
+      <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
       <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>
     </form>

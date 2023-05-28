@@ -2,7 +2,8 @@
   import type { ActionData, PageData } from "./$types";
   import Card from "$lib/components/card.svelte";
   import Modal from "$lib/components/modal.svelte";
-  import { enhance, type SubmitFunction } from "$app/forms";
+  import { enhance } from "$app/forms";
+  import type { SubmitFunction } from "@sveltejs/kit";
 
   export let data: PageData;
   export let form: ActionData;

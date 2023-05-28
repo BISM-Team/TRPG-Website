@@ -19,7 +19,15 @@ export async function getCharacter(
   return await db.character.findUnique({
     where: { id: character_id, userId: user_id },
     include: {
-      dashboard: dashboard,
+      dashboard: dashboard
+        ? {
+            include: {
+              cards: true,
+              stringVariables: true,
+              numericVariables: true,
+            },
+          }
+        : undefined,
     },
   });
 }
@@ -50,6 +58,15 @@ export async function createCharacter(
       items: {
         connect: character.items.map((item) => ({ id: item.id })),
       },
+    },
+  });
+}
+
+export async function deleteCharacter(user_id: string, characterId: string) {
+  return await db.character.delete({
+    where: {
+      userId: user_id,
+      id: characterId,
     },
   });
 }

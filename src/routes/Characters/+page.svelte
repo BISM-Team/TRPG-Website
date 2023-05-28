@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import { enhance, type SubmitFunction } from '$app/forms';
+    import { enhance } from '$app/forms';
     import Card from '$lib/components/card.svelte';
     import Modal from '$lib/components/modal.svelte';
+    import type { SubmitFunction } from '@sveltejs/kit';
     
     export let data: PageData;
     let show_modal = false;

@@ -65,7 +65,7 @@
       <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={200} required/>
       
       <input type="hidden" name="zoom" id="nameInput" value={1} class="w3-input w3-border w3-margin-bottom"/>
-      
+
       <label for="sourceInput">Source</label>
       <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={""} required/>
       

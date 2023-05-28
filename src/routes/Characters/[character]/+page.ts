@@ -1,4 +1,5 @@
-import { propagateErrors } from "$lib/utils";
+import { propagateErrors, replaceCardSource } from "$lib/utils";
+import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ fetch, params, url }) => {
@@ -7,5 +8,15 @@ export const load = (async ({ fetch, params, url }) => {
   );
   await propagateErrors(response, url);
   if (!response.ok) throw new Error("unexpected error");
-  return { character: (await response.json()).character };
+  const data = await response.json();
+  if (!data.character || !data.character.dashboard) throw error(404);
+  const new_cards = data.character.dashboard.cards.map((card) => {
+    return replaceCardSource(card, data.character.dashboard);
+  });
+  const { cards, ...other_dashboard } = data.character.dashboard;
+  return {
+    character: (await response.json()).character,
+    dashboard: { ...other_dashboard, cards: new_cards },
+    params,
+  };
 }) satisfies PageLoad;

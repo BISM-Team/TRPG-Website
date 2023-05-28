@@ -16,7 +16,6 @@
   };
   export let disable: boolean;
   export let edited: boolean;
-  export let dashboardId: string;
   export let removedCards: string[];
   export let removedNumVar: string[] = [];
   export let removedStrVar: string[] = [];
@@ -136,7 +135,7 @@
           name: "New variable",
           value: "",
           show: false,
-          dashboardId: dashboardId,
+          dashboardId: dashboard.id,
           templateId: null
         });
         dashboard.stringVariables = dashboard.stringVariables;
@@ -147,7 +146,7 @@
         name: "New variable",
         value: 0,
         show: false,
-        dashboardId: dashboardId,
+        dashboardId: dashboard.id,
         templateId: null
       });
       dashboard.numericVariables = dashboard.numericVariables;
@@ -182,6 +181,7 @@
       <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
+        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
         <input type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.toLowerCase().includes(menuDialog.save_as.value.trim().toLowerCase())))) as template}
@@ -200,6 +200,7 @@
       <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
+        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
         <input type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
@@ -213,6 +214,7 @@
       <h3 class="w3-center w3-margin-bottom">Settings</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/settings" method="POST" use:enhance={submitSettings}>
+        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
         <label for="name">Name</label>
         <input type="text" name="name" id="name" bind:value={dashboard.name}/>
         <h4 class="w3-margin-top">Numeric Variables</h4>

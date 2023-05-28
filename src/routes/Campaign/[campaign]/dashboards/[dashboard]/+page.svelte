@@ -56,7 +56,7 @@
 </Toolbar>
 
 {#if form?.client_error || form?.server_error}
-  <Modal disable={false} on:close={closeError}>
+  <Modal disable={disable} on:close={closeError}>
     {#if form?.client_error}
     <ErrorBar text={'Client Error, please try again or contact us!'}/>
     {:else if form?.server_error}

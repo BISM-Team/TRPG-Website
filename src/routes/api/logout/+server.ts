@@ -3,6 +3,6 @@ import { getLogin } from "$lib/utils.server";
 import type { RequestHandler } from "./$types";
 
 export const POST = async function ({ locals, cookies }) {
-  if (getLogin(locals)) deleteToken(cookies);
+  if (locals.user) deleteToken(cookies);
   return new Response();
 } satisfies RequestHandler;

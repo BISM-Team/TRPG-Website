@@ -1,13 +1,16 @@
 <script lang="ts">
   import Modal from "$lib/components/modal.svelte";
-  import { enhance, type SubmitFunction } from "$app/forms";
-  import type { ActionData, PageData } from "./$types";
+  import { enhance } from "$app/forms";
   import { stringify } from "devalue";
   import { invalidateAll } from "$app/navigation";
-  import ErrorBar from "$lib/components/error_bar.svelte";
+  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
+  import type { SubmitFunction } from "@sveltejs/kit";
 
-  export let data: PageData;
-  export let form: ActionData;
+  export let dashboard: Dashboard & {
+    cards: (CardData & { mod_source: string }) [],
+    stringVariables: StringVariable[],
+    numericVariables: NumericVariable[]
+  };
   export let disable: boolean;
   export let edit: boolean;
   export let edited: boolean;
@@ -29,9 +32,9 @@
   export const submitSave: SubmitFunction = async function(request) {
     disable=true;
 
-    request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; const {mod_source, ...other_card} = card; return other_card;})));
-    request.data.set("numVars", stringify(data.dashboard.numericVariables));
-    request.data.set("strVars", stringify(data.dashboard.stringVariables));
+    request.data.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_source, ...other_card} = card; return other_card;})));
+    request.data.set("numVars", stringify(dashboard.numericVariables));
+    request.data.set("strVars", stringify(dashboard.stringVariables));
     request.data.set("removedCards", stringify(removedCards));
     request.data.set("removedNumVar", stringify(removedNumVar));
     request.data.set("removedStrVar", stringify(removedStrVar));
@@ -64,11 +67,6 @@
   <Modal {disable} on:close={toggleSaveDialog}>
     <h3 class="w3-padding">Do you want to save your changes?</h3>
     <form action="?/save" method="post" use:enhance={submitSave}>
-      {#if form?.save_invalid_data}
-        <ErrorBar text={'Client Error, please contact us!'}/>
-      {:else if form?.server_error}
-        <ErrorBar text={'Server Error, please contact us!'}/>
-      {/if}
       <input type="hidden" name="switch" value="true">
       <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
       <button disabled={disable} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>

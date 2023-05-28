@@ -2,18 +2,21 @@
   import Card from "$lib/components/card.svelte";
   import Modal from "$lib/components/modal.svelte";
   import { propagateErrors } from "$lib/utils";
-  import type { DashboardTemplate } from "@prisma/client";
-  import { enhance, type SubmitFunction } from "$app/forms";
+  import type { CardData, Dashboard, DashboardTemplate, NumericVariable, StringVariable } from "@prisma/client";
+  import { enhance } from "$app/forms";
   import { stringify } from "devalue";
-  import type { ActionData, PageData } from "./$types";
   import { invalidateAll } from "$app/navigation";
-  import ErrorBar from "$lib/components/error_bar.svelte";
   import { createId } from "@paralleldrive/cuid2"
+  import type { SubmitFunction } from "@sveltejs/kit"
 
-  export let data: PageData;
-  export let form: ActionData;
+  export let dashboard: Dashboard & {
+    cards: (CardData & { mod_source: string }) [],
+    stringVariables: StringVariable[],
+    numericVariables: NumericVariable[]
+  };
   export let disable: boolean;
   export let edited: boolean;
+  export let dashboardId: string;
   export let removedCards: string[];
   export let removedNumVar: string[] = [];
   export let removedStrVar: string[] = [];
@@ -51,9 +54,9 @@
       request.data.set("name", templateName);
     }
 
-    request.data.set("cards", stringify(data.dashboard.cards.map((card, index) => { card.index=index; const {mod_source, ...other_card} = card; return other_card;})));
-    request.data.set("numVars", stringify(data.dashboard.numericVariables));
-    request.data.set("strVars", stringify(data.dashboard.stringVariables));
+    request.data.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_source, ...other_card} = card; return other_card;})));
+    request.data.set("numVars", stringify(dashboard.numericVariables));
+    request.data.set("strVars", stringify(dashboard.stringVariables));
     request.data.set("removedCards", stringify(removedCards));
     request.data.set("removedNumVar", stringify(removedNumVar));
     request.data.set("removedStrVar", stringify(removedStrVar));
@@ -78,8 +81,8 @@
 
   const submitSettings: SubmitFunction = async function (request) {
     disable = true;
-    request.data.set("numVars", stringify(data.dashboard.numericVariables));
-    request.data.set("strVars", stringify(data.dashboard.stringVariables));
+    request.data.set("numVars", stringify(dashboard.numericVariables));
+    request.data.set("strVars", stringify(dashboard.stringVariables));
     request.data.set("removedNumVars", stringify(removedNumVar));
     request.data.set("removedStrVars", stringify(removedStrVar));
     return async ({ result, update }) => {
@@ -128,36 +131,36 @@
 
   function addVariable(type: "string" | "numeric") {
       if(type === "string") {
-        data.dashboard.stringVariables.push({
+        dashboard.stringVariables.push({
           id: createId(),
           name: "New variable",
           value: "",
           show: false,
-          dashboardId: data.params.dashboard,
+          dashboardId: dashboardId,
           templateId: null
         });
-        data.dashboard.stringVariables = data.dashboard.stringVariables;
+        dashboard.stringVariables = dashboard.stringVariables;
       }
       else {
-        data.dashboard.numericVariables.push({
+        dashboard.numericVariables.push({
         id: createId(),
         name: "New variable",
         value: 0,
         show: false,
-        dashboardId: data.params.dashboard,
+        dashboardId: dashboardId,
         templateId: null
       });
-      data.dashboard.numericVariables = data.dashboard.numericVariables;
+      dashboard.numericVariables = dashboard.numericVariables;
     }
 
   }
 
   function deleteVariable(id: string, type: "string" | "numeric") {
     if(type === "string") {
-      data.dashboard.stringVariables = data.dashboard.stringVariables.filter(variable => variable.id !== id);
+      dashboard.stringVariables = dashboard.stringVariables.filter(variable => variable.id !== id);
       removedStrVar.push(id);
     } else {
-      data.dashboard.numericVariables = data.dashboard.numericVariables.filter(variable => variable.id !== id);
+      dashboard.numericVariables = dashboard.numericVariables.filter(variable => variable.id !== id);
       removedNumVar.push(id);
     }
   }
@@ -180,11 +183,6 @@
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
         <input type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
-        {#if form?.save_to_invalid_data || form?.save_to_name_or_template_missing}
-          <ErrorBar text={'Client Error, please contact us!'}/>
-        {:else if form?.server_error}
-          <ErrorBar text={'Server Error, please try again or contact us!'}/>
-        {/if}
         <div class="cards">
           {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.toLowerCase().includes(menuDialog.save_as.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
@@ -202,11 +200,6 @@
       <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
-        {#if form?.load_from_template_non_existant}
-          <ErrorBar text={'Client Error, please contact us!'}/>
-        {:else if form?.server_error}
-          <ErrorBar text={'Server Error, please try again or contact us!'}/>
-        {/if}
         <input type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
@@ -220,16 +213,11 @@
       <h3 class="w3-center w3-margin-bottom">Settings</h3>
       <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/settings" method="POST" use:enhance={submitSettings}>
-        {#if form?.settings_invalid_data}
-          <ErrorBar text={'Client Error, please contact us!'}/>
-        {:else if form?.server_error}
-          <ErrorBar text={'Server Error, please try again or contact us!'}/>
-        {/if}
         <label for="name">Name</label>
-        <input type="text" name="name" id="name" bind:value={data.dashboard.name}/>
+        <input type="text" name="name" id="name" bind:value={dashboard.name}/>
         <h4 class="w3-margin-top">Numeric Variables</h4>
         <div class="variablesContainer">
-          {#each data.dashboard.numericVariables as numVar}
+          {#each dashboard.numericVariables as numVar}
             <div class="variable">
               <input disabled={disable} type="checkbox" id="show_{numVar.id}" class="show_checkbox" bind:checked={numVar.show}>
               <input disabled={disable} type="text" bind:value={numVar.name} style="width: {numVar.name.length+1}ch" required/>
@@ -241,7 +229,7 @@
         </div>
         <h4 class="w3-margin-top">String Variables</h4>
         <div id="variablesContainer">
-          {#each data.dashboard.stringVariables as strVar}
+          {#each dashboard.stringVariables as strVar}
             <div class="variable">
               <input disabled={disable} type="checkbox" id="show_{strVar.id}" class="show_checkbox" bind:checked={strVar.show}>
               <input disabled={disable} type="text" bind:value={strVar.name} style="width: {strVar.name.length+1}ch" required/>

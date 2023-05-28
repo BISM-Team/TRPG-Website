@@ -1,6 +1,12 @@
 import util from "util";
 import crypto from "crypto";
 import { error, redirect } from "@sveltejs/kit";
+import type {
+  CardData,
+  Dashboard,
+  NumericVariable,
+  StringVariable,
+} from "@prisma/client";
 
 export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -54,4 +60,30 @@ export async function propagateErrors(response: Response, url: URL) {
       throw error(response.status, await response.json());
     }
   }
+}
+
+export function replaceCardSource(
+  card: CardData,
+  dashboard: Dashboard & {
+    numericVariables: NumericVariable[];
+    stringVariables: StringVariable[];
+  }
+) {
+  const new_card: CardData & { mod_source: string } = {
+    ...card,
+    mod_source: card.source,
+  };
+  dashboard.numericVariables.forEach((variable) => {
+    new_card.mod_source = new_card.mod_source.replaceAll(
+      new RegExp(`{${variable.name}}`, "gi"),
+      variable.value.toString()
+    );
+  });
+  dashboard.stringVariables.forEach((variable) => {
+    new_card.mod_source = new_card.mod_source.replaceAll(
+      new RegExp(`{${variable.name}}`, "gi"),
+      variable.value
+    );
+  });
+  return new_card;
 }

@@ -6,9 +6,13 @@
   import { spring, type Spring } from "svelte/motion";
   import { onMount } from "svelte";
   import { arraymove } from "$lib/utils";
-  import type { PageData } from "./$types";
+  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
 
-  export let data: PageData;
+  export let dashboard: Dashboard & {
+    cards: (CardData & { mod_source: string }) [],
+    stringVariables: StringVariable[],
+    numericVariables: NumericVariable[]
+  };
   export let disable: boolean;
   export let edited: boolean;
   export let removedCards: string[];
@@ -24,14 +28,14 @@
         index: number;
         id: string;
         geometry: DOMRect;
-        card: typeof data.dashboard.cards[number];
+        card: typeof dashboard.cards[number];
         refractary: boolean;
       } | undefined = undefined;
 
   let resizing: {
         index: number;
         id: string;
-        card: typeof data.dashboard.cards[number];
+        card: typeof dashboard.cards[number];
         starting_top_left: { top: number; left: number };
       } | undefined = undefined;
 
@@ -42,7 +46,7 @@
 
   function startDragElement(ev: any) {
     cancelAction();
-    const index = data.dashboard.cards.findIndex(
+    const index = dashboard.cards.findIndex(
       (element) => element.id === ev.detail.id
     );
     if (index === -1) throw new Error("Id not found in cards");
@@ -51,7 +55,7 @@
       index: index,
       id: ev.detail.id,
       geometry: ev.detail.geometry,
-      card: data.dashboard.cards[index],
+      card: dashboard.cards[index],
       refractary: false,
     };
     actionData = spring(
@@ -70,14 +74,14 @@
 
   function startResizeElement(ev: any) {
     cancelAction();
-    const index = data.dashboard.cards.findIndex(
+    const index = dashboard.cards.findIndex(
       (element) => element.id === ev.detail.id
     );
     if (index === -1) throw new Error("Id not found in cards");
     resizing = {
       index: index,
       id: ev.detail.id,
-      card: data.dashboard.cards[index],
+      card: dashboard.cards[index],
       starting_top_left: {
         top: ev.detail.geometry.top + window.scrollY,
         left: ev.detail.geometry.left + window.scrollX,
@@ -136,12 +140,12 @@
 
   function hoverWhileDragging(id: string) {
     if (picked) {
-      const index = data.dashboard.cards.findIndex(
+      const index = dashboard.cards.findIndex(
         (element) => element.id === id
       );
-      if (index === -1) throw new Error("Id not found in cards" + id + ";\n " + data.dashboard.cards);
+      if (index === -1) throw new Error("Id not found in cards" + id + ";\n " + dashboard.cards);
       if (index !== picked.index) {
-        arraymove(data.dashboard.cards, picked.index, index);
+        arraymove(dashboard.cards, picked.index, index);
         picked.index = index;
       }
     }
@@ -162,7 +166,7 @@
   function cancelAction() {
     if (picked) {
       if (picked.index !== picked.startingIndex) {
-        arraymove(data.dashboard.cards, picked.index, picked.startingIndex);
+        arraymove(dashboard.cards, picked.index, picked.startingIndex);
       }
       picked = undefined;
     }
@@ -188,14 +192,14 @@
   function removeCard(ev: any) {
     disable=true;
     const id = ev.detail.id;
-    const index = data.dashboard.cards.findIndex((card) => card.id===id);
+    const index = dashboard.cards.findIndex((card) => card.id===id);
     if(index !== -1) {
       removedCards.push(id);
       edited = true;
-      data.dashboard.cards.splice(index, 1);
-      data.dashboard.cards = data.dashboard.cards;
+      dashboard.cards.splice(index, 1);
+      dashboard.cards = dashboard.cards;
     } else {
-      console.error(id, data.dashboard.cards);
+      console.error(id, dashboard.cards);
     }
     disable=false;
   }
@@ -215,7 +219,7 @@
 </script>
 
 <div id="grid" style="touch-action: none">
-  {#each data.dashboard.cards as card (card.id)}
+  {#each dashboard.cards as card (card.id)}
     <div class="card"
       in:scale={{ delay: transition_delay, duration: transition_duration }}
       out:scale={{ delay: transition_delay, duration: transition_duration }}

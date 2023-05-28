@@ -1,13 +1,17 @@
 import {
   deleteDashboard,
-  getDashboard,
   updateCards,
   updateDashboard,
 } from "$lib/db/dashboard.server";
 import { fail } from "@sveltejs/kit";
 import { getLogin } from "$lib/utils.server";
 import { parse } from "devalue";
-import type { CardData, NumericVariable, StringVariable } from "@prisma/client";
+import {
+  Type,
+  type CardData,
+  type NumericVariable,
+  type StringVariable,
+} from "@prisma/client";
 import type { Actions } from "./$types";
 import {
   getDashboardTemplate,
@@ -23,7 +27,7 @@ export const actions: Actions = {
     const _cards = data.get("cards");
     const _removedCards = data.get("removedCards");
     if (!_cards || !_removedCards)
-      return fail(400, { save_invalid_data: true });
+      return fail(400, { client_error: true, save_invalid_data: true });
 
     const cards: CardData[] = parse(_cards.toString());
     const removedCards: string[] = parse(_removedCards.toString());
@@ -57,20 +61,18 @@ export const actions: Actions = {
     const options_cards = Boolean(data.get("options_cards") ?? "true");
     const template = await getDashboardTemplate(user.id, templateId);
 
-    if (!template) return fail(400, { load_from_template_non_existant: true });
+    if (!template)
+      return fail(400, {
+        client_error: true,
+        load_from_template_non_existant: true,
+      });
 
     try {
-      await loadTemplateToDashboard(
-        user.id,
-        params.campaign,
-        params.dashboard,
-        template,
-        {
-          numericVariables: options_numVar,
-          stringVariables: options_strVar,
-          cards: options_cards,
-        }
-      );
+      await loadTemplateToDashboard(user.id, params.dashboard, template, {
+        numericVariables: options_numVar,
+        stringVariables: options_strVar,
+        cards: options_cards,
+      });
     } catch (exc) {
       console.error(exc);
       return fail(500, {
@@ -92,13 +94,14 @@ export const actions: Actions = {
     const _cards = data.get("cards");
     const _removedCards = data.get("removedCards");
     if (!_cards || !_removedCards)
-      return fail(400, { save_to_invalid_data: true });
+      return fail(400, { client_error: true, save_to_invalid_data: true });
 
     const cards: CardData[] = parse(_cards.toString());
     const removedCards: string[] = parse(_removedCards.toString());
 
     if (!name || templateId === undefined)
       return fail(400, {
+        client_error: true,
         save_to_name_or_template_missing: true,
       });
 
@@ -132,7 +135,7 @@ export const actions: Actions = {
     const _removedNumVars = data.get("removedNumVars");
     const _removedStrVars = data.get("removedStrVars");
     if (!name || !_numVars || !_strVars || !_removedNumVars || !_removedStrVars)
-      return fail(400, { settings_invalid_data: true });
+      return fail(400, { client_error: true, settings_invalid_data: true });
 
     const numVars: NumericVariable[] = parse(_numVars.toString());
     const strVars: StringVariable[] = parse(_strVars.toString());
@@ -147,7 +150,8 @@ export const actions: Actions = {
         numVars,
         strVars,
         removedNumVars,
-        removedStrVars
+        removedStrVars,
+        Type.dashboard
       );
     } catch (exc) {
       console.error(exc);

@@ -19,12 +19,10 @@ model User {
   modifier_in Heading[] @relation("Modifier")
   viewer_in   Heading[] @relation("Viewer")
 
-  dashboards Dashboard[]
-
+  dashboards           Dashboard[]
   dashboards_templates DashboardTemplate[]
-
-  Campaign_User Campaign_User[]
-  Character     Character[]
+  Campaign_User        Campaign_User[]
+  Character            Character[]
 }
 
 enum Role {

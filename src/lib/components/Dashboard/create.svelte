@@ -1,12 +1,17 @@
 <script lang="ts">
   import Modal from "$lib/components/modal.svelte";
-  import { enhance, type SubmitFunction } from "$app/forms";
-  import type { PageData } from "./$types";
-  import type { CardData } from "@prisma/client";
-  import { _replaceSource } from "./+page";
+  import { enhance } from "$app/forms";
+  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
   import { createId } from "@paralleldrive/cuid2"
+  import { replaceCardSource } from "$lib/utils";
+  import type { SubmitFunction } from "@sveltejs/kit";
 
-  export let data: PageData;
+  export let dashboard: Dashboard & {
+    cards: (CardData & { mod_source: string }) [],
+    stringVariables: StringVariable[],
+    numericVariables: NumericVariable[]
+  };
+  export let dashboardId: string;
   export let disable: boolean;
   export let edited: boolean;
   let showCreateDialog = false;
@@ -32,18 +37,18 @@
 
     const card: CardData = {
       id: createId(),
-      index: data.dashboard.cards.length,
+      index: dashboard.cards.length,
       width: parseInt(width),
       height: parseInt(height),
       zoom: parseInt(zoom),
       source: source,
       type: type,
-      dashboardId: data.params.dashboard,
+      dashboardId: dashboardId,
       templateId: null
     };
     edited = true;
-    data.dashboard.cards.push(_replaceSource(card, data.dashboard));
-    data.dashboard.cards = data.dashboard.cards;
+    dashboard.cards.push(replaceCardSource(card, dashboard));
+    dashboard.cards = dashboard.cards;
     showCreateDialog = false;
     disable = false;
   };

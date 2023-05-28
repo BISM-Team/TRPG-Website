@@ -1,6 +1,12 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import type { LayoutData } from "./$types";
   export let data: LayoutData;
+
+  async function logout() {
+    const response = await fetch("/logout", { method: "POST" });
+    if(response.ok) await goto("/", { invalidateAll: true })
+  }
 </script>
 
 <header class="w3-container w3-center w3-teal">
@@ -10,7 +16,7 @@
     <a href="/Characters" class="w3-block w3-button">Characters</a>
     <a href="/Campaign" class="w3-block w3-button">Campaign</a>
     {#if data.auth}
-      <a href="/logout" data-sveltekit-preload-data="tap" data-sveltekit-preload-code="hover" class="w3-block w3-button">Logout</a>
+      <a href="/logout" data-sveltekit-preload-data="tap" data-sveltekit-preload-code="hover" class="w3-block w3-button" on:click={logout}>Logout</a>
     {:else}
       <a href="/login" class="w3-block w3-button">Login/Signup</a>
     {/if}

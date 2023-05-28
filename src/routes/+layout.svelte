@@ -4,7 +4,7 @@
   export let data: LayoutData;
 
   async function logout() {
-    const response = await fetch("/logout", { method: "POST" });
+    const response = await fetch("/api/logout", { method: "POST" });
     if(response.ok) await goto("/", { invalidateAll: true })
   }
 </script>

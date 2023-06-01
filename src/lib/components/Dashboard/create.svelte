@@ -19,14 +19,14 @@
 
   const type_options = Object.keys(map) as CardType[];
   let selected_type: CardType = type_options[0];
-  let props: any = {};
+  let props: any = map[selected_type].props;
 
   export function toggle() {
     showCreateDialog = !showCreateDialog;
   }
 
   function resetProps() {
-    props = {};
+    props = map[selected_type].props;
   }
 
 

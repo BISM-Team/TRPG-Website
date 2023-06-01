@@ -10,7 +10,7 @@
   import type { SubmitFunction } from "@sveltejs/kit"
 
   export let dashboard: Dashboard & {
-    cards: (CardData & { mod_properties: Record<string, any> }) [],
+    cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[]
   };
@@ -42,31 +42,31 @@
 
   const submitSaveTo: SubmitFunction = async function (request) {
     disable = true;
-    if(!request.data.has("templateId")) request.data.set("templateId", "");
-    if(!request.data.has("name")) {
-      const templateName = templates.find(template => template.id === request.data.get("templateId"))?.name;
+    if(!request.formData.has("templateId")) request.formData.set("templateId", "");
+    if(!request.formData.has("name")) {
+      const templateName = templates.find(template => template.id === request.formData.get("templateId"))?.name;
       if(!templateName) { 
         disable = false;
         request.cancel();
         throw new Error("Could not find selected template ??");
       }
-      request.data.set("name", templateName);
+      request.formData.set("name", templateName);
     }
 
-    request.data.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_properties, ...other_card} = card; return other_card;})));
-    request.data.set("numVars", stringify(dashboard.numericVariables));
-    request.data.set("strVars", stringify(dashboard.stringVariables));
-    request.data.set("removedCards", stringify(removedCards));
-    request.data.set("removedNumVar", stringify(removedNumVar));
-    request.data.set("removedStrVar", stringify(removedStrVar));
+    request.formData.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_properties, ...other_card} = card; return other_card;})));
+    request.formData.set("numVars", stringify(dashboard.numericVariables));
+    request.formData.set("strVars", stringify(dashboard.stringVariables));
+    request.formData.set("removedCards", stringify(removedCards));
+    request.formData.set("removedNumVar", stringify(removedNumVar));
+    request.formData.set("removedStrVar", stringify(removedStrVar));
     return await submitTemplateAction(request);
   } 
 
-  const submitTemplateAction: SubmitFunction = async function ({ data }) {
+  const submitTemplateAction: SubmitFunction = async function ({ formData }) {
     disable = true;
-    data.set("options_numVar", "true")
-    data.set("options_strVar", "true")
-    data.set("options_cards", "true")
+    formData.set("options_numVar", "true")
+    formData.set("options_strVar", "true")
+    formData.set("options_cards", "true")
     return async ({ result, update }) => {
       await update({reset: false});
       if (result.type === "success") { 
@@ -80,10 +80,10 @@
 
   const submitSettings: SubmitFunction = async function (request) {
     disable = true;
-    request.data.set("numVars", stringify(dashboard.numericVariables));
-    request.data.set("strVars", stringify(dashboard.stringVariables));
-    request.data.set("removedNumVars", stringify(removedNumVar));
-    request.data.set("removedStrVars", stringify(removedStrVar));
+    request.formData.set("numVars", stringify(dashboard.numericVariables));
+    request.formData.set("strVars", stringify(dashboard.stringVariables));
+    request.formData.set("removedNumVars", stringify(removedNumVar));
+    request.formData.set("removedStrVars", stringify(removedStrVar));
     return async ({ result, update }) => {
       if (result.type === "success") { 
         menuDialog = { show: false, save_as: undefined, load_from_template: undefined, settings: false };

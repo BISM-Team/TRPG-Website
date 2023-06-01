@@ -7,7 +7,7 @@
   import type { SubmitFunction } from "@sveltejs/kit";
 
   export let dashboard: Dashboard & {
-    cards: (CardData & { mod_properties: Record<string, any> }) [],
+    cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[]
   };

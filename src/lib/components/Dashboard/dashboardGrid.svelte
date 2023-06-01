@@ -9,7 +9,7 @@
   import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
 
   export let dashboard: Dashboard & {
-    cards: (CardData & { mod_properties: Record<string, any> }) [],
+    cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[]
   };

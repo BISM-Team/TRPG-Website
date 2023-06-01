@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardData } from "@prisma/client";
+  import type { CardData, Prisma } from "@prisma/client";
   import { createEventDispatcher } from "svelte";
   import { map } from "./Cards/cards_map";
   const dispatch = createEventDispatcher();
@@ -7,7 +7,7 @@
   const default_width = "auto";
   const default_height = "auto";
 
-  export let card: CardData & { mod_properties: Record<string, any> };
+  export let card: CardData & { mod_properties: any };
   export let picked: boolean;
   export let edit: boolean;
 
@@ -52,7 +52,7 @@
               touch-action: {edit ? 'none' : 'auto'};
               cursor: {edit ? picked ? 'cursor: grabbing;' : 'grab' : 'default'};"
               on:pointerdown={pick}>
-    <svelte:component this={map[card.type]}/>
+    <svelte:component this={map[card.type].component} {...card.mod_properties}/>
   </div>
 </div>
 

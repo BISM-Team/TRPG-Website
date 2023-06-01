@@ -56,14 +56,14 @@ To "register" the component and make it creatable from the Frontend you have to 
 The form for the latter entry, for a component named "text" with only one string prop is:
 
 ```
-  text: {
-    component: Text,
-    props: {
-      source: "default source",
-    } satisfies ComponentProps<Text>,
-  },
+text: {
+  component: Text,
+  props: {
+    source: "default source",
+  } satisfies ComponentProps<Text>,
+},
 ```
 
 Props defines which props are exported by the components its default values (`satisfies ComponentProps<...>` is a Type Safety measure that enforces you to write the correct props).
 
-The types of the props are inferred by the default value, note that are supported only string, boolean and number variables, NOT nested objects, just plain variables.
+The types of the props are inferred on the default value, but remember that only string, boolean and number variables, are supported: NOT nested objects just plain variables.

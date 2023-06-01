@@ -43,3 +43,25 @@ If there are merge conflicts: resolve them.
 
 Then ask for approval of the Pull Request to another member.  
 When approval is granted, from the Pull Request page you can merge the Pull Request and delete the branch 'my_changes'.
+
+## Specific contributions
+
+Some common contributions are adding new Game Systems or public Characters and Wiki Pages, and adding new Dashboard Card types to expand Dashboard behaviour.
+
+### Cards
+
+You can add a Svelte component into `src/lib/components/Dashboard/Cards` which implements your desired behaviour and exports certain props.
+To "register" the component and make it creatable to the Frontend you have to add an entry to `prisma/schema.prisma/CardTypes` which is your Card name and an entry into `src/lib/components/Dashboard/Cards/cards_map.ts` which defines how to create that Card.
+The form for this latter entry, for a component named "text" with only one string prop is:
+
+```
+  text: {
+    component: Text,
+    props: {
+      source: "",
+    } satisfies ComponentProps<Text>,
+  },
+```
+
+Props defines which props are exported by the components and with what default value (satisfies ... is a Type Safety measure that enforces you to write the correct props).
+The types of the props are inferred by the default value, note that are supported only string, boolean and number variables, NOT nested objects, just plain variables.

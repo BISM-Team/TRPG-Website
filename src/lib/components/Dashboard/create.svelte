@@ -1,13 +1,14 @@
 <script lang="ts">
   import Modal from "$lib/components/modal.svelte";
   import { enhance } from "$app/forms";
-  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
+  import type { CardData, Dashboard, NumericVariable, StringVariable, CardType } from "@prisma/client";
   import { createId } from "@paralleldrive/cuid2"
-  import { replaceCardSource } from "$lib/utils";
+  import { capitalizeFirstLetter, replaceCardSource } from "$lib/utils";
   import type { SubmitFunction } from "@sveltejs/kit";
+  import { map } from "./Cards/cards_map";
 
   export let dashboard: Dashboard & {
-    cards: (CardData & { mod_source: string }) [],
+    cards: (CardData & { mod_properties: Record<string, any> }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[]
   };
@@ -15,34 +16,28 @@
   export let disable: boolean;
   export let edited: boolean;
   let showCreateDialog = false;
+  let selected_type: CardType = "text";
 
   export function toggle() {
     showCreateDialog = !showCreateDialog;
   }
 
+  const type_options = Object.keys(map) as CardType[];
+
   const submitCreateCard: SubmitFunction = async function (request) {
     disable = true;
     request.cancel();
 
-    const width = request.formData.get("width")?.toString();
-    const height = request.formData.get("height")?.toString();
-    const zoom = request.formData.get("zoom")?.toString();
-    const source = request.formData.get("source")?.toString();
-    const type = request.formData.get("type")?.toString();
-
-    if (!width || !height || !zoom || !source || !type) {
-      disable = false;
-      return;
-    }
+    const width = request.formData.get("width")?.toString() ?? '200';
+    const height = request.formData.get("height")?.toString() ?? '200';
 
     const card: CardData = {
       id: createId(),
       index: dashboard.cards.length,
       width: parseInt(width),
       height: parseInt(height),
-      zoom: parseInt(zoom),
-      source: source,
-      type: type,
+      properties: {},
+      type: selected_type,
       dashboardId: dashboardId,
       templateId: null
     };
@@ -58,19 +53,12 @@
   <Modal {disable} on:close={toggle}>
     <h3 class="w3-center">Create Card</h3>
     <form method="post" use:enhance={submitCreateCard}>
-      <label for="heightInput">Height (px)</label>
-      <input type="number" name="height" id="heightInput" class="w3-input w3-border w3-margin-bottom" value={200} required/>
-      
-      <label for="widthInput">Width (px)</label>
-      <input type="number" name="width" id="widthInput" class="w3-input w3-border w3-margin-bottom" value={200} required/>
-      
-      <input type="hidden" name="zoom" id="nameInput" value={1} class="w3-input w3-border w3-margin-bottom"/>
-
-      <label for="sourceInput">Source</label>
-      <input type="text" name="source" id="sourceInput" class="w3-input w3-border w3-margin-bottom" value={""} required/>
-      
       <label for="typeInput">Type</label>
-      <input type="text" name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" value={"text"} required/>
+      <select name="type" id="typeInput" class="w3-input w3-border w3-margin-bottom" bind:value={selected_type} required>
+        {#each type_options as type}
+          <option value={type}>{capitalizeFirstLetter(type)}</option>
+        {/each}
+      </select>
             
       <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
       <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>

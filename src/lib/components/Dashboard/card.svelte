@@ -1,12 +1,13 @@
 <script lang="ts">
   import type { CardData } from "@prisma/client";
   import { createEventDispatcher } from "svelte";
+  import { map } from "./Cards/cards_map";
   const dispatch = createEventDispatcher();
 
   const default_width = "auto";
   const default_height = "auto";
 
-  export let card: CardData & { mod_source: string };
+  export let card: CardData & { mod_properties: Record<string, any> };
   export let picked: boolean;
   export let edit: boolean;
 
@@ -41,36 +42,26 @@
   }
 </script>
 
-<div
-  id="content{card.id}"
-  class="card-content w3-card-4"
-  style="{picked ? 'cursor: grabbing;' : ''}; touch-action: {edit ? 'none' : 'auto'};"
->
+<div id="content{card.id}" class="card-wrapper" style="{picked ? 'cursor: grabbing;' : ''}; touch-action: {edit ? 'none' : 'auto'};">
   {#if edit}
-  <button id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
-  <div id="resizeArea" on:pointerdown={resize} />
+    <button id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
+    <div id="resizeArea" on:pointerdown={resize} />
   {/if}
-
-  <div class="content" 
-       style="width:{card.width ? Math.max(6, card.width) + 'px' : default_width}; 
+    <div style="width:{card.width ? Math.max(6, card.width) + 'px' : default_width}; 
               height:{card.height ? Math.max(6, card.height) + 'px' : default_height};
-              cursor: {edit ? picked ? 'cursor: grabbing;' : 'grab' : 'default'}; touch-action: {edit ? 'none' : 'auto'};"
+              touch-action: {edit ? 'none' : 'auto'};
+              cursor: {edit ? picked ? 'cursor: grabbing;' : 'grab' : 'default'};"
               on:pointerdown={pick}>
-    <p>{card.source}</p>
-    <p>{card.mod_source}</p>
+    <svelte:component this={map[card.type]}/>
   </div>
 </div>
 
 <style>
-  .card-content {
+  .card-wrapper {
     position: relative;
-    background-color: white;
+    background-color: transparent;
     box-sizing: border-box;
-  }
-
-  .content {
-    padding: 2em;
-    overflow: auto;
+    z-index: 0;
   }
 
   #pickArea:hover {

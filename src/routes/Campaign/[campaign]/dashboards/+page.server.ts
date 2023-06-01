@@ -7,7 +7,7 @@ import {
 import { fail } from "@sveltejs/kit";
 import { getUserCampaign } from "$lib/db/campaign.server";
 import { getLogin } from "$lib/utils.server";
-import { Type } from "@prisma/client";
+import { DashboardType } from "@prisma/client";
 
 export const actions: Actions = {
   create: async function ({ locals, request, params }) {
@@ -30,7 +30,7 @@ export const actions: Actions = {
 
     try {
       if (!template)
-        await createDashboard(user.id, name, Type.dashboard, campaign);
+        await createDashboard(user.id, name, DashboardType.dashboard, campaign);
       else await createDashboardFromTemplate(user.id, name, template, campaign);
     } catch (exc) {
       console.error(exc);

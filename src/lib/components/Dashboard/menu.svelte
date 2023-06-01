@@ -10,7 +10,7 @@
   import type { SubmitFunction } from "@sveltejs/kit"
 
   export let dashboard: Dashboard & {
-    cards: (CardData & { mod_source: string }) [],
+    cards: (CardData & { mod_properties: Record<string, any> }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[]
   };
@@ -53,7 +53,7 @@
       request.data.set("name", templateName);
     }
 
-    request.data.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_source, ...other_card} = card; return other_card;})));
+    request.data.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_properties, ...other_card} = card; return other_card;})));
     request.data.set("numVars", stringify(dashboard.numericVariables));
     request.data.set("strVars", stringify(dashboard.stringVariables));
     request.data.set("removedCards", stringify(removedCards));

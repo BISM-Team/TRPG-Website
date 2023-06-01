@@ -1,14 +1,18 @@
-import type {
-  Campaign,
-  CardData,
-  Dashboard,
-  DashboardTemplate,
-  NumericVariable,
-  StringVariable,
-  Type,
+import {
+  Prisma,
+  type Campaign,
+  type CardData,
+  type Dashboard,
+  type DashboardTemplate,
+  type NumericVariable,
+  type StringVariable,
+  type DashboardType,
 } from "@prisma/client";
 import { db } from "./db.server";
-export async function getUserDashboardTemplates(user_id: string, type?: Type) {
+export async function getUserDashboardTemplates(
+  user_id: string,
+  type?: DashboardType
+) {
   return await db.dashboardTemplate.findMany({
     where: { userId: user_id, type: type },
   });
@@ -73,8 +77,8 @@ export async function createDashboardFromTemplate(
       },
       cards: {
         create: dashboardTemplate.cards.map((card) => {
-          const { id, dashboardId, templateId, ...rest } = card;
-          return rest;
+          const { id, dashboardId, templateId, properties, ...rest } = card;
+          return { ...rest, properties: properties ?? Prisma.JsonNull };
         }),
       },
     },
@@ -124,8 +128,8 @@ export async function loadTemplateToDashboard(
         ? {
             deleteMany: {},
             create: dashboardTemplate.cards.map((card) => {
-              const { id, dashboardId, templateId, ...rest } = card;
-              return rest;
+              const { id, dashboardId, templateId, properties, ...rest } = card;
+              return { ...rest, properties: properties ?? Prisma.JsonNull };
             }),
           }
         : undefined,
@@ -170,8 +174,8 @@ export async function saveDashboardToTemplate(
         ? {
             deleteMany: {},
             create: dashboard.cards.map((card) => {
-              const { id, dashboardId, templateId, ...rest } = card;
-              return rest;
+              const { id, dashboardId, templateId, properties, ...rest } = card;
+              return { ...rest, properties: properties ?? Prisma.JsonNull };
             }),
           }
         : undefined,
@@ -199,8 +203,8 @@ export async function saveDashboardToTemplate(
       cards: options.cards
         ? {
             create: dashboard.cards.map((card) => {
-              const { id, dashboardId, templateId, ...rest } = card;
-              return rest;
+              const { id, dashboardId, templateId, properties, ...rest } = card;
+              return { ...rest, properties: properties ?? Prisma.JsonNull };
             }),
           }
         : { create: [] },

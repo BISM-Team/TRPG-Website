@@ -81,7 +81,7 @@ model Heading {
   @@index([pageName, pageCampaignId])
 }
 
-enum Type {
+enum DashboardType {
   dashboard
   character_sheet
 }
@@ -94,7 +94,7 @@ model DashboardTemplate {
   stringVariables  StringVariable[]
   cards            CardData[]
 
-  type Type
+  type DashboardType
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -109,7 +109,7 @@ model Dashboard {
   stringVariables  StringVariable[]
   cards            CardData[]
 
-  type Type
+  type DashboardType
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -155,14 +155,18 @@ model StringVariable {
   @@index([templateId])
 }
 
+enum CardType {
+  text
+  other
+}
+
 model CardData {
-  id     String @id @default(cuid())
-  index  Int
-  width  Float
-  height Float
-  zoom   Float
-  source String
-  type   String
+  id         String   @id @default(cuid())
+  index      Int
+  width      Float
+  height     Float
+  type       CardType
+  properties Json
 
   dashboardId String?
   dashboard   Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)

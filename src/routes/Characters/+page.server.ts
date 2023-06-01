@@ -6,7 +6,7 @@ import {
 import { db } from "$lib/db/db.server";
 import { createCharacter } from "$lib/db/game_system.server";
 import { getLogin } from "$lib/utils.server";
-import { Type } from "@prisma/client";
+import { DashboardType } from "@prisma/client";
 import { fail, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -23,7 +23,7 @@ export const actions: Actions = {
     if (!name) return fail(400, { ...savedData, name_missing: true });
 
     try {
-      const character_sheet_default = null; //await getDashboardTemplate(...); ensure type === Type.character_sheet
+      const character_sheet_default = null; //await getDashboardTemplate(...); ensure type === DashboardType.character_sheet
       const character = {
         name: name,
         abilities: await db.ability.findMany({ include: { effects: true } }),
@@ -35,7 +35,7 @@ export const actions: Actions = {
             name,
             character_sheet_default
           )
-        : await createDashboard(user.id, name, Type.character_sheet);
+        : await createDashboard(user.id, name, DashboardType.character_sheet);
 
       await createCharacter(user.id, dashboardId.id, character);
     } catch (exc) {

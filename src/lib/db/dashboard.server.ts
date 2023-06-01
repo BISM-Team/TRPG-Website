@@ -1,10 +1,10 @@
-import type {
-  CardData,
-  NumericVariable,
-  StringVariable,
-  Campaign,
+import {
+  type CardData,
+  type NumericVariable,
+  type StringVariable,
+  type Campaign,
   Prisma,
-  Type,
+  type DashboardType,
 } from "@prisma/client";
 import { db } from "./db.server";
 
@@ -40,7 +40,7 @@ export async function getDashboard(
 export async function createDashboard(
   user_id: string,
   name: string,
-  type: Type,
+  type: DashboardType,
   campaign?: Campaign
 ) {
   return await db.dashboard.create({
@@ -114,13 +114,16 @@ export async function updateCards(
     },
     data: {
       cards: {
-        upsert: _cards.map((card) => ({
-          where: {
-            id: card.id,
-          },
-          create: card,
-          update: card,
-        })),
+        upsert: _cards.map((card) => {
+          const { properties, ...rest } = card;
+          return {
+            where: {
+              id: card.id,
+            },
+            create: { ...rest, properties: properties ?? Prisma.JsonNull },
+            update: { ...rest, properties: properties ?? Prisma.JsonNull },
+          };
+        }),
         deleteMany: {
           id: {
             in: removedCards,
@@ -139,7 +142,7 @@ export async function updateDashboard(
   strVars: StringVariable[],
   removedNumVars: string[],
   removedStrVars: string[],
-  type: Type
+  type: DashboardType
 ) {
   const _numVars = numVars.map((variable) => {
     const { dashboardId, ...variable_with_id } = variable;

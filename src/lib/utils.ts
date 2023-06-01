@@ -69,21 +69,23 @@ export function replaceCardSource(
     stringVariables: StringVariable[];
   }
 ) {
-  const new_card: CardData & { mod_source: string } = {
+  const new_card: CardData & { mod_properties: Record<string, any> } = {
     ...card,
-    mod_source: card.source,
+    mod_properties: {},
   };
+  let mod_src = JSON.stringify(new_card.mod_properties);
   dashboard.numericVariables.forEach((variable) => {
-    new_card.mod_source = new_card.mod_source.replaceAll(
+    mod_src = mod_src.replaceAll(
       new RegExp(`{${variable.name}}`, "gi"),
       variable.value.toString()
     );
   });
   dashboard.stringVariables.forEach((variable) => {
-    new_card.mod_source = new_card.mod_source.replaceAll(
+    mod_src = mod_src.replaceAll(
       new RegExp(`{${variable.name}}`, "gi"),
       variable.value
     );
   });
+  new_card.mod_properties = JSON.parse(mod_src);
   return new_card;
 }

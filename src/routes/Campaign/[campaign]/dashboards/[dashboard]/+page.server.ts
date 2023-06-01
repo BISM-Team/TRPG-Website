@@ -7,7 +7,7 @@ import { fail } from "@sveltejs/kit";
 import { getLogin } from "$lib/utils.server";
 import { parse } from "devalue";
 import {
-  Type,
+  DashboardType,
   type CardData,
   type NumericVariable,
   type StringVariable,
@@ -166,7 +166,7 @@ export const actions: Actions = {
         strVars,
         removedNumVars,
         removedStrVars,
-        Type.dashboard
+        DashboardType.dashboard
       );
     } catch (exc) {
       console.error(exc);

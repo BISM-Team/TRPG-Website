@@ -32,14 +32,14 @@
   export const submitSave: SubmitFunction = async function(request) {
     disable=true;
 
-    request.data.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_properties, ...other_card} = card; return other_card;})));
-    request.data.set("numVars", stringify(dashboard.numericVariables));
-    request.data.set("strVars", stringify(dashboard.stringVariables));
-    request.data.set("removedCards", stringify(removedCards));
-    request.data.set("removedNumVar", stringify(removedNumVar));
-    request.data.set("removedStrVar", stringify(removedStrVar));
-    const save = request.data.get("save")?.toString();
-    const _switch = request.data.get("switch")?.toString();
+    request.formData.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_properties, ...other_card} = card; return other_card;})));
+    request.formData.set("numVars", stringify(dashboard.numericVariables));
+    request.formData.set("strVars", stringify(dashboard.stringVariables));
+    request.formData.set("removedCards", stringify(removedCards));
+    request.formData.set("removedNumVar", stringify(removedNumVar));
+    request.formData.set("removedStrVar", stringify(removedStrVar));
+    const save = request.formData.get("save")?.toString();
+    const _switch = request.formData.get("switch")?.toString();
 
     if(save && save === "false") {
       request.cancel();

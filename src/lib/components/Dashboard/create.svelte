@@ -19,16 +19,12 @@
 
   const type_options = Object.keys(map) as CardType[];
   let selected_type: CardType = type_options[0];
-  let props: any = map[selected_type].props;
+  let props: any;
+  $: props = map[selected_type].props;
 
   export function toggle() {
     showCreateDialog = !showCreateDialog;
   }
-
-  function resetProps() {
-    props = map[selected_type].props;
-  }
-
 
   const submitCreateCard: SubmitFunction = async function (request) {
     disable = true;
@@ -61,7 +57,7 @@
     <h3 class="w3-center">Create Card</h3>
     <form method="post" use:enhance={submitCreateCard}>
       <label for="typeInput">Type</label>
-      <select id="typeInput" class="w3-input w3-border w3-margin-bottom" bind:value={selected_type} on:change={resetProps} required>
+      <select id="typeInput" class="w3-input w3-border w3-margin-bottom" bind:value={selected_type} required>
         {#each type_options as type}
           <option value={type}>{capitalizeFirstLetter(type)}</option>
         {/each}
@@ -76,7 +72,7 @@
         {:else if typeof map[selected_type].props[key] === "boolean"}
           <input id="{key}Input" class="w3-check w3-margin-bottom" type="checkbox" bind:checked={props[key]}/>
         {:else}
-          <p>Invalid prop.</p>
+          <p>Invalid prop {key}.</p>
         {/if}
       {/each}
             

@@ -17,16 +17,9 @@
   function keyUp(ev: KeyboardEvent) {
     if(ev.key === "Escape") closeModal();
   }
-
-  onMount(() => {
-    window.addEventListener("pointerup", clickOutside);
-    window.addEventListener("keyup", keyUp);
-    return () => {
-      window.removeEventListener("pointerup", clickOutside);
-      window.removeEventListener("keyup", keyUp);
-    };
-  });
 </script>
+
+<svelte:document on:pointerup={clickOutside} on:keyup={keyUp}/>
 
 <div bind:this={wrapper} id="modalWrapper">
   <div id="modalContent" class="w3-center w3-container">

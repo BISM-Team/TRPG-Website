@@ -18,6 +18,8 @@
   export let removedCards: string[];
   export let edit: boolean;
 
+  let scrollX: number, scrollY: number;
+
   const transition_delay = 0, transition_duration = 300;
   const animate_delay = 0, animate_duration = 20;
   const stiffness = 0.6, damping = 1.0;
@@ -60,8 +62,8 @@
     };
     actionData = spring(
       {
-        x_or_width: ev.detail.geometry.x + window.scrollX,
-        y_or_height: ev.detail.geometry.y + window.scrollY,
+        x_or_width: ev.detail.geometry.x + scrollX,
+        y_or_height: ev.detail.geometry.y + scrollY,
       },
       { stiffness, damping }
     );
@@ -83,8 +85,8 @@
       id: ev.detail.id,
       card: dashboard.cards[index],
       starting_top_left: {
-        top: ev.detail.geometry.top + window.scrollY,
-        left: ev.detail.geometry.left + window.scrollX,
+        top: ev.detail.geometry.top + scrollY,
+        left: ev.detail.geometry.left + scrollX,
       },
     };
     actionData = spring(
@@ -106,7 +108,7 @@
         y_or_height: mousepos.y - picked.geometry.height / 2,
       });
       if (!picked.refractary) {
-        const element = document.elementsFromPoint(mousepos.x - window.scrollX,mousepos.y - window.scrollY)
+        const element = document.elementsFromPoint(mousepos.x - scrollX, mousepos.y - scrollY)
           .find((element) => {
             return (
               picked &&
@@ -203,20 +205,10 @@
     }
     disable=false;
   }
-
-  onMount(() => {
-    document.addEventListener("pointermove", moveWhileDragging);
-    document.addEventListener("pointerup", confirmAction);
-    document.addEventListener("keydown", keydown);
-    document.addEventListener("pointerleave", cancelAction);
-    return () => {
-      document.removeEventListener("pointermove", moveWhileDragging);
-      document.removeEventListener("pointerup", confirmAction);
-      document.removeEventListener("keydown", keydown);
-      document.removeEventListener("pointerleave", cancelAction);
-    };
-  });
 </script>
+
+<svelte:window bind:scrollX={scrollX} bind:scrollY={scrollY} />
+<svelte:document on:pointermove={moveWhileDragging} on:pointerup={confirmAction} on:keydown={keydown} on:pointerleave={cancelAction} />
 
 <div id="grid" style="touch-action: none">
   {#each dashboard.cards as card (card.id)}

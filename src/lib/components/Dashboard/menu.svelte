@@ -221,10 +221,10 @@
         <div class="variablesContainer">
           {#each dashboard.numericVariables as numVar}
             <div class="variable">
-              <input disabled={disable} type="checkbox" id="show_{numVar.id}" class="show_checkbox" bind:checked={numVar.show}>
+              <input disabled={disable} type="checkbox" id="show_{numVar.id}" class="w3-check show_checkbox" style:position="static" bind:checked={numVar.show}>
               <input disabled={disable} type="text" bind:value={numVar.name} style="width: {numVar.name.length+1}ch" required/>
               <input disabled={disable} type="number" id={numVar.id} bind:value={numVar.value} style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
-              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined">delete</span></button>
+              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined" style:display="block">delete</span></button>
             </div>
           {/each}
           <button disabled={disable} type="button" class="w3-button variable" on:click={() => {addVariable("numeric")}}>Add</button>
@@ -233,10 +233,10 @@
         <div id="variablesContainer">
           {#each dashboard.stringVariables as strVar}
             <div class="variable">
-              <input disabled={disable} type="checkbox" id="show_{strVar.id}" class="show_checkbox" bind:checked={strVar.show}>
+              <input disabled={disable} type="checkbox" id="show_{strVar.id}" class="w3-check show_checkbox" style:position="static" bind:checked={strVar.show}>
               <input disabled={disable} type="text" bind:value={strVar.name} style="width: {strVar.name.length+1}ch" required/>
               <input disabled={disable} type="text" id={strVar.id} bind:value={strVar.value} style="width: {strVar.value.length+1}ch">
-              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined">delete</span></button>
+              <button disabled={disable} type="button" class="w3-button" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined" style:display="block">delete</span></button>
             </div>
           {/each}
           <button disabled={disable} type="button" class="w3-button variable" on:click={() => {addVariable("string")}}>Add</button>

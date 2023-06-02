@@ -1,15 +1,25 @@
 <script lang="ts">
-  import type { CardData, Prisma } from "@prisma/client";
+  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
   import { createEventDispatcher } from "svelte";
   import { map } from "./Cards/cards_map";
+  import CardSettings from "./card_settings.svelte";
   const dispatch = createEventDispatcher();
 
   const default_width = "auto";
   const default_height = "auto";
 
+  export let dashboard: Dashboard & {
+    cards: (CardData & { mod_properties: any }) [],
+    stringVariables: StringVariable[],
+    numericVariables: NumericVariable[]
+  };
   export let card: CardData & { mod_properties: any };
   export let picked: boolean;
   export let edit: boolean;
+  export let edited: boolean;
+  export let disable: boolean;
+
+  let settings: CardSettings;
 
   function pick(ev: MouseEvent) {
     if(edit) {
@@ -42,10 +52,15 @@
   }
 </script>
 
+<CardSettings bind:dashboard={dashboard} bind:card={card} bind:disable={disable} bind:edited={edited} bind:this={settings} />
+
 <div id="content{card.id}" class="card-wrapper" style="{picked ? 'cursor: grabbing;' : ''}; touch-action: {edit ? 'none' : 'auto'};">
   {#if edit}
-    <button id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
+    <button disabled={disable} id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
     <div id="resizeArea" on:pointerdown={resize} />
+    <button disabled={disable} id="settingsButton" class="w3-button" on:click={settings.toggle}>
+      <span class="material-symbols-outlined">settings</span>
+    </button>
   {/if}
     <div style="width:{card.width ? Math.max(6, card.width) + 'px' : default_width}; 
               height:{card.height ? Math.max(6, card.height) + 'px' : default_height};
@@ -80,6 +95,21 @@
   }
 
   #removeButton > span {
+    display: block;
+  }
+
+  #settingsButton {
+    position: absolute;
+    top: 0em;
+    left: 0em;
+    transform: translateX(-40%) translateY(-40%);
+    padding: 0.1em;
+    border-radius: 0.7em;
+    background-color: transparent;
+    z-index: 1;
+  }
+
+  #settingsButton > span {
     display: block;
   }
 

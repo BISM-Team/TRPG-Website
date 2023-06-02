@@ -1,11 +1,11 @@
-import type { ComponentProps, ComponentType } from "svelte";
+import type { ComponentProps } from "svelte";
 import Text from "./Text.svelte";
 import type { CardType } from "@prisma/client";
 import Other from "./Other.svelte";
 
 export const map: {
   [Type in CardType]: {
-    component: ComponentType;
+    component: any;
     props: { [key: string]: any };
   };
 } = {
@@ -13,6 +13,7 @@ export const map: {
     component: Text,
     props: {
       source: "",
+      active: false,
     } satisfies ComponentProps<Text>,
   },
   other: {

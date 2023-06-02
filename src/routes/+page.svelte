@@ -26,8 +26,6 @@
   {/each}
 </div>
 
-<custom-heading>Ciao</custom-heading>
-
 <style>
   h3 {
     margin: 0;

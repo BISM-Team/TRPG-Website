@@ -213,8 +213,8 @@
 <div id="grid" style="touch-action: none">
   {#each dashboard.cards as card (card.id)}
     <div class="card"
-      in:scale={{ delay: transition_delay, duration: transition_duration }}
-      out:scale={{ delay: transition_delay, duration: transition_duration }}
+      in:scale|global={{ delay: transition_delay, duration: transition_duration }}
+      out:scale|global={{ delay: transition_delay, duration: transition_duration }}
       animate:flip={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}>
       {#if picked && card.id === picked.id}
         <Prototype data={{ id: card.id, width: picked.geometry.width, height: picked.geometry.height, }} />

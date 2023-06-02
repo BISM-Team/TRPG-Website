@@ -20,7 +20,7 @@
   const type_options = Object.keys(map) as CardType[];
   let selected_type: CardType = type_options[0];
   let props: any;
-  $: props = map[selected_type].props;
+  $: props = Object.assign({}, map[selected_type].props);
 
   export function toggle() {
     showCreateDialog = !showCreateDialog;
@@ -33,13 +33,12 @@
     const width = request.formData.get("width")?.toString() ?? '200';
     const height = request.formData.get("height")?.toString() ?? '200';
 
-    console.log(props);
     const card: CardData = {
       id: createId(),
       index: dashboard.cards.length,
       width: parseInt(width),
       height: parseInt(height),
-      properties: props,
+      properties: Object.assign({}, props),
       type: selected_type,
       dashboardId: dashboardId,
       templateId: null

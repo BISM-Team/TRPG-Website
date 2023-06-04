@@ -60,10 +60,16 @@ text: {
   component: Text,
   props: {
     source: "default source",
+    array: [""],
+    array_numb: [1],
+    object: {
+      characterName: "defaultName",
+      initiative: 10
+    }
   } satisfies ComponentProps<Text>,
 },
 ```
 
 Props defines which props are exported by the components its default values (`satisfies ComponentProps<...>` is a Type Safety measure that enforces you to write the correct props).
 
-The types of the props are inferred on the default value, but remember that only string, boolean and number variables, are supported: NOT nested objects just plain variables.
+The types of the props are inferred on the default value, there is experimental support for arrays and nested objects, so any props object should work and receive proper UI.

@@ -4,7 +4,6 @@
   import { enhance } from "$app/forms";
   import DashboardGrid from "$lib/components/Dashboard/dashboardGrid.svelte";
   import Menu from "$lib/components/Dashboard/menu.svelte";
-  import Delete from "$lib/components/Dashboard/delete.svelte";
   import Create from "$lib/components/Dashboard/create.svelte";
   import Save from "$lib/components/Dashboard/save.svelte";
   import Modal from "$lib/components/modal.svelte";
@@ -15,7 +14,6 @@
 
   let menu: Menu;
   let create: Create;
-  let deleteDialog: Delete;
   let save: Save;
   
   let edit = false;
@@ -40,18 +38,15 @@
     <button disabled={disable || !edited} id="saveButton" class="w3-button" type="submit" form="hiddenSaveForm">
       <span class="material-symbols-outlined w3-text-white">save</span>
     </button>
-    <button disabled={disable} id="deleteButton" class="w3-button" on:click={deleteDialog.toggle}>
-      <span class="material-symbols-outlined w3-text-white">delete</span>
-    </button>
     <button disabled={disable} id="newButton" class="w3-button" on:click={create.toggle}>
       <span class="material-symbols-outlined w3-text-white">add</span>
     </button>
   {/if}
-  <button disabled={disable} id="menuButton" class="w3-button" on:click={menu.toggle}>
-    <span class="material-symbols-outlined w3-text-white">more_horiz</span>
-  </button>
   <button disabled={disable} id="editButton" class="w3-button" on:click={save.toggleEdit}>
     <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
+  </button>
+  <button disabled={disable} id="menuButton" class="w3-button" on:click={menu.toggle}>
+    <span class="material-symbols-outlined w3-text-white">more_horiz</span>
   </button>
 </Toolbar>
 
@@ -70,9 +65,7 @@
 
 <Create bind:dashboard={data.dashboard} dashboardId={data.params.dashboard} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 
-<Delete message={"Do you want to delete this dashboard?"} redirectUrl={`/Campaign/${data.params.campaign}/dashboards`} dashboardId={data.params.dashboard} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
-
-<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited} 
+<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={`/Campaign/${data.params.campaign}/dashboards`}
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
 
 <DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>

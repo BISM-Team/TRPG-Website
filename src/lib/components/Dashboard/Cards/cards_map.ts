@@ -21,6 +21,18 @@ export const map: {
     props: {
       url: "",
       zoom: 1,
+      obj: {
+        first: "",
+        second: true,
+      },
+      arr: [""],
+      char_arr: [
+        {
+          name: "",
+          property: "PASS_PERC",
+          arr: [""],
+        },
+      ],
     } satisfies ComponentProps<Other>,
   },
 };

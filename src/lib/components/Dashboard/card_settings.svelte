@@ -5,6 +5,7 @@
   import { capitalizeFirstLetter, replaceCardSource } from "$lib/utils";
   import type { SubmitFunction } from "@sveltejs/kit";
   import { map } from "./Cards/cards_map";
+  import CardVariable from "./card_variable.svelte";
 
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
@@ -36,7 +37,7 @@
     if(index === -1) throw new Error("Card not found.");
 
     card.type = selected_type;
-    card.properties = Object.assign({}, props);
+    card.properties = JSON.parse(JSON.stringify(props));
     dashboard.cards[index] = replaceCardSource(card, dashboard);
     edited = true;
     showSettingsDialog = false;
@@ -56,16 +57,7 @@
       </select>
 
       {#each Object.keys(map[selected_type].props) as key}
-        <label for="{key}Input">{capitalizeFirstLetter(key)}</label>
-        {#if typeof map[selected_type].props[key] === "string"}
-          <input id="{key}Input" class="w3-input w3-border w3-margin-bottom" type="text" bind:value={props[key]} required/>
-        {:else if typeof map[selected_type].props[key] === "number"}
-          <input id="{key}Input" class="w3-input w3-border w3-margin-bottom" type="number" bind:value={props[key]} required/>
-        {:else if typeof map[selected_type].props[key] === "boolean"}
-          <input id="{key}Input" class="w3-check w3-margin-bottom" type="checkbox" style:position="static" bind:checked={props[key]}/>
-        {:else}
-          <p>Invalid prop {key}.</p>
-        {/if}
+        <CardVariable {key} {selected_type} bind:props={props}/>
       {/each}
             
       <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>

@@ -1,11 +1,40 @@
 <script lang="ts">
   export let url: string;
   export let zoom: number;
+  export let obj: {
+    first: string,
+    second: boolean
+  }
+  export let arr: string[];
+  export let char_arr: {
+    name: string,
+    property: string
+    arr: string[]
+  }[];
 </script>
 
 <div class="content w3-card-4">
   <img src={url} alt="">
   <p>Zoom: {zoom}</p>
+
+  <p>Object: {obj.first}; {obj.second}</p>
+
+  <p>
+    {#each arr as item}
+      <p>{item}</p>
+    {/each}
+  </p>
+
+  <p>
+    {#each char_arr as item}
+      <p>{item.name}: {item.property}</p>
+      <p>
+        {#each item.arr as str}
+          <p>{str}</p>
+        {/each}
+      </p>
+    {/each}
+  </p>
 </div>
 
 <style>

@@ -8,14 +8,17 @@
   import { invalidateAll } from "$app/navigation";
   import { createId } from "@paralleldrive/cuid2"
   import type { SubmitFunction } from "@sveltejs/kit"
+  import Delete from "./delete.svelte";
 
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[]
   };
+  export let deleteRedirectUrl: string;
   export let disable: boolean;
   export let edited: boolean;
+  export let edit: boolean;
   export let removedCards: string[];
   export let removedNumVar: string[] = [];
   export let removedStrVar: string[] = [];
@@ -31,6 +34,8 @@
     load_from_template: undefined,
     settings: false
   };
+
+  let deleteDialog: Delete;
 
   let templates: DashboardTemplate[] = [];
 
@@ -151,7 +156,6 @@
       });
       dashboard.numericVariables = dashboard.numericVariables;
     }
-
   }
 
   function deleteVariable(id: string, type: "string" | "numeric") {
@@ -165,8 +169,10 @@
   }
 
   async function discard() {
+    disable = true;
     toggle();
     await invalidateAll();
+    disable = false;
   }
 </script>
 
@@ -174,15 +180,16 @@
   <Modal {disable} on:close={toggle}>
     {#if !menuDialog.save_as && !menuDialog.load_from_template && !menuDialog.settings}
       <h3 class="w3-center w3-margin-bottom">Menu</h3>
-      <button id="gotoSaveTo" class="w3-button w3-block" on:click={openSaveTo}>Save to template</button>
-      <button id="gotoLoadFrom" class="w3-button w3-block" on:click={openLoadFrom}>Load from template</button>
-      <button id="gotoSettings" class="w3-button w3-block" on:click={openSettings}>Settings</button>
+      <button disabled={disable} id="gotoSaveTo" class="w3-button w3-block" on:click={openSaveTo}>Save to template</button>
+      <button disabled={disable} id="gotoLoadFrom" class="w3-button w3-block" on:click={openLoadFrom}>Load from template</button>
+      <button disabled={disable} id="gotoSettings" class="w3-button w3-block" on:click={openSettings}>Settings</button>
+      <button disabled={disable} id="deleteButton" class="w3-button w3-block" on:click={deleteDialog.toggle}>Delete</button>
     {:else if menuDialog.save_as}
       <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
-      <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <button disabled={disable} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
         <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-        <input type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
+        <input disabled={disable} type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.toLowerCase().includes(menuDialog.save_as.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
@@ -198,10 +205,10 @@
       </form>
     {:else if menuDialog.load_from_template}
       <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
-      <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <button disabled={disable} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
         <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-        <input type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
+        <input disabled={disable} type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
@@ -212,11 +219,11 @@
       </form>
     {:else if menuDialog.settings}
       <h3 class="w3-center w3-margin-bottom">Settings</h3>
-      <button class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <button disabled={disable} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/settings" method="POST" use:enhance={submitSettings}>
         <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
         <label for="name">Name</label>
-        <input type="text" name="name" id="name" bind:value={dashboard.name}/>
+        <input disabled={disable} type="text" name="name" id="name" bind:value={dashboard.name}/>
         <h4 class="w3-margin-top">Numeric Variables</h4>
         <div class="variablesContainer">
           {#each dashboard.numericVariables as numVar}
@@ -246,6 +253,8 @@
       </form>
     {/if}
   </Modal>
+
+  <Delete message={"Do you want to delete this dashboard?"} redirectUrl={deleteRedirectUrl} dashboardId={dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
 {/if}
 
 <style>

@@ -3,11 +3,8 @@ import { db } from "./db.server";
 import { buildTree } from "$lib/GameSystem/Execution_tree";
 
 export async function getCharacters(user_id: string) {
-  return await db.user.findUnique({
-    where: { id: user_id },
-    select: {
-      Character: true,
-    },
+  return await db.character.findMany({
+    where: { userId: user_id },
   });
 }
 

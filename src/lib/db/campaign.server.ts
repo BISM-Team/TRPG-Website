@@ -1,14 +1,13 @@
-import { Role, type Campaign, type User } from "@prisma/client";
+import { Role, type Campaign } from "@prisma/client";
 import { db } from "./db.server";
 
 export async function getUserCampaigns(user_id: string) {
-  return await db.campaign.findMany({
+  return await db.campaign_User.findMany({
     where: {
-      Campaign_User: {
-        some: {
-          userId: user_id,
-        },
-      },
+      userId: user_id,
+    },
+    select: {
+      campaign: true,
     },
   });
 }

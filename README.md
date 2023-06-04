@@ -61,7 +61,7 @@ text: {
   props: {
     source: "default source",
     array: [""],
-    array_numb: [1],
+    array_number: [1],
     object: {
       characterName: "defaultName",
       initiative: 10

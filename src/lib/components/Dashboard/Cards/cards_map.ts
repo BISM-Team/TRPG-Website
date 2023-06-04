@@ -30,7 +30,6 @@ export const map: {
         {
           name: "",
           property: "PASS_PERC",
-          arr: [""],
         },
       ],
     } satisfies ComponentProps<Other>,

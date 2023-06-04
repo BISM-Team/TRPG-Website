@@ -54,7 +54,6 @@
     padding: 1em 2em;
     margin: auto;
     min-height: 20vh;
-    max-width: 40vw;
     overflow: hidden;
   }
 

@@ -9,7 +9,6 @@
   export let char_arr: {
     name: string,
     property: string
-    arr: string[]
   }[];
 </script>
 
@@ -28,11 +27,6 @@
   <p>
     {#each char_arr as item}
       <p>{item.name}: {item.property}</p>
-      <p>
-        {#each item.arr as str}
-          <p>{str}</p>
-        {/each}
-      </p>
     {/each}
   </p>
 </div>

@@ -6,7 +6,6 @@
   import { addHash } from "$lib/WorldWiki/tree/heading";
   import Modal from "$lib/components/modal.svelte";
   import Toolbar from "$lib/components/toolbar.svelte";
-  import { invalidateAll } from "$app/navigation";
   import WikiSearch from "$lib/components/wiki_search.svelte";
   import { page } from "$app/stores";
 
@@ -33,7 +32,6 @@
     disable = true;
     return async ({ result, update }) => {
       await update({reset: false});
-      await invalidateAll();
       if (result.type === "success") { 
         showDeleteModal = false;
         edit = false; 
@@ -54,27 +52,6 @@
   };
 </script>
 
-{#if showDeleteModal}
-  <Modal {disable} on:close={toggleDeleteModal}>
-    <h2 class="w3-padding">Do you want to delete this page?</h2>
-    <p>
-      <em>Note that only the content you are allowed to modify will be deleted</em>
-    </p>
-    <form id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={handleDelete}>
-      <input type="hidden" name="hash" value={data.hash} />
-      <input type="hidden" name="text" value="" />
-      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteModal}>Cancel</button>
-      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
-    </form>
-  </Modal>
-{/if}
-
-{#if showSearchModal}
-  <Modal {disable} on:close={toggleSearchModal}>
-    <WikiSearch campaignId={$page.params.campaign} on:close={toggleSearchModal}></WikiSearch>
-  </Modal>
-{/if}
-
 <Toolbar>
   {#if edit}
     <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleDeleteModal}>
@@ -90,6 +67,26 @@
   </button>
 </Toolbar>
 
+{#if showDeleteModal}
+  <Modal {disable} on:close={toggleDeleteModal}>
+    <h2 class="w3-padding">Do you want to delete this page?</h2>
+    <p>
+      <em>Note that only the content you are allowed to modify will be deleted</em>
+    </p>
+    <form id="deleteConfirmationButtons" class="w3-container" method="post" action="?/delete" use:enhance={handleDelete}>
+      <input type="hidden" name="hash" value={data.hash} />
+      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteModal}>Cancel</button>
+      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
+    </form>
+  </Modal>
+{/if}
+
+{#if showSearchModal}
+  <Modal {disable} on:close={toggleSearchModal}>
+    <WikiSearch campaignId={$page.params.campaign} on:close={toggleSearchModal}></WikiSearch>
+  </Modal>
+{/if}
+
 <div class="w3-container" id="page">
   {#if edit}
     {#if form?.creation_conflict || form?.update_conflict} 
@@ -101,7 +98,7 @@
     {#await stringifyTree(data.tree)}
       Stringifying markdown...
     {:then src}
-      <form class="w3-container w3-padding-32" method="post" use:enhance={handleSubmit}>
+      <form class="w3-container w3-padding-32" method="post" action="?/update" use:enhance={handleSubmit}>
         <input type="hidden" name="hash" value={data.hash} />
         <textarea name="text" id="textArea" value={src} />
         <br />

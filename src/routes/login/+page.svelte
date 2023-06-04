@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ActionData } from './$types';
     import { enhance } from '$app/forms';
-    import { afterNavigate, invalidateAll } from '$app/navigation';
+    import { afterNavigate } from '$app/navigation';
     import type { SubmitFunction } from '@sveltejs/kit';
 
     let disable=false;

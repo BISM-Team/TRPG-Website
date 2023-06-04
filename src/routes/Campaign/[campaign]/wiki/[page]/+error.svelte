@@ -6,6 +6,8 @@
 
   let disable = false;
   let previousUrl: string | undefined = undefined;
+  let actualStatus: number;
+  $: actualStatus = $page.status === 204 ? 404 : $page.status;
 
   afterNavigate(({ from, to }) => {
     previousUrl = from !== to ? from?.url.toString() : "./index";
@@ -30,26 +32,25 @@
 </script>
 
 <div id="content" class="w3-center w3-padding-32">
-  {#if $page.status === 200}
+  {#if actualStatus === 200}
     <span></span>
-  {:else if $page.status === 404}
+  {:else if actualStatus === 404}
     <h1 class="w3-section w3-padding">Page not yet created</h1>
     <p>Do you want to create it?</p>
-    <form id="btnContainer" class="w3-container" method="post" use:enhance={createPage}>
-      <input type="hidden" name="text" value="" />
+    <form id="btnContainer" class="w3-container" method="post" action="?/create" use:enhance={createPage}>
       <button disabled={disable} class="w3-margin w3-button w3-grey" type="button" on:click={goBack}>No</button>
       <button disabled={disable} class="w3-margin w3-button w3-teal" type="submit">Yes</button>
     </form>
-  {:else if $page.status === 403}
+  {:else if actualStatus === 403}
     <h1 class="w3-section w3-padding">You are not allowed to view this page!</h1>
     <button disabled={disable} class="w3-margin w3-button w3-teal" type="submit">Yes</button>
-  {:else if $page.status === 500}
+  {:else if actualStatus === 500}
     <h1 class="w3-center">Server Error, please try again.</h1>
-  {:else if $page.status === 400 && $page.error}
+  {:else if actualStatus === 400 && $page.error}
     <h1 class="w3-center">{$page.error.message}</h1>
   {:else}
     <h1>Unknown Error, please try again.</h1>
-    <p>{$page.status}: {JSON.stringify($page.form)}</p>
+    <p>{actualStatus}: {JSON.stringify($page.form)}</p>
   {/if}
 </div>
 

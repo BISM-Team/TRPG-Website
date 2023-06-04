@@ -18,7 +18,31 @@ import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { createId } from "@paralleldrive/cuid2";
 
 export const actions: Actions = {
-  default: async ({ locals, params, request }) => {
+  create: async ({ locals, params, request }) => {
+    const user = getLogin(locals);
+    const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
+
+    if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
+      return fail(400, { invalid_campaign_id_or_page_name: true });
+
+    const tree = await parseSource(
+      `# ${capitalizeFirstLetter(params.page)}`,
+      user.id
+    );
+    try {
+      await createPage(
+        params.page,
+        campaign,
+        tree as unknown as Prisma.JsonObject,
+        getHeadingsDb(tree, params.page, campaign.id)
+      );
+    } catch (exc) {
+      console.error(exc);
+      return fail(409, { creation_conflict: true });
+    }
+  },
+
+  update: async ({ locals, params, request }) => {
     const user = getLogin(locals);
     const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
@@ -42,45 +66,47 @@ export const actions: Actions = {
     } else return fail(400, { missing_text_or_tree: true });
 
     const old_page = await getPage(params.page, campaign);
-    if (!old_page) {
-      new_tree = new_tree.children.length
-        ? new_tree
-        : await parseSource(`# ${capitalizeFirstLetter(params.page)}`, user.id);
-      try {
-        await createPage(
-          params.page,
-          campaign,
-          new_tree as unknown as Prisma.JsonObject,
-          getHeadingsDb(new_tree, params.page, campaign.id)
-        );
-      } catch (exc) {
-        console.error(exc);
-        return fail(409, { creation_conflict: true });
-      }
-      return { created: true };
-    }
-
+    if (!old_page) return fail(400, { missing_page: true });
     if (prev_hash === undefined) return fail(400, { missing_hash: true });
+
     try {
       const old_tree = old_page.content as unknown as Root;
       const mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
-      if (mergedTree.children.length) {
-        await modifyPage(
-          params.page,
-          campaign,
-          mergedTree as unknown as Prisma.JsonObject,
-          getHeadingsDb(mergedTree, params.page, campaign.id),
-          prev_hash,
-          createId()
-        );
-        return { updated: true };
-      } else {
-        await deletePage(params.page, campaign, prev_hash);
-        return { deleted: true };
-      }
+      const headings = getHeadingsDb(mergedTree, params.page, campaign.id);
+      if (headings.length === 0 || headings[0].level !== 1)
+        return fail(400, { no_first_heading: true });
+
+      await modifyPage(
+        params.page,
+        campaign,
+        mergedTree as unknown as Prisma.JsonObject,
+        headings,
+        prev_hash,
+        createId()
+      );
     } catch (exc) {
       console.error(exc);
       return fail(409, { update_conflict: true });
+    }
+  },
+
+  delete: async ({ locals, params, request }) => {
+    const user = getLogin(locals);
+    const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
+
+    if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
+      return fail(400, { invalid_campaign_id_or_page_name: true });
+
+    const data = await request.formData();
+    const prev_hash = data.get("hash")?.toString();
+
+    if (prev_hash === undefined) return fail(400, { missing_hash: true });
+
+    try {
+      await deletePage(params.page, campaign, prev_hash);
+    } catch (exc) {
+      console.error(exc);
+      return fail(409, { delete_conflict: true });
     }
   },
 };

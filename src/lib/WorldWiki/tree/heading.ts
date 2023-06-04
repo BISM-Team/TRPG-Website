@@ -1,57 +1,15 @@
 import type { Root } from "mdast";
 import type { Heading } from "mdast";
 import type { Heading as DbHeading } from "@prisma/client";
-import inject from "mdast-util-inject";
-import {
-  type Matcher,
-  includesMatcher,
-  defaultMatcher,
-} from "mdast-util-inject";
+import { type Matcher, defaultMatcher } from "mdast-util-inject";
 import { toString } from "mdast-util-to-string";
 import { capitalizeFirstLetter } from "$lib/utils";
-import { parseSource } from "./tree";
 import { visit } from "unist-util-visit";
 import { getHeadingViewers } from "./visibility";
 import { getHeadingModifiers } from "./modifications";
 
 export interface AdvancedHeading extends Heading {
   attributes?: Record<string, string | null | undefined> | null | undefined;
-}
-
-export function makeDirective(
-  tagName: string,
-  attributes?: { id?: string; viewers?: string; modifiers?: string }
-) {
-  const id = attributes && attributes.id ? "#" + attributes.id + " " : "";
-  const viewers =
-    attributes && attributes.viewers
-      ? "viewers='" + attributes.viewers + "' "
-      : "";
-  const modifiers =
-    attributes && attributes.modifiers
-      ? "modifiers='" + attributes.modifiers + "' "
-      : "";
-  const attributes_str =
-    id || viewers || modifiers ? "{" + id + viewers + modifiers + "}" : "";
-  return `::heading[# ${capitalizeFirstLetter(tagName)}]${attributes_str}`;
-}
-
-export async function inject_tag(
-  tag_name: string,
-  tree: Root,
-  to_inject: Root,
-  attributes?: any
-) {
-  if (
-    !inject(capitalizeFirstLetter(tag_name), tree, to_inject, includesMatcher)
-  ) {
-    inject("", tree, await parseSource(makeDirective(tag_name, attributes)));
-    if (
-      !inject(capitalizeFirstLetter(tag_name), tree, to_inject, includesMatcher)
-    ) {
-      throw new Error("Did you submit an empty Tree ?");
-    }
-  }
 }
 
 export function searchHeadingIndex(
@@ -174,4 +132,15 @@ export function addHash(
   depth: (1 | 2 | 3 | 4 | 5 | 6) | number
 ): string {
   return "#".repeat(depth) + " " + str;
+}
+
+export function getFirstHeadingIndexAfter(
+  tree: Root,
+  startIndex: number
+): number {
+  for (let index = startIndex + 1; index < tree.children.length; index++) {
+    const child = tree.children[index];
+    if (child.type === "heading") return index;
+  }
+  return -1;
 }

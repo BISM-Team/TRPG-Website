@@ -274,7 +274,7 @@ async function getPageAndCache(
     }
     page = {
       name: page_name,
-      tree: _page.content as unknown as Root,
+      tree: _page.content,
       headings: _page.headings,
       hash: _page.hash,
       modified: false,
@@ -370,7 +370,7 @@ export async function handleTags(
     await modifyPage(
       page.name,
       campaign,
-      page.tree as unknown as Prisma.JsonValue,
+      page.tree,
       getHeadingsDb(page.tree, page.name, campaign.id),
       page.hash,
       createId()

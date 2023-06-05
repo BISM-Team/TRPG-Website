@@ -7,6 +7,7 @@ import {
   Prisma,
 } from "@prisma/client";
 import { db } from "./db.server";
+import type { Root } from "mdast";
 
 export async function getViewablePages(
   user_id: string,
@@ -82,7 +83,7 @@ export async function getPageHeadings(name: string, campaign: Campaign) {
 export async function createPage(
   name: string,
   campaign: Campaign,
-  content: Prisma.JsonValue,
+  content: Root,
   headings: (Heading & { viewers: string[]; modifiers: string[] })[]
 ) {
   const _headings = headings.map((heading) => ({
@@ -101,7 +102,7 @@ export async function createPage(
     data: {
       name: name,
       campaignId: campaign.id,
-      content: content ?? Prisma.JsonNull,
+      content: content,
       headings: {
         create: _headings,
       },
@@ -112,7 +113,7 @@ export async function createPage(
 export async function modifyPage(
   name: string,
   campaign: Campaign,
-  content: Prisma.JsonValue,
+  content: Root,
   headings: (Heading & { viewers: string[]; modifiers: string[] })[],
   prev_hash: string,
   next_hash: string
@@ -135,7 +136,7 @@ export async function modifyPage(
       hash: prev_hash,
     },
     data: {
-      content: content ?? Prisma.JsonNull,
+      content: content,
       headings: {
         deleteMany: {},
         create: _headings,

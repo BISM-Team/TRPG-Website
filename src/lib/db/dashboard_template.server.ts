@@ -1,12 +1,11 @@
-import {
-  Prisma,
-  type Campaign,
-  type CardData,
-  type Dashboard,
-  type DashboardTemplate,
-  type NumericVariable,
-  type StringVariable,
-  type DashboardType,
+import type {
+  Campaign,
+  CardData,
+  Dashboard,
+  DashboardTemplate,
+  NumericVariable,
+  StringVariable,
+  DashboardType,
 } from "@prisma/client";
 import { db } from "./db.server";
 export async function getUserDashboardTemplates(
@@ -77,8 +76,8 @@ export async function createDashboardFromTemplate(
       },
       cards: {
         create: dashboardTemplate.cards.map((card) => {
-          const { id, dashboardId, templateId, properties, ...rest } = card;
-          return { ...rest, properties: properties ?? Prisma.JsonNull };
+          const { id, dashboardId, templateId, ...rest } = card;
+          return rest;
         }),
       },
     },
@@ -128,8 +127,8 @@ export async function loadTemplateToDashboard(
         ? {
             deleteMany: {},
             create: dashboardTemplate.cards.map((card) => {
-              const { id, dashboardId, templateId, properties, ...rest } = card;
-              return { ...rest, properties: properties ?? Prisma.JsonNull };
+              const { id, dashboardId, templateId, ...rest } = card;
+              return rest;
             }),
           }
         : undefined,
@@ -174,8 +173,8 @@ export async function saveDashboardToTemplate(
         ? {
             deleteMany: {},
             create: dashboard.cards.map((card) => {
-              const { id, dashboardId, templateId, properties, ...rest } = card;
-              return { ...rest, properties: properties ?? Prisma.JsonNull };
+              const { id, dashboardId, templateId, ...rest } = card;
+              return rest;
             }),
           }
         : undefined,
@@ -203,8 +202,8 @@ export async function saveDashboardToTemplate(
       cards: options.cards
         ? {
             create: dashboard.cards.map((card) => {
-              const { id, dashboardId, templateId, properties, ...rest } = card;
-              return { ...rest, properties: properties ?? Prisma.JsonNull };
+              const { id, dashboardId, templateId, ...rest } = card;
+              return rest;
             }),
           }
         : { create: [] },

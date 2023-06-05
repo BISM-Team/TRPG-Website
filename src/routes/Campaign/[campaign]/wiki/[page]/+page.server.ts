@@ -31,7 +31,7 @@ export const actions: Actions = {
       await createPage(
         params.page,
         campaign,
-        tree as unknown as Prisma.JsonObject,
+        tree,
         getHeadingsDb(tree, params.page, campaign.id)
       );
     } catch (exc) {
@@ -68,7 +68,7 @@ export const actions: Actions = {
     if (prev_hash === undefined) return fail(400, { missing_hash: true });
 
     try {
-      const old_tree = old_page.content as unknown as Root;
+      const old_tree = old_page.content;
       const mergedTree = mergeTrees(old_tree, new_tree, user.id, gm_id);
       const headings = getHeadingsDb(mergedTree, params.page, campaign.id);
       if (headings.length === 0 || headings[0].level !== 1)
@@ -85,7 +85,7 @@ export const actions: Actions = {
       await modifyPage(
         params.page,
         campaign,
-        mergedTree as unknown as Prisma.JsonObject,
+        mergedTree,
         headings,
         prev_hash,
         createId()
@@ -113,7 +113,7 @@ export const actions: Actions = {
       if (old_page) {
         await handleTags(
           params.page,
-          old_page.content as unknown as Root,
+          old_page.content,
           params.page,
           { type: "root", children: [] },
           campaign

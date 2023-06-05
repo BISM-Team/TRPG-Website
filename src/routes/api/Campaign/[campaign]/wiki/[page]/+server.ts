@@ -26,11 +26,7 @@ export const GET = async function ({ params, locals, fetch }) {
   }
 
   try {
-    const tree = await filterOutTree(
-      page.content as unknown as Root,
-      user.id,
-      gm_id
-    );
+    const tree = await filterOutTree(page.content, user.id, gm_id);
     if (!tree.children.length) {
       throw error(403, "Page not viewable");
     }

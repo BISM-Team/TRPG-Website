@@ -1,4 +1,4 @@
-import { Role, type Campaign } from "@prisma/client";
+import { Role, type Campaign, Prisma } from "@prisma/client";
 import { db } from "./db.server";
 
 export async function getUserCampaigns(user_id: string) {
@@ -52,9 +52,11 @@ export async function createUserCampaign(
   user_id: string,
   campaign: Omit<Campaign, "id" | "createdAt">
 ) {
+  const { wikiTree, ...rest } = campaign;
   return await db.campaign.create({
     data: {
-      ...campaign,
+      ...rest,
+      wikiTree: wikiTree,
       Campaign_User: {
         create: [
           {

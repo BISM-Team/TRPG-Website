@@ -11,7 +11,10 @@ export const actions: Actions = {
     const name = data.get("name")?.toString();
     if (!name) return fail(400, { name_missing: true });
     try {
-      await createUserCampaign(user.id, { name: capitalizeFirstLetter(name) });
+      await createUserCampaign(user.id, {
+        name: capitalizeFirstLetter(name),
+        wikiTree: { name: "Index", children: [] },
+      });
     } catch (exc) {
       console.error(exc);
       return fail(500, { name: name, server_error: true });

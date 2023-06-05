@@ -1,10 +1,10 @@
-import {
-  type CardData,
-  type NumericVariable,
-  type StringVariable,
-  type Campaign,
+import type {
+  CardData,
+  NumericVariable,
+  StringVariable,
+  Campaign,
   Prisma,
-  type DashboardType,
+  DashboardType,
 } from "@prisma/client";
 import { db } from "./db.server";
 
@@ -115,13 +115,12 @@ export async function updateCards(
     data: {
       cards: {
         upsert: _cards.map((card) => {
-          const { properties, ...rest } = card;
           return {
             where: {
               id: card.id,
             },
-            create: { ...rest, properties: properties ?? Prisma.JsonNull },
-            update: { ...rest, properties: properties ?? Prisma.JsonNull },
+            create: card,
+            update: card,
           };
         }),
         deleteMany: {

@@ -3,6 +3,11 @@ generator client {
   previewFeatures = ["extendedWhereUnique"]
 }
 
+generator json {
+  provider  = "prisma-json-types-generator"
+  namespace = "PrismaJson"
+}
+
 datasource db {
   provider     = "mysql"
   url          = env("DATABASE_URL")
@@ -48,6 +53,8 @@ model Campaign {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   name      String
+  /// [WikiTreeNode]
+  wikiTree  Json
 
   Page          Page[]
   Dashboard     Dashboard[]
@@ -58,6 +65,7 @@ model Page {
   name       String
   createdAt  DateTime  @default(now())
   hash       String    @default(cuid())
+  /// [Root]
   content    Json
   headings   Heading[]
   campaignId String
@@ -166,6 +174,7 @@ model CardData {
   width      Float
   height     Float
   type       CardType
+  /// [NonNullJson]
   properties Json
 
   dashboardId String?
@@ -182,6 +191,7 @@ model Character {
   id         String    @id @default(cuid())
   name       String
   createdAt  DateTime  @default(now())
+  /// [NonNullJson]
   properties Json
   abilities  Ability[]
   items      Item[]

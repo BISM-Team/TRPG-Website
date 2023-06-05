@@ -10,7 +10,7 @@ import {
   modifyPage,
 } from "$lib/db/page.server";
 import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
-import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
+import { mergeTrees, handleTags } from "$lib/WorldWiki/tree/merge.server";
 import { capitalizeFirstLetter } from "$lib/utils";
 import type { Prisma } from "@prisma/client";
 import { getLogin } from "$lib/utils.server";
@@ -18,17 +18,15 @@ import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { createId } from "@paralleldrive/cuid2";
 
 export const actions: Actions = {
-  create: async ({ locals, params, request }) => {
+  create: async ({ locals, params }) => {
     const user = getLogin(locals);
+    params.page = capitalizeFirstLetter(params.page);
     const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
     if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
       return fail(400, { invalid_campaign_id_or_page_name: true });
 
-    const tree = await parseSource(
-      `# ${capitalizeFirstLetter(params.page)}`,
-      user.id
-    );
+    const tree = await parseSource(`# ${params.page}`, user.id);
     try {
       await createPage(
         params.page,
@@ -76,6 +74,14 @@ export const actions: Actions = {
       if (headings.length === 0 || headings[0].level !== 1)
         return fail(400, { no_first_heading: true });
 
+      await handleTags(
+        params.page,
+        old_tree,
+        params.page,
+        mergedTree,
+        campaign
+      );
+
       await modifyPage(
         params.page,
         campaign,
@@ -103,6 +109,16 @@ export const actions: Actions = {
     if (prev_hash === undefined) return fail(400, { missing_hash: true });
 
     try {
+      const old_page = await getPage(params.page, campaign);
+      if (old_page) {
+        await handleTags(
+          params.page,
+          old_page.content as unknown as Root,
+          params.page,
+          { type: "root", children: [] },
+          campaign
+        );
+      } else console.warn("page to delete not found");
       await deletePage(params.page, campaign, prev_hash);
     } catch (exc) {
       console.error(exc);

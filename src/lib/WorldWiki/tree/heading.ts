@@ -3,13 +3,18 @@ import type { Heading } from "mdast";
 import type { Heading as DbHeading } from "@prisma/client";
 import { type Matcher, defaultMatcher } from "mdast-util-inject";
 import { toString } from "mdast-util-to-string";
-import { capitalizeFirstLetter } from "$lib/utils";
 import { visit } from "unist-util-visit";
 import { getHeadingViewers } from "./visibility";
 import { getHeadingModifiers } from "./modifications";
 
 export interface AdvancedHeading extends Heading {
   attributes?: Record<string, string | null | undefined> | null | undefined;
+}
+
+export function getHeadingId(heading: AdvancedHeading) {
+  if (heading.attributes && heading.attributes.id) {
+    return heading.attributes.id;
+  } else return null;
 }
 
 export function searchHeadingIndex(
@@ -21,7 +26,10 @@ export function searchHeadingIndex(
     const child = tree.children[index];
     if (
       child.type === "heading" &&
-      matcher(toString(child).trim(), searchText.trim())
+      matcher(
+        toString(child).trim().toLowerCase(),
+        searchText.trim().toLowerCase()
+      )
     ) {
       return index;
     }
@@ -38,7 +46,10 @@ export function searchHeading(
     const child = tree.children[index];
     if (
       child.type === "heading" &&
-      matcher(toString(child).trim(), searchText.trim())
+      matcher(
+        toString(child).trim().toLowerCase(),
+        searchText.trim().toLowerCase()
+      )
     ) {
       return child;
     }

@@ -59,7 +59,7 @@ export const GET = async function ({ params, locals, fetch }) {
     });
   } catch (exc) {
     if ((exc as HttpError).status === 403) throw exc;
-    console.log(exc);
+    console.error(exc);
     throw error(500, "Errors in parsing page, try again");
   }
 } satisfies RequestHandler;

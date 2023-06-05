@@ -20,7 +20,11 @@ Branch 'dev' is the developement branch, all branches that make changes should s
 git clone https://github.com/BISM-Team/TRPG-Website
 cd TRPG-Website
 git checkout dev
+npm install
+npx prisma generate
 ```
+
+Check that `npm run check` does not return more than 5 errors.
 
 #### Before doing anything: create and publish a branch for your changes:
 

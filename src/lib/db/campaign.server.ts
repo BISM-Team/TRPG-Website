@@ -86,3 +86,24 @@ export async function deleteUserCampaign(user_id: string, campaignId: string) {
     },
   });
 }
+
+export async function updateCampaignWikiTree(
+  user_id: string,
+  campaignId: string,
+  wikiTree: PrismaJson.WikiTree
+) {
+  return await db.campaign.update({
+    where: {
+      id: campaignId,
+      Campaign_User: {
+        some: {
+          userId: user_id,
+          role: Role.gm,
+        },
+      },
+    },
+    data: {
+      wikiTree: wikiTree,
+    },
+  });
+}

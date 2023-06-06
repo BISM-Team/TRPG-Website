@@ -8,6 +8,7 @@
   import Toolbar from "$lib/components/toolbar.svelte";
   import WikiSearch from "$lib/components/wiki_search.svelte";
   import { page } from "$app/stores";
+  import SideBarEntry from "./sideBarEntry.svelte";
 
   export let data: PageData;
   export let form: ActionData;
@@ -15,6 +16,7 @@
   let disable = false;
   let showDeleteModal = false;
   let showSearchModal = false;
+  let showSidebar = true;
 
   function toggleEdit() {
     edit=!edit;
@@ -26,6 +28,10 @@
 
   function toggleSearchModal() {
     showSearchModal=!showSearchModal;
+  }
+
+  function toggleSidebar() {
+    showSidebar=!showSidebar;
   }
 
   const handleDelete: SubmitFunction = async function () {
@@ -53,6 +59,9 @@
 </script>
 
 <Toolbar>
+  <button disabled={disable} id="sideBarButton" class="w3-button" style:margin-right="auto" on:click={toggleSidebar}>
+    <span class="material-symbols-outlined w3-text-white">menu</span>
+  </button>
   {#if edit}
     <button disabled={disable} id="deleteButton" class="w3-button" on:click={toggleDeleteModal}>
       <span class="material-symbols-outlined w3-text-white">delete</span>
@@ -87,48 +96,66 @@
   </Modal>
 {/if}
 
-<div class="w3-container" id="page">
-  {#if edit}
-    {#if form?.creation_conflict || form?.update_conflict} 
-      <p class="w3-panel w3-red">Someone updated this page just now, please refresh the page and try again. <br /> If this happens again please contact us.</p> 
-    {/if}
-    {#if form?.invalid_campaign_id_or_page_name || form?.missing_text_or_tree} 
-      <p class="w3-panel w3-red">Client Error, please contact us to investigate the cause!</p> 
-    {/if}
-    {#await stringifyTree(data.tree)}
-      Stringifying markdown...
-    {:then src}
-      <form class="w3-container w3-padding-32" method="post" action="?/update" use:enhance={handleSubmit}>
-        <input type="hidden" name="hash" value={data.hash} />
-        <textarea name="text" id="textArea" value={src} />
-        <br />
-        <div class="buttonContainer w3-center w3-block">
-          <button disabled={disable} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
-          <button disabled={disable} class="w3-button w3-teal" type="submit">Done</button>
+<div class="layoutWithSidebar">
+  <div class="sidebarContainer w3-padding-32 w3-teal" style:display={showSidebar ? "block" : "none"}>
+    {#each data.campaign.wikiTree.children as child}
+      <SideBarEntry node={child} />
+    {/each}
+  </div>
+  <div class="w3-container" id="page">
+    {#if edit}
+      {#if form?.creation_conflict || form?.update_conflict} 
+        <p class="w3-panel w3-red">Someone updated this page just now, please refresh the page and try again. <br /> If this happens again please contact us.</p> 
+      {/if}
+      {#if form?.invalid_campaign_id_or_page_name || form?.missing_text_or_tree} 
+        <p class="w3-panel w3-red">Client Error, please contact us to investigate the cause!</p> 
+      {/if}
+      {#await stringifyTree(data.tree)}
+        Stringifying markdown...
+      {:then src}
+        <form class="w3-container w3-padding-32" method="post" action="?/update" use:enhance={handleSubmit}>
+          <input type="hidden" name="hash" value={data.hash} />
+          <textarea name="text" id="textArea" value={src} />
+          <br />
+          <div class="buttonContainer w3-center w3-block">
+            <button disabled={disable} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
+            <button disabled={disable} class="w3-button w3-teal" type="submit">Done</button>
+          </div>
+        </form>
+      {/await}
+    {:else}
+      <div id="toc_container">
+        <div id="toc" class="w3-card-2">
+          {#each data.headings as heading}
+            <a class="w3-block w3-container w3-padding" href="#{heading.id}">
+              <span class="w3-text-gray">{addHash("", heading.level).trim()}</span>
+              {heading.text}
+            </a>
+          {/each}
         </div>
-      </form>
-    {/await}
-  {:else}
-    <div id="toc_container">
-      <div id="toc" class="w3-card-2">
-        {#each data.headings as heading}
-          <a class="w3-block w3-container w3-padding" href="#{heading.id}">
-            <span class="w3-text-gray">{addHash("", heading.level).trim()}</span>
-            {heading.text}
-          </a>
-        {/each}
       </div>
-    </div>
-    <div class="w3-container w3-padding-32" id="content">
-      {@html data.renderedTree}
-    </div>
-  {/if}
+      <div class="w3-container w3-padding-32" id="content">
+        {@html data.renderedTree}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
+  .layoutWithSidebar {
+    display: flex;
+  }
+
+  .sidebarContainer {
+    height: 100vh;
+    overflow-y: auto;
+  }
+
   #page {
     position: relative;
+    width: 100%;
   }
+
   #textArea {
     width: 90%;
     height: 74vh;

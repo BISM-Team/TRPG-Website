@@ -28,6 +28,15 @@ export const actions: Actions = {
 
     const tree = await parseSource(`# ${params.page}`, user.id);
     try {
+      await handleTags(
+        params.page,
+        { type: "root", children: [] },
+        params.page,
+        tree,
+        user.id,
+        campaign,
+        false
+      );
       await createPage(
         params.page,
         campaign,
@@ -79,7 +88,9 @@ export const actions: Actions = {
         old_tree,
         params.page,
         mergedTree,
-        campaign
+        user.id,
+        campaign,
+        false
       );
 
       await modifyPage(
@@ -116,7 +127,9 @@ export const actions: Actions = {
           old_page.content,
           params.page,
           { type: "root", children: [] },
-          campaign
+          user.id,
+          campaign,
+          true
         );
       } else console.warn("page to delete not found");
       await deletePage(params.page, campaign, prev_hash);

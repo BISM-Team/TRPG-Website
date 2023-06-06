@@ -13,7 +13,13 @@ export const actions: Actions = {
     try {
       await createUserCampaign(user.id, {
         name: capitalizeFirstLetter(name),
-        wikiTree: { name: "Index", children: [] },
+        wikiTree: {
+          name: "root",
+          children: [
+            { name: "Index", children: [] },
+            { name: "Unsorted", children: [] },
+          ],
+        },
       });
     } catch (exc) {
       console.error(exc);

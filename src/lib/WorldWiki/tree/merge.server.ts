@@ -18,6 +18,7 @@ import { parseSource } from "./tree";
 import inject from "mdast-util-inject";
 import { createId } from "@paralleldrive/cuid2";
 import { error } from "@sveltejs/kit";
+import { updateCampaignWikiTree } from "$lib/db/campaign.server";
 
 export function mergeTrees(
   left: Root,
@@ -129,7 +130,6 @@ function findInjectedTag(
   for (let index = start_index; index < end_index; ++index) {
     const child = tree.children[index];
     if (child.type === "list") {
-      console.log(child);
       last_list_index = index;
       for (
         let list_index = 0;
@@ -284,13 +284,81 @@ async function getPageAndCache(
   return page;
 }
 
+function visit<T>(
+  node: PrismaJson.WikiTreeNode,
+  callback: (node: PrismaJson.WikiTreeNode) => T
+) {
+  let result = callback(node);
+  for (const child of node.children) {
+    if (!result) {
+      const _result = visit(child, callback);
+      if (result) result = _result;
+    }
+  }
+  return result;
+}
+
+function getTagFrom(tag: string, from: string, campaign: Campaign) {
+  return visit(campaign.wikiTree, (node) => {
+    if (node.name.toLowerCase().trim() === from.toLowerCase().trim()) {
+      const index = node.children.findIndex(
+        (node) => node.name.toLowerCase().trim() === tag.toLowerCase().trim()
+      );
+      if (index !== -1) {
+        const tmp = node.children[index];
+        return JSON.parse(JSON.stringify(tmp));
+      } else return false;
+    } else return false;
+  });
+}
+
+function spliceTagFrom(tag: string, from: string, campaign: Campaign) {
+  return visit(campaign.wikiTree, (node) => {
+    if (node.name.toLowerCase().trim() === from.toLowerCase().trim()) {
+      const index = node.children.findIndex(
+        (node) => node.name.toLowerCase().trim() === tag.toLowerCase().trim()
+      );
+      if (index !== -1) {
+        const tmp = node.children[index];
+        node.children.splice(index, 1);
+        return tmp;
+      } else return false;
+    } else return false;
+  });
+}
+
+function insertTagInto(
+  tag: PrismaJson.WikiTreeNode,
+  from: string,
+  campaign: Campaign
+) {
+  return visit(campaign.wikiTree, (node) => {
+    if (node.name.toLowerCase().trim() === from.toLowerCase().trim()) {
+      console.log("node found");
+      const index = node.children.findIndex(
+        (node) =>
+          node.name.toLowerCase().trim() === tag.name.toLowerCase().trim()
+      );
+      if (index === -1) {
+        node.children.push(tag);
+        console.log("pushed");
+      }
+      return true;
+    } else return false;
+  });
+}
+
 export async function handleTags(
   previousPage: string,
   previousTree: Root,
   nextPage: string,
   nextTree: Root,
-  campaign: Campaign
+  user_id: string,
+  campaign: Campaign,
+  deleting: boolean
 ) {
+  if (nextPage.toLowerCase().trim() === "index") return;
+
   const tags_before = findTags(previousTree);
   const tags_after = findTags(nextTree);
 
@@ -301,6 +369,8 @@ export async function handleTags(
     hash: string;
     modified: boolean;
   }[] = [];
+
+  let deletedTag: PrismaJson.WikiTreeNode = { name: nextPage, children: [] };
 
   for (const tag of tags_before) {
     const splitted_tag = tag.split("#");
@@ -315,6 +385,9 @@ export async function handleTags(
     }
 
     if (!tags_after.find((_tag) => _tag === tag)) {
+      deletedTag =
+        spliceTagFrom(previousPage, splitted_tag[0], campaign) || deletedTag;
+      deletedTag.name = nextPage;
       if (
         await delete_tag(
           splitted_tag[1] || page.headings[0].text,
@@ -339,6 +412,9 @@ export async function handleTags(
         continue;
       }
 
+      insertTagInto(deletedTag, splitted_tag[0], campaign);
+      console.log("insert into: ", deletedTag, splitted_tag[0]);
+
       if (
         await inject_tag(
           splitted_tag[1] || page.headings[0].text,
@@ -354,6 +430,13 @@ export async function handleTags(
         continue;
       }
 
+      let tag_node = spliceTagFrom(previousPage, splitted_tag[0], campaign) || {
+        name: nextPage,
+        children: [],
+      };
+      tag_node.name = nextPage;
+      insertTagInto(tag_node, splitted_tag[0], campaign);
+
       if (
         await update_tag(
           splitted_tag[1] || page.headings[0].text,
@@ -366,6 +449,17 @@ export async function handleTags(
     }
   }
 
+  if (tags_before.length === 0) {
+    deletedTag =
+      spliceTagFrom(previousPage, "Unsorted", campaign) || deletedTag;
+  }
+
+  if (tags_after.length === 0 && !deleting) {
+    deletedTag.name = nextPage;
+    insertTagInto(deletedTag, "Unsorted", campaign);
+    console.log("insert into: ", deletedTag, "Unsorted");
+  }
+
   for (const page of page_cache.filter((page) => page.modified)) {
     await modifyPage(
       page.name,
@@ -376,6 +470,8 @@ export async function handleTags(
       createId()
     );
   }
+
+  await updateCampaignWikiTree(user_id, campaign.id, campaign.wikiTree);
 }
 
 function findTags(tree: Root): string[] {

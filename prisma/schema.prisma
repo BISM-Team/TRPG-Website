@@ -166,6 +166,7 @@ model StringVariable {
 enum CardType {
   text
   other
+  who_this
 }
 
 model CardData {

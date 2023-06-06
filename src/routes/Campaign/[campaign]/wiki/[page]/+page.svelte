@@ -99,7 +99,7 @@
 <div class="layoutWithSidebar">
   <div class="sidebarContainer w3-padding-32 w3-teal" style:display={showSidebar ? "block" : "none"}>
     {#each data.campaign.wikiTree.children as child}
-      <SideBarEntry node={child} />
+      <SideBarEntry node={child}/>
     {/each}
   </div>
   <div class="w3-container" id="page">

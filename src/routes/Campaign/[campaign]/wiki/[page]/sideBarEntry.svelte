@@ -5,34 +5,39 @@
   let expanded = false;
 </script>
 
-<div class="w3-button entry">
-  <div class="expand">
+{#if node.name.toLowerCase().trim() !== "unsorted" || node.children.length}
+  <div class="entryContainer">
+    <div class="w3-button entry">
+      {#if node.children.length}
+      <button class="w3-button expand" on:click={() => { expanded=!expanded }}>
+          <span class="material-symbols-outlined" style:display="block">
+            {expanded ? "arrow_drop_down" : "arrow_right"}
+          </span>
+      </button>
+      {/if}
+      <div class="page_name" style:padding-left="{node.children.length ? 0 : 0.7}em">
+        {#if node.name.toLowerCase().trim() !== "unsorted"}
+          <a class="page_name" href="{node.name}">{capitalizeFirstLetter(node.name)}</a>
+        {:else}
+          <div class="page_name">{capitalizeFirstLetter(node.name)}</div>
+        {/if}
+      </div>
+    </div>
     {#if node.children.length}
-    <button class="w3-button placeholder" on:click={() => { expanded=!expanded }}>
-        <span class="material-symbols-outlined" style:display="block">
-          {expanded ? "arrow_drop_down" : "arrow_right"}
-        </span>
-    </button>
+      <div class="dropdown" style:display={expanded ? "block" : "none"}>
+        {#each node.children as child}
+          <svelte:self node={child}/>
+        {/each}
+      </div>
     {/if}
-  </div>
-  <div class="page_name">
-    {#if node.name.toLowerCase().trim() !== "unsorted"}
-      <a class="page_name" href="{node.name}">{capitalizeFirstLetter(node.name)}</a>
-    {:else}
-      <div class="page_name">{capitalizeFirstLetter(node.name)}</div>
-    {/if}
-  </div>
-</div>
-
-{#if node.children.length}
-  <div class="dropdown" style:display={expanded ? "block" : "none"}>
-    {#each node.children as child}
-      <svelte:self node={child} />
-    {/each}
   </div>
 {/if}
 
 <style>
+  .entryContainer {
+    padding-left: 0.7em;
+  }
+
   .entry {
     display: flex;
     flex-direction: row;
@@ -40,7 +45,6 @@
     align-items: center;
     margin: 0;
     font-size: medium;
-    padding-left: 0.5em;
   }
 
   .expand {
@@ -66,9 +70,4 @@
   a {
     text-decoration: none;
   }
-
-  .dropdown > :global(*) {
-    padding-left: 1.5em !important;
-  }
-
 </style>

@@ -144,11 +144,11 @@
 <style>
   .layoutWithSidebar {
     display: flex;
+    flex-grow: 1;
   }
 
   .sidebarContainer {
     height: 100vh;
-    overflow-y: auto;
   }
 
   #page {

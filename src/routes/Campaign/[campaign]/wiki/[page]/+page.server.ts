@@ -10,12 +10,12 @@ import {
   modifyPage,
 } from "$lib/db/page.server";
 import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
-import { mergeTrees, handleTags } from "$lib/WorldWiki/tree/merge.server";
+import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
 import { capitalizeFirstLetter } from "$lib/utils";
-import type { Prisma } from "@prisma/client";
 import { getLogin } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { createId } from "@paralleldrive/cuid2";
+import { handleTags } from "$lib/WorldWiki/tree/tag_injection.server";
 
 export const actions: Actions = {
   create: async ({ locals, params }) => {

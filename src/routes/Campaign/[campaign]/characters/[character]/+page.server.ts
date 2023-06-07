@@ -1,5 +1,4 @@
 import { updateCards, updateDashboard } from "$lib/db/dashboard.server";
-import { fail } from "@sveltejs/kit";
 import { getLogin } from "$lib/utils.server";
 import { parse } from "devalue";
 import {
@@ -15,6 +14,7 @@ import {
   saveDashboardToTemplate,
 } from "$lib/db/dashboard_template.server";
 import { deleteCharacter } from "$lib/db/game_system.server";
+import { fail } from "@sveltejs/kit";
 
 export const actions: Actions = {
   save: async function ({ request, locals }) {

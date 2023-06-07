@@ -2,19 +2,37 @@ import type { Ability, Character, Effect, Item } from "@prisma/client";
 import { db } from "./db.server";
 import { buildTree } from "$lib/GameSystem/Execution_tree";
 
-export async function getCharacters(user_id: string) {
+export async function getCharacters(
+  user_id: string,
+  campaignId?: string,
+  not_in?: boolean
+) {
   return await db.character.findMany({
-    where: { userId: user_id },
+    where: {
+      userId: user_id,
+      Campaign_Character: campaignId
+        ? not_in
+          ? { none: { campaignId: campaignId } }
+          : { some: { campaignId: campaignId } }
+        : undefined,
+    },
   });
 }
 
 export async function getCharacter(
   user_id: string,
   character_id: string,
-  dashboard: boolean
+  dashboard: boolean,
+  campaignId?: string
 ) {
   return await db.character.findUnique({
-    where: { id: character_id, userId: user_id },
+    where: {
+      id: character_id,
+      userId: user_id,
+      Campaign_Character: campaignId
+        ? { some: { campaignId: campaignId } }
+        : undefined,
+    },
     include: {
       dashboard: dashboard
         ? {
@@ -39,7 +57,8 @@ export async function createCharacter(
     items: (Item & {
       effects: Effect[];
     })[];
-  }
+  },
+  campaignId?: string
 ) {
   const tree = buildTree(character);
   tree.invoke();
@@ -55,15 +74,56 @@ export async function createCharacter(
       items: {
         connect: character.items.map((item) => ({ id: item.id })),
       },
+      Campaign_Character: campaignId
+        ? {
+            create: {
+              campaignId: campaignId,
+            },
+          }
+        : undefined,
     },
   });
 }
 
-export async function deleteCharacter(user_id: string, characterId: string) {
+export async function deleteCharacter(
+  user_id: string,
+  characterId: string,
+  campaignId?: string
+) {
   return await db.character.delete({
     where: {
       userId: user_id,
       id: characterId,
+      Campaign_Character: campaignId
+        ? { some: { campaignId: campaignId } }
+        : undefined,
+    },
+  });
+}
+
+export async function addCharacterToCampaign(
+  user_id: string,
+  characterId: string,
+  campaignId: string
+) {
+  return await db.campaign_Character.create({
+    data: {
+      character: {
+        connect: {
+          id: characterId,
+          userId: user_id,
+        },
+      },
+      campaign: {
+        connect: {
+          id: campaignId,
+          Campaign_User: {
+            some: {
+              userId: user_id,
+            },
+          },
+        },
+      },
     },
   });
 }

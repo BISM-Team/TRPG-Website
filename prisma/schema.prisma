@@ -49,6 +49,18 @@ model Campaign_User {
   @@index([campaignId])
 }
 
+model Campaign_Character {
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([characterId, campaignId])
+  @@index([characterId])
+  @@index([campaignId])
+}
+
 model Campaign {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -56,9 +68,10 @@ model Campaign {
   /// [WikiTree]
   wikiTree  Json
 
-  Page          Page[]
-  Dashboard     Dashboard[]
-  Campaign_User Campaign_User[]
+  Page               Page[]
+  Dashboard          Dashboard[]
+  Campaign_User      Campaign_User[]
+  Campaign_Character Campaign_Character[]
 }
 
 model Page {
@@ -200,8 +213,9 @@ model Character {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  dashboardId String    @unique
-  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  dashboardId        String               @unique
+  dashboard          Dashboard            @relation(fields: [dashboardId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  Campaign_Character Campaign_Character[]
 
   @@index([userId])
   @@index([dashboardId])

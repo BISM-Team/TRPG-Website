@@ -50,16 +50,6 @@
   </button>
 </Toolbar>
 
-{#if form?.client_error || form?.server_error}
-  <Modal disable={disable} on:close={closeError}>
-    {#if form?.client_error}
-    <ErrorBar text={'Client Error, please try again or contact us!'}/>
-    {:else if form?.server_error}
-    <ErrorBar text={'Server Error, please contact us!'}/>
-    {/if}
-  </Modal>
-{/if}
-
 <Save   dashboard={data.dashboard} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
 
@@ -69,3 +59,13 @@
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
 
 <DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>
+
+{#if form?.client_error || form?.server_error}
+  <Modal disable={disable} on:close={closeError}>
+    {#if form?.client_error}
+    <ErrorBar text={'Client Error, please try again or contact us!'}/>
+    {:else if form?.server_error}
+    <ErrorBar text={'Server Error, please contact us!'}/>
+    {/if}
+  </Modal>
+{/if}

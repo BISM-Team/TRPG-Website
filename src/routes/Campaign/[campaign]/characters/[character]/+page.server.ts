@@ -176,7 +176,6 @@ export const actions: Actions = {
 
   remove: async function ({ locals, request, params }) {
     const user = getLogin(locals);
-    const data = await request.formData();
 
     try {
       await removeCharacterFromCampaign(

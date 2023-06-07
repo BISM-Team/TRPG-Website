@@ -1,6 +1,7 @@
 import { addCharacterToCampaign } from "$lib/db/game_system.server";
 import { getLogin } from "$lib/utils.server";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 
 export const actions: Actions = {
   add: async function ({ locals, request, params }) {

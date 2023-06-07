@@ -1,7 +1,8 @@
 import { createUserCampaign } from "$lib/db/campaign.server";
 import { capitalizeFirstLetter } from "$lib/utils";
 import { getLogin } from "$lib/utils.server";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 
 export const actions: Actions = {
   create: async function ({ locals, request }) {

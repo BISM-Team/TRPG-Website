@@ -4,7 +4,6 @@
   import Card from "./card.svelte";
   import Prototype from "./prototype.svelte";
   import { spring, type Spring } from "svelte/motion";
-  import { onMount } from "svelte";
   import { arraymove } from "$lib/utils";
   import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
 

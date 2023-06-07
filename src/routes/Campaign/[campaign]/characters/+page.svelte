@@ -31,7 +31,7 @@
     };
 
     async function loadCharacters() {
-      const response = await fetch(`/api/Campaign/${data.params.campaign}/characters?not_in=true`);
+      const response = await fetch(`/api/campaign/${data.params.campaign}/characters?not_in=true`);
       await propagateErrors(response, $page.url);
       if(!response.ok) throw new Error("unexpected error");
       characters = (await response.json()).characters as Character[];
@@ -57,7 +57,7 @@
 
 <div class="cards">
     {#each data.characters as character}
-        <Card link={"./Characters/" + character.id}>
+        <Card link={"./characters/" + character.id}>
           <h3 class="w3-padding-32">{character.name}</h3>
         </Card>
     {/each}

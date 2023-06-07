@@ -38,7 +38,7 @@
 
 <div class="cards">
     {#each data.characters as character}
-        <Card link={"./Characters/" + character.id}>
+        <Card link={"./characters/" + character.id}>
           <h3 class="w3-padding-32">{character.name}</h3>
         </Card>
     {/each}

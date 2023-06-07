@@ -9,6 +9,7 @@
   import { createId } from "@paralleldrive/cuid2"
   import type { SubmitFunction } from "@sveltejs/kit"
   import Delete from "./delete.svelte";
+  import RemoveFromCampaign from "./removeFromCampaign.svelte";
 
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
@@ -22,6 +23,7 @@
   export let removedCards: string[];
   export let removedNumVar: string[] = [];
   export let removedStrVar: string[] = [];
+  export let removeFromCampaign: boolean = false;
 
   let menuDialog: { 
     show: boolean, 
@@ -36,6 +38,7 @@
   };
 
   let deleteDialog: Delete;
+  let removeFromCampaignDialog: RemoveFromCampaign;
 
   let templates: DashboardTemplate[] = [];
 
@@ -102,7 +105,7 @@
 
   async function loadTemplates() {
     disable = true;
-    const response = await fetch("/api/DashboardTemplates?type=dashboard");
+    const response = await fetch("/api/dashboardTemplates?type=dashboard");
     await propagateErrors(response, new URL(window.location.href));
     if(!response.ok) throw new Error("unexpected error")
     templates = (await response.json()).map((template) => {
@@ -184,6 +187,9 @@
       <button disabled={disable} id="gotoLoadFrom" class="w3-button w3-block" on:click={openLoadFrom}>Load from template</button>
       <button disabled={disable} id="gotoSettings" class="w3-button w3-block" on:click={openSettings}>Settings</button>
       <button disabled={disable} id="deleteButton" class="w3-button w3-block" on:click={deleteDialog.toggle}>Delete</button>
+      {#if removeFromCampaign}
+        <button disabled={disable} id="removeFromCampaignButton" class="w3-button w3-block" on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button>
+      {/if}
     {:else if menuDialog.save_as}
       <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
       <button disabled={disable} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
@@ -254,7 +260,10 @@
     {/if}
   </Modal>
 
-  <Delete message={"Do you want to delete this dashboard?"} redirectUrl={deleteRedirectUrl} dashboardId={dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+  <Delete message={"Do you want to delete this character?"} redirectUrl={deleteRedirectUrl} dashboardId={dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+  {#if removeFromCampaign}
+    <RemoveFromCampaign redirectUrl={deleteRedirectUrl} bind:disable={disable} bind:this={removeFromCampaignDialog}/>
+  {/if}
 {/if}
 
 <style>

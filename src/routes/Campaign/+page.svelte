@@ -38,7 +38,7 @@
 
 <div class="cards">
   {#each data.campaigns as campaign}
-    <Card link={"./Campaign/" + campaign.id}>
+    <Card link={"./campaign/" + campaign.id}>
       <h3 class="w3-padding-32">{campaign.name}</h3>
     </Card>
   {/each}

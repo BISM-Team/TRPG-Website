@@ -127,3 +127,28 @@ export async function addCharacterToCampaign(
     },
   });
 }
+
+export async function removeCharacterFromCampaign(
+  user_id: string,
+  characterId: string,
+  campaignId: string
+) {
+  return await db.campaign_Character.delete({
+    where: {
+      characterId_campaignId: {
+        characterId: characterId,
+        campaignId: campaignId,
+      },
+      character: {
+        userId: user_id,
+      },
+      campaign: {
+        Campaign_User: {
+          some: {
+            userId: user_id,
+          },
+        },
+      },
+    },
+  });
+}

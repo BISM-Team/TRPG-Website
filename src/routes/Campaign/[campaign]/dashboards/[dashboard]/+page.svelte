@@ -65,7 +65,7 @@
 
 <Create bind:dashboard={data.dashboard} dashboardId={data.params.dashboard} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 
-<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={`/Campaign/${data.params.campaign}/dashboards`}
+<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={`/campaign/${data.params.campaign}/dashboards`}
         bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
 
 <DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>

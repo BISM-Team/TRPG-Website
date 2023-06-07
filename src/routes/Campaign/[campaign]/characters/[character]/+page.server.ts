@@ -13,7 +13,10 @@ import {
   loadTemplateToDashboard,
   saveDashboardToTemplate,
 } from "$lib/db/dashboard_template.server";
-import { deleteCharacter } from "$lib/db/game_system.server";
+import {
+  deleteCharacter,
+  removeCharacterFromCampaign,
+} from "$lib/db/game_system.server";
 import { fail } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -164,6 +167,22 @@ export const actions: Actions = {
         removedNumVars,
         removedStrVars,
         DashboardType.character_sheet
+      );
+    } catch (exc) {
+      console.error(exc);
+      return fail(500, { server_error: true });
+    }
+  },
+
+  remove: async function ({ locals, request, params }) {
+    const user = getLogin(locals);
+    const data = await request.formData();
+
+    try {
+      await removeCharacterFromCampaign(
+        user.id,
+        params.character,
+        params.campaign
       );
     } catch (exc) {
       console.error(exc);

@@ -10,6 +10,7 @@ export const load = (async ({ fetch, params, url }) => {
   if (!response.ok) throw new Error("unexpected error");
   const data = await response.json();
   if (!data.character || !data.character.dashboard) throw error(404);
+  // @ts-ignore
   const new_cards = data.character.dashboard.cards.map((card) => {
     return replaceCardSource(card, data.character.dashboard);
   });

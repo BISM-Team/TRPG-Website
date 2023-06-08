@@ -22,8 +22,9 @@
   const transition_delay = 0, transition_duration = 300;
   const animate_delay = 0, animate_duration = 20;
   const stiffness = 0.6, damping = 1.0;
-  const trace_refractary_perioid = 200, drag_refractary_period = 500;
+  const trace_refractary_perioid = 400, drag_refractary_period = 700;
 
+  let viewportHeight: number, viewportWidth: number;
   let picked: {
         startingIndex: number;
         index: number;
@@ -44,6 +45,8 @@
     { x_or_width: 0, y_or_height: 0 },
     { stiffness, damping }
   );
+
+  $: console.log("width: ", $actionData.x_or_width, "height: ", $actionData.y_or_height);
 
   function startDragElement(ev: any) {
     cancelAction();
@@ -90,8 +93,8 @@
     };
     actionData = spring(
       {
-        x_or_width: ev.detail.geometry.width,
-        y_or_height: ev.detail.geometry.height,
+        x_or_width: 100*ev.detail.geometry.width/viewportWidth,
+        y_or_height: 100*ev.detail.geometry.height/viewportHeight,
       },
       { stiffness, damping }
     );
@@ -133,8 +136,8 @@
       ev.stopPropagation();
       const mousepos = { x: ev.pageX, y: ev.pageY };
       actionData.set({
-        x_or_width: mousepos.x - resizing.starting_top_left.left,
-        y_or_height: mousepos.y - resizing.starting_top_left.top,
+        x_or_width: 100*(mousepos.x - resizing.starting_top_left.left)/viewportWidth,
+        y_or_height: 100*(mousepos.y - resizing.starting_top_left.top)/viewportHeight,
       });
     }
   }
@@ -206,17 +209,18 @@
   }
 </script>
 
-<svelte:window bind:scrollX={scrollX} bind:scrollY={scrollY} />
-<svelte:document on:pointermove={moveWhileDragging} on:pointerup={confirmAction} on:keydown={keydown} on:pointerleave={cancelAction} />
+<svelte:window bind:scrollX={scrollX} bind:scrollY={scrollY} bind:innerHeight={viewportHeight} bind:innerWidth={viewportWidth}/>
+<svelte:document on:pointermove={moveWhileDragging} on:pointerup={confirmAction} on:keydown={keydown}/>
 
 <div id="grid" style="touch-action: none">
   {#each dashboard.cards as card (card.id)}
     <div class="card"
-      in:scale|global={{ delay: transition_delay, duration: transition_duration }}
-      out:scale|global={{ delay: transition_delay, duration: transition_duration }}
-      animate:flip={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}>
+      in:scale|local={{ delay: transition_delay, duration: transition_duration }}
+      out:scale|local={{ delay: transition_delay, duration: transition_duration }}
+      animate:flip|local={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}
+      >
       {#if picked && card.id === picked.id}
-        <Prototype data={{ id: card.id, width: picked.geometry.width, height: picked.geometry.height, }} />
+        <Prototype data={{ id: card.id, width: card.width, height: card.height, }} />
       {:else if resizing && card.id === resizing.id}
         <Prototype data={{ id: card.id, width: $actionData.x_or_width, height: $actionData.y_or_height }}/>
       {:else}
@@ -237,8 +241,8 @@
     display: flex;
     flex-flow: row wrap;
     align-items: flex-start;
-    gap: 2em;
-    margin: 4em;
+    gap: 4vh 4vw;
+    margin: 5vh 5vw;
   }
 
   .pickedCard {

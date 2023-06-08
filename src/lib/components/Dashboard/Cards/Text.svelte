@@ -11,7 +11,7 @@
 
 <style>
   .content {
-    padding: 2em;
+    padding: 2vh 2vw;
     overflow: auto;
     background-color: white;
     width: 100%;

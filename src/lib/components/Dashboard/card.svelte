@@ -54,7 +54,7 @@
 
 <CardSettings bind:dashboard={dashboard} bind:card={card} bind:disable={disable} bind:edited={edited} bind:this={settings} />
 
-<div id="content{card.id}" class="card-wrapper" style="{picked ? 'cursor: grabbing;' : ''}; touch-action: {edit ? 'none' : 'auto'};">
+<div id="content{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
   {#if edit}
     <button disabled={disable} id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
     <div id="resizeArea" on:pointerdown={resize} />
@@ -62,11 +62,11 @@
       <span class="material-symbols-outlined">settings</span>
     </button>
   {/if}
-    <div style="width:{card.width ? Math.max(6, card.width) + 'px' : default_width}; 
-              height:{card.height ? Math.max(6, card.height) + 'px' : default_height};
-              touch-action: {edit ? 'none' : 'auto'};
-              cursor: {edit ? picked ? 'cursor: grabbing;' : 'grab' : 'default'};"
-              on:pointerdown={pick}>
+  <div  style:width={card.width ? Math.max(10, card.width) + 'vw' : default_width}
+        style:height={card.height ? Math.max(10, card.height) + 'vh' : default_height}
+        style:touch-action={edit ? 'none' : 'auto'}
+        style:cursor={edit ? picked ? 'grabbing' : 'grab' : 'default'}
+        on:pointerdown={pick}>
     <svelte:component this={map[card.type].component} {...card.mod_properties}/>
   </div>
 </div>
@@ -117,8 +117,8 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    height: 1em;
-    width: 1em;
+    height: 1.2em;
+    width: 1.2em;
     cursor: se-resize;
     z-index: 1;
     background: linear-gradient(to top left, rgb(190, 190, 190) 0 40%, transparent 60% 100%);

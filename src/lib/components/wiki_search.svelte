@@ -19,6 +19,7 @@
 </script>
 
 <div id="container">
+  <!-- svelte-ignore a11y-autofocus -->
   <input class="w3-input" type="text" id="searchInput" autofocus bind:value={searchText}>
   {#await initial_load}
     <p>Loading...</p>

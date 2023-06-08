@@ -31,8 +31,8 @@
     disable = true;
     request.cancel();
 
-    const width = request.formData.get("width")?.toString() ?? '200';
-    const height = request.formData.get("height")?.toString() ?? '200';
+    const width = request.formData.get("width")?.toString() ?? '30';
+    const height = request.formData.get("height")?.toString() ?? '20';
 
     const card: CardData = {
       id: createId(),

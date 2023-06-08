@@ -49,7 +49,7 @@
   }
 
   .expand {
-    min-width: 2em;
+    min-width: calc(24px + 1em);
     padding: 0.7em 0.5em;
     display: block;
   }
@@ -62,8 +62,8 @@
 
   .page_name > * {
     display: block;
-    padding: 0.7em 2em;
     width: 100%;
+    padding: 0.7em 2em;
     padding-left: 0;
   }
 

@@ -108,6 +108,7 @@
     const response = await fetch("/api/dashboardTemplates?type=dashboard");
     await propagateErrors(response, new URL(window.location.href));
     if(!response.ok) throw new Error("unexpected error")
+    // @ts-ignore
     templates = (await response.json()).map((template) => {
       const { createdAt, ...rest } = template;
       return {

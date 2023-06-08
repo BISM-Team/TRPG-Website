@@ -9,6 +9,7 @@
   import WikiSearch from "$lib/components/wiki_search.svelte";
   import { page } from "$app/stores";
   import SideBarEntry from "./sideBarEntry.svelte";
+  import { slide } from "svelte/transition";
 
   export let data: PageData;
   export let form: ActionData;
@@ -97,11 +98,13 @@
 {/if}
 
 <div class="layoutWithSidebar">
-  <div class="sidebarContainer w3-padding-32 w3-teal" style:display={showSidebar ? "block" : "none"}>
-    {#each data.campaign.wikiTree.children as child}
-      <SideBarEntry node={child}/>
-    {/each}
-  </div>
+  {#if showSidebar}
+    <div class="sidebarContainer w3-padding-32 w3-teal" transition:slide={{ axis: "x" }}>
+      {#each data.campaign.wikiTree.children as child}
+        <SideBarEntry node={child}/>
+      {/each}
+    </div>
+  {/if}
   <div class="w3-container" id="page">
     {#if edit}
       {#if form?.creation_conflict || form?.update_conflict} 

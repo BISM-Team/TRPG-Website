@@ -1,12 +1,19 @@
-<script lang="ts">
+<script lang="ts" context="module">
+  export enum Type {
+    Character = "Character",
+    Page = "Page"
+  };
+</script>
+
+<script lang="ts" >
+  export let type: Type;
   export let source: string;
-  export let active: boolean;
 </script>
 
 <div class="content w3-card-4">
   <p>Mandi</p>
+  <p>Type: {type}</p>
   <p>Source: {source}</p>
-  <p>Active: {active ? "yes" : "no"}</p>
 </div>
 
 <style>

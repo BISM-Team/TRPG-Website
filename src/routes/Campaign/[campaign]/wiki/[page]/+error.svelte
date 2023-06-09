@@ -11,7 +11,6 @@
 
   afterNavigate(({ from, to }) => {
     previousUrl = from !== to ? from?.url.toString() : "./index";
-    console.log(from?.url.pathname.toString(), to?.url.pathname.toString());
     if (from?.url.pathname.toString().endsWith(`/index`) && to?.url.toString().endsWith(`/index`)) {
       goto("/campaign/" + $page.params.campaign);
     }

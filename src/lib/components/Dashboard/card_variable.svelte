@@ -23,13 +23,13 @@
     {/each}
   </select>
   {:else}
-    <div class="nested">
+    <div class="nested w3-border">
       {#each Object.keys(props[key]) as _key, index}
         <div class="nested_field">
           {#if Array.isArray(props[key])}
             <button type="button" class="w3-button add_btn" on:click={() => { props[key] = props[key].toSpliced(index, 1) }}><span class="material-symbols-outlined" style:display="block">Remove</span></button>
           {/if}
-          <svelte:self key={_key} {selected_type} props={props[key]} defaultProps={Array.isArray(defaultProps) ? defaultProps[0] : defaultProps[key]}/>
+          <svelte:self key={_key} {selected_type} props={props[key]} defaultProps={(defaultProps[key] ?? defaultProps[0])}/>
         </div>
       {/each}
       {#if Array.isArray(props[key])}
@@ -44,7 +44,6 @@
 <style>
   .nested {
     margin: 1em 1em;
-    border: 1px solid #ccc;
     padding: 0.5em 1em;
   }
 

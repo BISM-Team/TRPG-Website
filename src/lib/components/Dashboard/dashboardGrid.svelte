@@ -46,8 +46,6 @@
     { stiffness, damping }
   );
 
-  $: console.log("width: ", $actionData.x_or_width, "height: ", $actionData.y_or_height);
-
   function startDragElement(ev: any) {
     cancelAction();
     const index = dashboard.cards.findIndex(

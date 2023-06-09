@@ -12,15 +12,11 @@ function flattenTree(tree: PrismaJson.WikiTreeNode) {
 export const GET = async function ({ url, params, fetch }) {
   const modifiable =
     url.searchParams.get("modifiable")?.toLowerCase() === "true";
-  console.log(
-    "ensomma" + `/api/campaign/${params.campaign}?modifiable=${modifiable}`
-  );
   const response = await fetch(
     `/api/campaign/${params.campaign}?modifiable=${modifiable}`
   );
   if (!response.ok) return response;
   const campaign = await response.json();
-  console.log(campaign.wikiTree);
 
   const result = flattenTree(campaign.wikiTree);
 

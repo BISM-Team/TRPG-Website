@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"prisma": {
-		"seed": "vite-node src/seed.ts"
+		"seed": "vite-node prisma/seed.ts"
 	},
 	"scripts": {
 		"dev": "vite dev",

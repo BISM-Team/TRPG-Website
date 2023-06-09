@@ -1,15 +1,18 @@
 import { Role, type Campaign, Prisma } from "@prisma/client";
 import { db } from "./db.server";
+import { exclude } from "../utils";
 
 export async function getUserCampaigns(user_id: string) {
-  return await db.campaign_User.findMany({
-    where: {
-      userId: user_id,
-    },
-    select: {
-      campaign: true,
-    },
-  });
+  return (
+    await db.campaign_User.findMany({
+      where: {
+        userId: user_id,
+      },
+      select: {
+        campaign: true,
+      },
+    })
+  ).map((obj) => exclude(obj.campaign, ["wikiTree"]));
 }
 
 export async function getUserCampaign(user_id: string, campaignId: string) {

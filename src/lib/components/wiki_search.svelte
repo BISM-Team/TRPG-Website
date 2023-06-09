@@ -26,12 +26,12 @@
   {:then results} 
     <ul class="w3-ul">
       {#key searchText}
-        {#each results.filter((page) => page.name.toLowerCase().includes(searchText.trim().toLowerCase())) as page}
-          <a href={"./"+page.name} on:click={close}>
-            <li>{page.name}</li>
+        {#each results.filter((page) => page.toLowerCase().includes(searchText.trim().toLowerCase())) as page}
+          <a href={"./"+page} on:click={close}>
+            <li>{page}</li>
           </a>
         {/each}
-        {#if results.findIndex((page) => page.name.toLowerCase()===searchText.trim().toLowerCase()) === -1 && searchText}
+        {#if results.findIndex((page) => page.toLowerCase()===searchText.trim().toLowerCase()) === -1 && searchText}
         <a data-sveltekit-preload-data="off" data-sveltekit-preload-code="hover" href={"./"+searchText.trim()} on:click={close} class="w3-text-gray">
           <li>
             {searchText.trim()}

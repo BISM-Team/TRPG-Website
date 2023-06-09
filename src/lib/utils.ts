@@ -89,3 +89,13 @@ export function replaceCardSource(
   new_card.mod_properties = JSON.parse(mod_src);
   return new_card;
 }
+
+export function exclude<T, Key extends keyof T>(
+  object: T,
+  keys: Key[]
+): Omit<T, Key> {
+  for (let key of keys) {
+    delete object[key];
+  }
+  return object;
+}

@@ -10,8 +10,8 @@
 		"./tests/**/*.js",
 		"./tests/**/*.ts",
 		"./tests/**/*.svelte",
-    "./prisma/jsonTypes.ts"
-  ],
+    "./prisma/jsonTypes.ts", 
+    "prisma/seed.ts"  ],
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,

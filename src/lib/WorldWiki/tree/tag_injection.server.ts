@@ -1,5 +1,5 @@
 import { getTags, isTagsDirective, makeTagHeadingDirective } from "./tags";
-import type { Campaign } from "@prisma/client";
+import type { Campaign, Heading, User } from "@prisma/client";
 import { getPage, modifyPage } from "$lib/db/page.server";
 import { allowed_page_names_regex_whole_word } from "../constants";
 import { parseSource } from "./tree";
@@ -201,7 +201,7 @@ function visit<T>(
   for (const child of node.children) {
     if (!result) {
       const _result = visit(child, callback);
-      if (result) result = _result;
+      result = _result;
     }
   }
   return result;
@@ -248,7 +248,11 @@ export async function handleTags(
   nextTree: Root,
   user_id: string,
   campaign: Campaign,
-  deleting: boolean
+  deleting: boolean,
+  headings: (Heading & {
+    viewers: string[];
+    modifiers: string[];
+  })[]
 ) {
   if (nextPage.toLowerCase().trim() === "index") return;
 
@@ -263,7 +267,17 @@ export async function handleTags(
     modified: boolean;
   }[] = [];
 
-  let deletedTag: PrismaJson.WikiTreeNode = { name: nextPage, children: [] };
+  let deletedTag: PrismaJson.WikiTreeNode = {
+    name: nextPage,
+    viewers: headings[0].viewers,
+    modifiers: headings[0].modifiers,
+    children: [],
+  };
+
+  if (tags_before.length === 0) {
+    const tmp = spliceTagFrom(previousPage, "Unsorted", campaign);
+    deletedTag = tmp || deletedTag;
+  }
 
   for (const tag of tags_before) {
     const splitted_tag = tag.split("#");
@@ -280,7 +294,6 @@ export async function handleTags(
     if (!tags_after.find((_tag) => _tag === tag)) {
       deletedTag =
         spliceTagFrom(previousPage, splitted_tag[0], campaign) || deletedTag;
-      deletedTag.name = nextPage;
       if (
         await delete_tag(
           splitted_tag[1] || page.headings[0].text,
@@ -305,6 +318,9 @@ export async function handleTags(
         continue;
       }
 
+      deletedTag.name = nextPage;
+      deletedTag.viewers = headings[0].viewers;
+      deletedTag.modifiers = headings[0].modifiers;
       insertTagInto(deletedTag, splitted_tag[0], campaign);
 
       if (
@@ -315,7 +331,7 @@ export async function handleTags(
         )
       )
         page.modified = true;
-    } else if (previousPage !== nextPage) {
+    } else {
       const page = await getPageAndCache(page_cache, splitted_tag[0], campaign);
       if (!page) {
         console.warn("non-existing tag page: " + splitted_tag[0]);
@@ -324,9 +340,13 @@ export async function handleTags(
 
       let tag_node = spliceTagFrom(previousPage, splitted_tag[0], campaign) || {
         name: nextPage,
+        viewers: headings[0].viewers,
+        modifiers: headings[0].modifiers,
         children: [],
       };
       tag_node.name = nextPage;
+      tag_node.viewers = headings[0].viewers;
+      tag_node.modifiers = headings[0].modifiers;
       insertTagInto(tag_node, splitted_tag[0], campaign);
 
       if (
@@ -339,11 +359,6 @@ export async function handleTags(
       )
         page.modified = true;
     }
-  }
-
-  if (tags_before.length === 0) {
-    deletedTag =
-      spliceTagFrom(previousPage, "Unsorted", campaign) || deletedTag;
   }
 
   if (tags_after.length === 0 && !deleting) {

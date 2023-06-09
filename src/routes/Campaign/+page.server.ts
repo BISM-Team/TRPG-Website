@@ -16,9 +16,21 @@ export const actions: Actions = {
         name: capitalizeFirstLetter(name),
         wikiTree: {
           name: "root",
+          viewers: ["all"],
+          modifiers: ["all"],
           children: [
-            { name: "Index", children: [] },
-            { name: "Unsorted", children: [] },
+            {
+              name: "Index",
+              viewers: ["all"],
+              modifiers: ["all"],
+              children: [],
+            },
+            {
+              name: "Unsorted",
+              viewers: ["all"],
+              modifiers: ["all"],
+              children: [],
+            },
           ],
         },
       });

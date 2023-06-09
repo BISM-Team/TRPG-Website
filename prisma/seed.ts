@@ -3,6 +3,7 @@ import {
   type Ability,
   type Effect,
   type Item,
+  type User,
 } from "@prisma/client";
 
 const db = new PrismaClient();
@@ -105,6 +106,13 @@ const prep_modifier_2: Omit<Item, "id"> & {
   ],
 };
 
+const all_user: Omit<User, "createdAt"> = {
+  id: "all",
+  name: "all",
+  email: "",
+  password: "",
+};
+
 async function main() {
   await db.ability.deleteMany({});
   await db.item.deleteMany({});
@@ -158,6 +166,15 @@ async function main() {
       });
     })
   );
+
+  await db.user.upsert({
+    where: {
+      id: all_user.id,
+      email: all_user.email,
+    },
+    create: all_user,
+    update: all_user,
+  });
 }
 
 main()

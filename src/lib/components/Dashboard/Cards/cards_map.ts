@@ -1,6 +1,6 @@
 import type { ComponentProps, ComponentType, SvelteComponent } from "svelte";
 import type { CardType } from "@prisma/client";
-import Who_This from "./Who_This.svelte";
+import Healthbar from "./Healthbar.svelte";
 import Page from "./Page.svelte";
 import Property from "./Property.svelte";
 
@@ -24,8 +24,8 @@ export const map: {
       source: "",
     } satisfies Props<Property>,
   },
-  who_this: {
-    component: Who_This,
-    props: {} satisfies Props<Who_This>,
+  healthbar: {
+    component: Healthbar,
+    props: {} satisfies Props<Healthbar>,
   },
 };

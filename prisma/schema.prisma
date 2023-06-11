@@ -179,7 +179,7 @@ model StringVariable {
 enum CardType {
   page
   property
-  who_this
+  healthbar
 }
 
 model CardData {

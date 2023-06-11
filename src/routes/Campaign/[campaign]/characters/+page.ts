@@ -1,9 +1,9 @@
 import { propagateErrors } from "$lib/utils";
 import type { PageLoad } from "./$types";
 
-export const load = (async ({ fetch, url }) => {
-  const response = await fetch("/api/characters");
+export const load = (async ({ fetch, url, params }) => {
+  const response = await fetch(`/api/campaign/${params.campaign}/characters`);
   await propagateErrors(response, url);
   if (!response.ok) throw new Error("unexpected error");
-  return { characters: (await response.json()).characters };
+  return { characters: (await response.json()).characters, params };
 }) satisfies PageLoad;

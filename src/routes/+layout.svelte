@@ -13,8 +13,8 @@
   <h1>BISM Website</h1>
   <nav>
     <a href="/" class="w3-block w3-button">Home</a>
-    <a href="/Characters" class="w3-block w3-button">Characters</a>
-    <a href="/Campaign" class="w3-block w3-button">Campaign</a>
+    <a href="/characters" class="w3-block w3-button">Characters</a>
+    <a href="/campaign" class="w3-block w3-button">Campaign</a>
     {#if data.auth}
       <button class="w3-block w3-button" on:click={logout}>Logout</button>
     {:else}

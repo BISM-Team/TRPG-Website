@@ -1,6 +1,6 @@
 import type { ComponentProps } from "svelte";
-import Text from "./Text.svelte";
 import type { CardType } from "@prisma/client";
+import Text, { Type } from "./Text.svelte";
 import Other from "./Other.svelte";
 import Healthbar from "./Healthbar.svelte";
 
@@ -13,8 +13,11 @@ export const map: {
   text: {
     component: Text,
     props: {
+      type: {
+        type: "enum",
+        enum: Type,
+      },
       source: "",
-      active: false,
     } satisfies ComponentProps<Text>,
   },
   other: {

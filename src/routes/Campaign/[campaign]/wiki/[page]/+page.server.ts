@@ -10,12 +10,12 @@ import {
   modifyPage,
 } from "$lib/db/page.server";
 import { getHeadingsDb } from "$lib/WorldWiki/tree/heading";
-import { mergeTrees, handleTags } from "$lib/WorldWiki/tree/merge.server";
+import { mergeTrees } from "$lib/WorldWiki/tree/merge.server";
 import { capitalizeFirstLetter } from "$lib/utils";
-import type { Prisma } from "@prisma/client";
 import { getLogin } from "$lib/utils.server";
 import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
 import { createId } from "@paralleldrive/cuid2";
+import { handleTags } from "$lib/WorldWiki/tree/tag_injection.server";
 
 export const actions: Actions = {
   create: async ({ locals, params }) => {
@@ -28,6 +28,7 @@ export const actions: Actions = {
 
     const tree = await parseSource(`# ${params.page}`, user.id);
     try {
+      const headings = getHeadingsDb(tree, params.page, campaign.id);
       await handleTags(
         params.page,
         { type: "root", children: [] },
@@ -35,14 +36,10 @@ export const actions: Actions = {
         tree,
         user.id,
         campaign,
-        false
+        false,
+        headings
       );
-      await createPage(
-        params.page,
-        campaign,
-        tree,
-        getHeadingsDb(tree, params.page, campaign.id)
-      );
+      await createPage(params.page, campaign, tree, headings);
     } catch (exc) {
       console.error(exc);
       return fail(409, { creation_conflict: true });
@@ -90,7 +87,8 @@ export const actions: Actions = {
         mergedTree,
         user.id,
         campaign,
-        false
+        false,
+        headings
       );
 
       await modifyPage(
@@ -129,7 +127,15 @@ export const actions: Actions = {
           { type: "root", children: [] },
           user.id,
           campaign,
-          true
+          true,
+          old_page.headings.map((heading) => {
+            const { viewers, modifiers, ...rest } = heading;
+            return {
+              ...rest,
+              viewers: viewers.map((viewer) => viewer.id),
+              modifiers: modifiers.map((modifier) => modifier.id),
+            };
+          })
         );
       } else console.warn("page to delete not found");
       await deletePage(params.page, campaign, prev_hash);

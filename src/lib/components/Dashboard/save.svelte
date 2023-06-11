@@ -3,13 +3,14 @@
   import { enhance } from "$app/forms";
   import { stringify } from "devalue";
   import { invalidateAll } from "$app/navigation";
-  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
+  import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
   import type { SubmitFunction } from "@sveltejs/kit";
 
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
-    numericVariables: NumericVariable[]
+    numericVariables: NumericVariable[],
+    character: Character | null
   };
   export let disable: boolean;
   export let edit: boolean;

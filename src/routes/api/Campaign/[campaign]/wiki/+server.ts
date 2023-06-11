@@ -1,20 +1,26 @@
-import { getUserCampaignWithGmInfo } from "$lib/db/campaign.server";
-import { getModifiablePages, getViewablePages } from "$lib/db/page.server";
-import { getLogin } from "$lib/utils.server";
-import { error, json } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
-export const GET = async function ({ locals, url, params }) {
-  const user = getLogin(locals);
-  const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
+function flattenTree(tree: PrismaJson.WikiTreeNode) {
+  let result: string[] = [tree.name];
+  tree.children.forEach((child) => {
+    result = result.concat(flattenTree(child));
+  });
+  return result;
+}
 
-  if (!campaign) throw error(404);
+export const GET = async function ({ url, params, fetch }) {
+  const modifiable =
+    url.searchParams.get("modifiable")?.toLowerCase() === "true";
+  const response = await fetch(
+    `/api/campaign/${params.campaign}?modifiable=${modifiable}`
+  );
+  if (!response.ok) return response;
+  const campaign = await response.json();
 
-  const result = url.searchParams.get("modifiable")
-    ? await getModifiablePages(user.id, campaign)
-    : await getViewablePages(user.id, campaign);
+  const result = flattenTree(campaign.wikiTree);
 
   return json({
-    pages: result,
+    pages: result.filter((page) => page !== "root" && page !== "Unsorted"),
   });
 } satisfies RequestHandler;

@@ -6,13 +6,13 @@
       name: "Characters",
       description:
         "View and edit your characters, or create new ones to use in campaigns",
-      link: "/Characters",
+      link: "/characters",
     },
     {
       name: "Campaign",
       description:
         "Explore and enter all the campaigns you have been invited to or created",
-      link: "/Campaign",
+      link: "/campaign",
     },
   ];
 </script>

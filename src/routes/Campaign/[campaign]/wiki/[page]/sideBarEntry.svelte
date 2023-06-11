@@ -15,11 +15,11 @@
           </span>
       </button>
       {/if}
-      <div class="page_name" style:padding-left="{node.children.length ? 0 : 0.7}em">
+      <div class="page_name">
         {#if node.name.toLowerCase().trim() !== "unsorted"}
-          <a class="page_name" href="{node.name}">{capitalizeFirstLetter(node.name)}</a>
+          <a href="{node.name}" style:padding-left="{node.children.length ? 0 : 1.0}em">{capitalizeFirstLetter(node.name)}</a>
         {:else}
-          <div class="page_name">{capitalizeFirstLetter(node.name)}</div>
+          <div>{capitalizeFirstLetter(node.name)}</div>
         {/if}
       </div>
     </div>
@@ -43,12 +43,14 @@
     flex-direction: row;
     justify-content: stretch;
     align-items: center;
-    margin: 0;
     font-size: medium;
+    margin: 0;
+    padding: 0;
   }
 
   .expand {
-    min-width: 2em;
+    min-width: calc(24px + 1em);
+    padding: 0.7em 0.5em;
     display: block;
   }
 
@@ -58,9 +60,11 @@
     text-align: left;
   }
 
-  .page_name > a {
+  .page_name > * {
     display: block;
     width: 100%;
+    padding: 0.7em 2em;
+    padding-left: 0;
   }
 
   button {

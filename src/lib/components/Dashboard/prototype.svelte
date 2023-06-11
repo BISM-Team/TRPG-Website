@@ -9,9 +9,9 @@
     id="prototype-content{data.id}"
     class="prototype-content w3-card-4"
     style="width:{data.width
-        ? Math.max(6, data.width) + 'px'
+        ? Math.max(10, data.width) + 'vw'
         : default_width}; height:{data.height
-        ? Math.max(6, data.height) + 'px'
+        ? Math.max(10, data.height) + 'vh'
         : default_height}"
 />
 

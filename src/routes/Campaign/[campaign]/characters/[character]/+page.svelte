@@ -4,6 +4,7 @@
   import { enhance } from "$app/forms";
   import DashboardGrid from "$lib/components/Dashboard/dashboardGrid.svelte";
   import Menu from "$lib/components/Dashboard/menu.svelte";
+  import Delete from "$lib/components/Dashboard/delete.svelte";
   import Create from "$lib/components/Dashboard/create.svelte";
   import Save from "$lib/components/Dashboard/save.svelte";
   import Modal from "$lib/components/modal.svelte";
@@ -55,8 +56,8 @@
 
 <Create bind:dashboard={data.dashboard} dashboardId={data.dashboard.id} bind:edited={edited} bind:disable={disable} bind:this={create}/>
 
-<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={'/characters'}
-        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
+<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={`/campaign/${data.params.campaign}/characters`}
+        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} removeFromCampaign={true}/>
 
 <DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>
 

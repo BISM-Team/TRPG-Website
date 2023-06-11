@@ -8,6 +8,11 @@
   import Save from "$lib/components/Dashboard/save.svelte";
   import Modal from "$lib/components/modal.svelte";
   import ErrorBar from "$lib/components/error_bar.svelte";
+  import { onMount, setContext } from "svelte";
+  import { context } from "$lib/components/Dashboard/context";
+  import { writable } from "svelte/store";
+  import type { Heading } from "@prisma/client";
+  import type { Root } from "mdast";
 
   export let data: PageData;
   export let form: ActionData;
@@ -22,6 +27,26 @@
   let removedCards: string[] = [];
   let removedNumVar: string[] = [];
   let removedStrVar: string[] = [];
+
+  const pages = writable<Map<string, { 
+    hash: string, 
+    headings: (Omit<Heading, "index"> & {
+      viewers: string[];
+      modifiers: string[];
+    })[], 
+    tree: Root,
+    user_id: string, 
+    gm_id: string, 
+    ref_count: number 
+  }>>(new Map());
+
+  setContext(context.pages, pages);
+
+  function resetPages() {
+    pages.set(new Map());
+  }
+
+  onMount(resetPages);
 
   function closeError() {
     if(form?.client_error) form.client_error = false;
@@ -50,6 +75,16 @@
   </button>
 </Toolbar>
 
+<Save   dashboard={data.dashboard} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
+        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
+
+<Create bind:dashboard={data.dashboard} dashboardId={data.params.dashboard} bind:edited={edited} bind:disable={disable} bind:this={create}/>
+
+<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={`/campaign/${data.params.campaign}/dashboards`}
+        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
+
+<DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>
+
 {#if form?.client_error || form?.server_error}
   <Modal disable={disable} on:close={closeError}>
     {#if form?.client_error}
@@ -59,13 +94,3 @@
     {/if}
   </Modal>
 {/if}
-
-<Save   dashboard={data.dashboard} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
-        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
-
-<Create bind:dashboard={data.dashboard} dashboardId={data.params.dashboard} bind:edited={edited} bind:disable={disable} bind:this={create}/>
-
-<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={`/Campaign/${data.params.campaign}/dashboards`}
-        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
-
-<DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>

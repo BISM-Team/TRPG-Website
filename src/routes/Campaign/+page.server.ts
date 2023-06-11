@@ -1,7 +1,8 @@
 import { createUserCampaign } from "$lib/db/campaign.server";
 import { capitalizeFirstLetter } from "$lib/utils";
 import { getLogin } from "$lib/utils.server";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 
 export const actions: Actions = {
   create: async function ({ locals, request }) {
@@ -15,9 +16,21 @@ export const actions: Actions = {
         name: capitalizeFirstLetter(name),
         wikiTree: {
           name: "root",
+          viewers: ["all"],
+          modifiers: ["all"],
           children: [
-            { name: "Index", children: [] },
-            { name: "Unsorted", children: [] },
+            {
+              name: "Index",
+              viewers: ["all"],
+              modifiers: ["all"],
+              children: [],
+            },
+            {
+              name: "Unsorted",
+              viewers: ["all"],
+              modifiers: ["all"],
+              children: [],
+            },
           ],
         },
       });

@@ -6,11 +6,15 @@ declare global {
 
     type WikiTree = {
       name: "root";
+      viewers: ["all"];
+      modifiers: ["all"];
       children: WikiTreeNode[];
     };
 
     type WikiTreeNode = {
       name: string;
+      viewers: string[];
+      modifiers: string[];
       children: WikiTreeNode[];
     };
 

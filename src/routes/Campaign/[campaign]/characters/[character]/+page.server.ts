@@ -1,5 +1,4 @@
 import { updateCards, updateDashboard } from "$lib/db/dashboard.server";
-import { fail } from "@sveltejs/kit";
 import { getLogin } from "$lib/utils.server";
 import { parse } from "devalue";
 import {
@@ -14,7 +13,11 @@ import {
   loadTemplateToDashboard,
   saveDashboardToTemplate,
 } from "$lib/db/dashboard_template.server";
-import { deleteCharacter } from "$lib/db/game_system.server";
+import {
+  deleteCharacter,
+  removeCharacterFromCampaign,
+} from "$lib/db/game_system.server";
+import { fail } from "@sveltejs/kit";
 
 export const actions: Actions = {
   save: async function ({ request, locals }) {
@@ -164,6 +167,21 @@ export const actions: Actions = {
         removedNumVars,
         removedStrVars,
         DashboardType.character_sheet
+      );
+    } catch (exc) {
+      console.error(exc);
+      return fail(500, { server_error: true });
+    }
+  },
+
+  remove: async function ({ locals, request, params }) {
+    const user = getLogin(locals);
+
+    try {
+      await removeCharacterFromCampaign(
+        user.id,
+        params.character,
+        params.campaign
       );
     } catch (exc) {
       console.error(exc);

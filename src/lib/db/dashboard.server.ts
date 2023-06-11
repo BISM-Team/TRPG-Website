@@ -28,6 +28,7 @@ export async function getDashboard(
     include: {
       numericVariables: true,
       stringVariables: true,
+      character: true,
       cards: {
         orderBy: {
           index: "asc",

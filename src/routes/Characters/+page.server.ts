@@ -7,7 +7,8 @@ import { db } from "$lib/db/db.server";
 import { createCharacter } from "$lib/db/game_system.server";
 import { getLogin } from "$lib/utils.server";
 import { DashboardType } from "@prisma/client";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 
 export const actions: Actions = {
   create: async function ({ locals, request, params }) {

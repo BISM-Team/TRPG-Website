@@ -5,12 +5,13 @@
   import Prototype from "./prototype.svelte";
   import { spring, type Spring } from "svelte/motion";
   import { arraymove } from "$lib/utils";
-  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
+  import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
 
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
-    numericVariables: NumericVariable[]
+    numericVariables: NumericVariable[],
+    character: Character | null
   };
   export let disable: boolean;
   export let edited: boolean;
@@ -213,9 +214,9 @@
 <div id="grid" style="touch-action: none">
   {#each dashboard.cards as card (card.id)}
     <div class="card"
-      in:scale|local={{ delay: transition_delay, duration: transition_duration }}
-      out:scale|local={{ delay: transition_delay, duration: transition_duration }}
-      animate:flip|local={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}
+      in:scale={{ delay: transition_delay, duration: transition_duration }}
+      out:scale={{ delay: transition_delay, duration: transition_duration }}
+      animate:flip={{ delay: animate_delay, duration: (d) => Math.sqrt(d) * animate_duration }}
       >
       {#if picked && card.id === picked.id}
         <Prototype data={{ id: card.id, width: card.width, height: card.height, }} />

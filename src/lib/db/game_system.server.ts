@@ -38,6 +38,7 @@ export async function getCharacter(
         ? {
             include: {
               cards: true,
+              character: true,
               stringVariables: true,
               numericVariables: true,
             },
@@ -65,6 +66,45 @@ export async function createCharacter(
   return await db.character.create({
     data: {
       name: character.name,
+      userId: user_id,
+      properties: tree.scope,
+      dashboardId: dashboardId,
+      abilities: {
+        connect: character.abilities.map((ability) => ({ id: ability.id })),
+      },
+      items: {
+        connect: character.items.map((item) => ({ id: item.id })),
+      },
+      Campaign_Character: campaignId
+        ? {
+            create: {
+              campaignId: campaignId,
+            },
+          }
+        : undefined,
+    },
+  });
+}
+
+export async function createCharacterFromCharacter(
+  user_id: string,
+  name: string,
+  dashboardId: string,
+  character: Character & {
+    abilities: (Ability & {
+      effects: Effect[];
+    })[];
+    items: (Item & {
+      effects: Effect[];
+    })[];
+  },
+  campaignId?: string
+) {
+  const tree = buildTree(character);
+  tree.invoke();
+  return await db.character.create({
+    data: {
+      name: name,
       userId: user_id,
       properties: tree.scope,
       dashboardId: dashboardId,

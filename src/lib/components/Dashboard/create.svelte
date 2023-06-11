@@ -1,7 +1,7 @@
 <script lang="ts">
   import Modal from "$lib/components/modal.svelte";
   import { enhance } from "$app/forms";
-  import type { CardData, Dashboard, NumericVariable, StringVariable, CardType } from "@prisma/client";
+  import type { CardData, Dashboard, NumericVariable, StringVariable, CardType, Character } from "@prisma/client";
   import { createId } from "@paralleldrive/cuid2"
   import { capitalizeFirstLetter, replaceCardSource } from "$lib/utils";
   import type { SubmitFunction } from "@sveltejs/kit";
@@ -11,7 +11,8 @@
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
-    numericVariables: NumericVariable[]
+    numericVariables: NumericVariable[],
+    character: Character | null
   };
   export let dashboardId: string;
   export let disable: boolean;

@@ -2,7 +2,7 @@
   import Card from "$lib/components/card.svelte";
   import Modal from "$lib/components/modal.svelte";
   import { propagateErrors } from "$lib/utils";
-  import type { CardData, Dashboard, DashboardTemplate, NumericVariable, StringVariable } from "@prisma/client";
+  import type { CardData, Character, Dashboard, DashboardTemplate, NumericVariable, StringVariable } from "@prisma/client";
   import { enhance } from "$app/forms";
   import { stringify } from "devalue";
   import { invalidateAll } from "$app/navigation";
@@ -14,7 +14,8 @@
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
-    numericVariables: NumericVariable[]
+    numericVariables: NumericVariable[],
+    character: Character | null
   };
   export let deleteRedirectUrl: string;
   export let disable: boolean;

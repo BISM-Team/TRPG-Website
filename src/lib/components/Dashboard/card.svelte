@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardData, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
+  import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
   import { createEventDispatcher } from "svelte";
   import { map } from "./Cards/cards_map";
   import CardSettings from "./card_settings.svelte";
@@ -11,7 +11,8 @@
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
-    numericVariables: NumericVariable[]
+    numericVariables: NumericVariable[],
+    character: Character | null
   };
   export let card: CardData & { mod_properties: any };
   export let picked: boolean;
@@ -67,7 +68,7 @@
         style:touch-action={edit ? 'none' : 'auto'}
         style:cursor={edit ? picked ? 'grabbing' : 'grab' : 'default'}
         on:pointerdown={pick}>
-    <svelte:component this={map[card.type].component} {...card.mod_properties}/>
+    <svelte:component this={map[card.type].component} {...card.mod_properties} {dashboard}/>
   </div>
 </div>
 

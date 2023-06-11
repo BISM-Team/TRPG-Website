@@ -177,8 +177,8 @@ model StringVariable {
 }
 
 enum CardType {
-  text
-  other
+  page
+  property
   who_this
 }
 

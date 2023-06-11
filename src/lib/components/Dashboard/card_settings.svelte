@@ -58,7 +58,7 @@
       </select>
 
       {#each Object.keys(map[selected_type].props) as key}
-        <CardVariable {key} {selected_type} bind:props={props} defaultProps={map[selected_type].props}/>
+        <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
       {/each}
             
       <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>

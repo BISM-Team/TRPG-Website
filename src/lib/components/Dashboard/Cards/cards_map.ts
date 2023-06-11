@@ -1,45 +1,31 @@
-import type { ComponentProps } from "svelte";
+import type { ComponentProps, ComponentType, SvelteComponent } from "svelte";
 import type { CardType } from "@prisma/client";
-import Text, { Type } from "./Text.svelte";
-import Other from "./Other.svelte";
 import Who_This from "./Who_This.svelte";
+import Page from "./Page.svelte";
+import Property from "./Property.svelte";
+
+type Props<T extends SvelteComponent> = Omit<ComponentProps<T>, "dashboard">;
 
 export const map: {
   [Type in CardType]: {
-    component: any;
-    props: { [key: string]: any };
+    component: ComponentType;
+    props: any;
   };
 } = {
-  text: {
-    component: Text,
+  page: {
+    component: Page,
     props: {
-      type: {
-        type: "enum",
-        enum: Type,
-      },
       source: "",
-    } satisfies ComponentProps<Text>,
+    } satisfies Props<Page>,
   },
-  other: {
-    component: Other,
+  property: {
+    component: Property,
     props: {
-      url: "",
-      zoom: 1,
-      obj: {
-        first: "",
-        second: true,
-      },
-      arr: [""],
-      char_arr: [
-        {
-          name: "",
-          property: "PASS_PERC",
-        },
-      ],
-    } satisfies ComponentProps<Other>,
+      source: "",
+    } satisfies Props<Property>,
   },
   who_this: {
     component: Who_This,
-    props: {},
+    props: {} satisfies Props<Who_This>,
   },
 };

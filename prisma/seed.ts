@@ -15,19 +15,19 @@ const PrepareSpells: Omit<Ability, "id"> & {
   effects: [
     {
       fn: `
-      scope['character.preparable_spells'] = 0; 
+      scope['preparable_spells'] = 0; 
       scope['stat'] = 3;`,
-      modifies: "character.preparable_spells stat",
+      modifies: "preparable_spells stat",
       reads: "",
       priority: 0,
     },
     {
-      fn: `scope["character.preparable_spells"] =
-          scope["character.level"] +
-          scope["character.INT"] +
-          scope["character.DEX"];`,
-      modifies: "character.preparable_spells",
-      reads: "character.level character.INT",
+      fn: `scope["preparable_spells"] =
+          scope["level"] +
+          scope["INT"] +
+          scope["DEX"];`,
+      modifies: "preparable_spells",
+      reads: "level INT",
       priority: 0,
     },
   ],
@@ -39,11 +39,11 @@ const character_def: Omit<Ability, "id"> & {
   name: "Character Definition",
   effects: [
     {
-      fn: `scope["character.level"] = 2;
-      scope["character.INT"] = 3;
-      scope["character.CAR"] = 0;
-      scope["character.DEX"] = 2;`,
-      modifies: "character.level character.INT character.CAR character.DEX",
+      fn: `scope["level"] = 2;
+      scope["INT"] = 3;
+      scope["CAR"] = 0;
+      scope["DEX"] = 2;`,
+      modifies: "level INT CAR DEX",
       reads: "",
       priority: 0,
     },
@@ -56,9 +56,9 @@ const nonsense_effect: Omit<Ability, "id"> & {
   name: "no-sense effect",
   effects: [
     {
-      fn: `scope["character.INT"] = scope["character.CAR"] + 2`,
-      modifies: "character.INT",
-      reads: "character.CAR",
+      fn: `scope["INT"] = scope["CAR"] + 2`,
+      modifies: "INT",
+      reads: "CAR",
       priority: 0,
     },
   ],
@@ -70,8 +70,8 @@ const nonsense_effect_2: Omit<Ability, "id"> & {
   name: "no-sense effect 2",
   effects: [
     {
-      fn: `scope["character.CAR"] = scope["stat"]`,
-      modifies: "character.CAR",
+      fn: `scope["CAR"] = scope["stat"]`,
+      modifies: "CAR",
       reads: "stat",
       priority: 0,
     },
@@ -84,9 +84,9 @@ const prep_modifier: Omit<Item, "id"> & {
   name: "Spellcaster's tome",
   effects: [
     {
-      fn: `scope["character.preparable_spells"] += 2`,
-      modifies: "character.preparable_spells",
-      reads: "character.preparable_spells",
+      fn: `scope["preparable_spells"] += 2`,
+      modifies: "preparable_spells",
+      reads: "preparable_spells",
       priority: 0,
     },
   ],
@@ -98,9 +98,9 @@ const prep_modifier_2: Omit<Item, "id"> & {
   name: "Spellcaster's Wand",
   effects: [
     {
-      fn: `scope["character.preparable_spells"] *= 2`,
-      modifies: "character.preparable_spells",
-      reads: "character.preparable_spells",
+      fn: `scope["preparable_spells"] *= 2`,
+      modifies: "preparable_spells",
+      reads: "preparable_spells",
       priority: 1,
     },
   ],

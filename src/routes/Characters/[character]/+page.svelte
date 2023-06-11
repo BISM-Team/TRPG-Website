@@ -50,18 +50,18 @@
   </button>
 </Toolbar>
 
-<Save   dashboard={data.dashboard} bind:edit={edit} bind:edited={edited} bind:disable={disable} 
-        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar} bind:this={save}/>
+<Save   dashboard={data.dashboard} bind:edit bind:edited bind:disable 
+        bind:removedCards bind:removedNumVar bind:removedStrVar bind:this={save}/>
 
-<Create bind:dashboard={data.dashboard} dashboardId={data.dashboard.id} bind:edited={edited} bind:disable={disable} bind:this={create}/>
+<Create bind:dashboard={data.dashboard} dashboardId={data.dashboard.id} bind:edited bind:disable bind:this={create}/>
 
-<Menu   dashboard={data.dashboard} bind:disable={disable} bind:this={menu} bind:edited={edited}  bind:edit={edit} deleteRedirectUrl={'/characters'}
-        bind:removedCards={removedCards} bind:removedNumVar={removedNumVar} bind:removedStrVar={removedStrVar}/>
+<Menu   dashboard={data.dashboard} bind:disable bind:this={menu} bind:edited  bind:edit deleteRedirectUrl={'/characters'}
+        bind:removedCards bind:removedNumVar bind:removedStrVar/>
 
-<DashboardGrid bind:dashboard={data.dashboard} bind:edited={edited} bind:disable={disable} bind:removedCards={removedCards} {edit}/>
+<DashboardGrid bind:dashboard={data.dashboard} bind:edited bind:disable bind:removedCards {edit}/>
 
 {#if form?.client_error || form?.server_error}
-  <Modal disable={disable} on:close={closeError}>
+  <Modal {disable} on:close={closeError}>
     {#if form?.client_error}
     <ErrorBar text={'Client Error, please try again or contact us!'}/>
     {:else if form?.server_error}

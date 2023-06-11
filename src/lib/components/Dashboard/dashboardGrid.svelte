@@ -208,7 +208,7 @@
   }
 </script>
 
-<svelte:window bind:scrollX={scrollX} bind:scrollY={scrollY} bind:innerHeight={viewportHeight} bind:innerWidth={viewportWidth}/>
+<svelte:window bind:scrollX bind:scrollY bind:innerHeight={viewportHeight} bind:innerWidth={viewportWidth}/>
 <svelte:document on:pointermove={moveWhileDragging} on:pointerup={confirmAction} on:keydown={keydown}/>
 
 <div id="grid" style="touch-action: none">
@@ -223,7 +223,7 @@
       {:else if resizing && card.id === resizing.id}
         <Prototype data={{ id: card.id, width: $actionData.x_or_width, height: $actionData.y_or_height }}/>
       {:else}
-        <Card bind:disable={disable} bind:edited={edited} bind:dashboard={dashboard} {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={removeCard} />
+        <Card bind:disable bind:edited bind:dashboard {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={removeCard} />
       {/if}
     </div>
   {/each}
@@ -231,7 +231,7 @@
 
 {#if picked}
   <div class="pickedCard" style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
-    <Card bind:disable={disable} bind:edited={edited} bind:dashboard={dashboard} card={picked.card} picked={true} {edit}/>
+    <Card bind:disable bind:edited bind:dashboard card={picked.card} picked={true} {edit}/>
   </div>
 {/if}
 

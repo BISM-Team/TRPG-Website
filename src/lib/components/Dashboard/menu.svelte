@@ -262,9 +262,9 @@
     {/if}
   </Modal>
 
-  <Delete message={"Do you want to delete this character?"} redirectUrl={deleteRedirectUrl} dashboardId={dashboard.id} bind:edit={edit} bind:disable={disable} bind:this={deleteDialog}/>
+  <Delete message={"Do you want to delete this character?"} redirectUrl={deleteRedirectUrl} dashboardId={dashboard.id} bind:edit bind:disable bind:this={deleteDialog}/>
   {#if removeFromCampaign}
-    <RemoveFromCampaign redirectUrl={deleteRedirectUrl} bind:disable={disable} bind:this={removeFromCampaignDialog}/>
+    <RemoveFromCampaign redirectUrl={deleteRedirectUrl} bind:disable bind:this={removeFromCampaignDialog}/>
   {/if}
 {/if}
 

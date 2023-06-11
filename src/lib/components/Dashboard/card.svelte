@@ -53,7 +53,7 @@
   }
 </script>
 
-<CardSettings bind:dashboard={dashboard} bind:card={card} bind:disable={disable} bind:edited={edited} bind:this={settings} />
+<CardSettings bind:dashboard bind:card bind:disable bind:edited bind:this={settings} />
 
 <div id="content{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
   {#if edit}

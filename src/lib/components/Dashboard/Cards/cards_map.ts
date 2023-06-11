@@ -2,7 +2,7 @@ import type { ComponentProps } from "svelte";
 import Text from "./Text.svelte";
 import type { CardType } from "@prisma/client";
 import Other from "./Other.svelte";
-import Who_This from "./Who_This.svelte";
+import Healthbar from "./Healthbar.svelte";
 
 export const map: {
   [Type in CardType]: {
@@ -35,8 +35,8 @@ export const map: {
       ],
     } satisfies ComponentProps<Other>,
   },
-  who_this: {
-     component: Who_This,
+  healthbar: {
+     component: Healthbar,
      props: {
      }, 
   }

@@ -18,7 +18,7 @@
   export let picked: boolean;
   export let edit: boolean;
   export let edited: boolean;
-  export let disable: boolean;
+  export let disabled: boolean;
 
   let settings: CardSettings;
 
@@ -53,13 +53,13 @@
   }
 </script>
 
-<CardSettings bind:dashboard bind:card bind:disable bind:edited bind:this={settings} />
+<CardSettings bind:dashboard bind:card bind:disabled bind:edited bind:this={settings} />
 
 <div id="content{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
   {#if edit}
-    <button disabled={disable} id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
+    <button {disabled} id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
     <div id="resizeArea" on:pointerdown={resize} />
-    <button disabled={disable} id="settingsButton" class="w3-button" on:click={settings.toggle}>
+    <button {disabled} id="settingsButton" class="w3-button" on:click={settings.toggle}>
       <span class="material-symbols-outlined">settings</span>
     </button>
   {/if}

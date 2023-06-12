@@ -15,7 +15,7 @@
     character: Character | null
   };
   export let dashboardId: string;
-  export let disable: boolean;
+  export let disabled: boolean;
   export let edited: boolean;
   let showCreateDialog = false;
 
@@ -29,7 +29,7 @@
   }
 
   const submitCreateCard: SubmitFunction = async function (request) {
-    disable = true;
+    disabled = true;
     request.cancel();
 
     const width = request.formData.get("width")?.toString() ?? '30';
@@ -49,12 +49,12 @@
     dashboard.cards.push(replaceCardSource(card, dashboard));
     dashboard.cards = dashboard.cards;
     showCreateDialog = false;
-    disable = false;
+    disabled = false;
   };
 </script>
 
 {#if showCreateDialog}
-  <Modal {disable} on:close={toggle}>
+  <Modal {disabled} on:close={toggle}>
     <h3 class="w3-center">Create Card</h3>
     <form method="post" use:enhance={submitCreateCard}>
       <label for="typeInput">Type</label>
@@ -68,8 +68,8 @@
         <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
       {/each}
             
-      <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
-      <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+      <button {disabled} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
+      <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
     </form>
   </Modal>
 {/if}

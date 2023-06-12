@@ -13,7 +13,7 @@
     numericVariables: NumericVariable[],
     character: Character | null
   };
-  export let disable: boolean;
+  export let disabled: boolean;
   export let edited: boolean;
   export let removedCards: string[];
   export let edit: boolean;
@@ -193,7 +193,7 @@
   }
 
   function removeCard(ev: any) {
-    disable=true;
+    disabled=true;
     const id = ev.detail.id;
     const index = dashboard.cards.findIndex((card) => card.id===id);
     if(index !== -1) {
@@ -204,7 +204,7 @@
     } else {
       console.error(id, dashboard.cards);
     }
-    disable=false;
+    disabled=false;
   }
 </script>
 
@@ -223,7 +223,7 @@
       {:else if resizing && card.id === resizing.id}
         <Prototype data={{ id: card.id, width: $actionData.x_or_width, height: $actionData.y_or_height }}/>
       {:else}
-        <Card bind:disable bind:edited bind:dashboard {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={removeCard} />
+        <Card bind:disabled bind:edited bind:dashboard {card} picked={false} {edit} on:pick={startDragElement} on:resize={startResizeElement} on:remove={removeCard} />
       {/if}
     </div>
   {/each}
@@ -231,7 +231,7 @@
 
 {#if picked}
   <div class="pickedCard" style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
-    <Card bind:disable bind:edited bind:dashboard card={picked.card} picked={true} {edit}/>
+    <Card bind:disabled bind:edited bind:dashboard card={picked.card} picked={true} {edit}/>
   </div>
 {/if}
 

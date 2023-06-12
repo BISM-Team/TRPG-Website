@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
   import type { SubmitFunction } from "@sveltejs/kit";
 
-  export let disable: boolean;
+  export let disabled: boolean;
   export let redirectUrl: string;
   let showRemoveDialog = false;
   
@@ -13,7 +13,7 @@
   }
 
   const submitRemove: SubmitFunction = function() {
-    disable = true;
+    disabled = true;
     return async ({ result, update }) => {
       if (result.type === "success") { 
         await goto(redirectUrl);
@@ -21,17 +21,17 @@
       } else {
         await update({ reset: false });
       }
-      disable = false;
+      disabled = false;
     };
   }
 </script>
 
 {#if showRemoveDialog}
-  <Modal {disable} on:close={toggle}>
+  <Modal {disabled} on:close={toggle}>
     <h4 class="w3-padding">Remove Character from Campaign</h4>
     <form action="?/remove" id="removeConfirmationButtons" class="w3-container" method="post" use:enhance={submitRemove}>
-      <button disabled={disable} class="w3-button w3-margin w3-grey" type="button" on:click={toggle}>Cancel</button>
-      <button disabled={disable} class="w3-button w3-margin w3-teal" type="submit">Remove</button>
+      <button {disabled} class="w3-button w3-margin w3-grey" type="button" on:click={toggle}>Cancel</button>
+      <button {disabled} class="w3-button w3-margin w3-teal" type="submit">Remove</button>
     </form>
   </Modal>
 {/if}

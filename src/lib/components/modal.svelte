@@ -3,11 +3,11 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-  export let disable: boolean;
+  export let disabled: boolean;
   let wrapper: HTMLElement;
 
   function closeModal() {
-    if(!disable && wrapper) dispatch("close")
+    if(!disabled && wrapper) dispatch("close")
   }
 
   function clickOutside(event: MouseEvent) {
@@ -23,7 +23,7 @@
 
 <div bind:this={wrapper} id="modalWrapper">
   <div id="modalContent" class="w3-center w3-container">
-    <button id="closeButton" class="w3-button" disabled={disable} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
+    <button id="closeButton" class="w3-button" {disabled} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
     <slot />
   </div>
 </div>

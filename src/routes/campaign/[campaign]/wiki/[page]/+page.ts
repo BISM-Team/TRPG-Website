@@ -21,10 +21,5 @@ export const load: PageLoad = async (event) => {
   return {
     ...data,
     campaign: fetchCampaign(event),
-    renderedTree: renderTree(
-      JSON.parse(JSON.stringify(data.tree)),
-      data.user_id,
-      data.gm_id
-    ),
   };
 };

@@ -46,8 +46,12 @@
     };
   };
 
-  const handleSave: SubmitFunction = async function () {
+  const handleSave: SubmitFunction = async function ({ formData }) {
     disabled = true;
+    formData.set("text", formData.get("pre")?.toString() + "\n" + formData.get("actual")?.toString() + "\n" + formData.get("post")?.toString());
+    formData.delete("pre");
+    formData.delete("actual");
+    formData.delete("post");
     return async ({ result, update }) => {
       await update({reset: false});
       if (result.type === "success") { 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { addHash } from "$lib/WorldWiki/tree/heading";
-  import { stringifyTree } from "$lib/WorldWiki/tree/tree";
+  import { addHash, getFirstHeadingIndexAfter, searchHeadingIndex } from "$lib/WorldWiki/tree/heading";
+  import { renderTree, stringifyTree } from "$lib/WorldWiki/tree/tree";
   import type { Heading } from "@prisma/client";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { Root } from "mdast";
@@ -15,9 +15,7 @@
     tree: Root,
     user_id: string, 
     gm_id: string, 
-    renderedTree: string
   }
-
   export let disabled: boolean;
   export let edit: boolean;
   export let result: {
@@ -27,6 +25,55 @@
   export let toc: boolean;
   export let handleSave: SubmitFunction;
   export let saveAction: string = "?/update";
+  export let heading: string | undefined = undefined;
+
+  let renderedTree: Promise<string>;
+  let extractedTrees: {
+    pre: Root;
+    actual: Root;
+    post: Root;
+  }
+  $: extractedTrees = extractTree(page.tree, heading)
+  $: renderedTree = renderTree(JSON.parse(JSON.stringify(extractedTrees.actual)), page.user_id, page.gm_id)
+
+  function extractTree(tree: Root, heading: string | undefined): typeof extractedTrees {
+    if(!heading) return {
+      pre: {
+        type: "root",
+        children: []
+      },
+      actual: tree,
+      post: {
+        type: "root",
+        children: []
+      }
+    };
+    const headingIndex = searchHeadingIndex(tree, heading);
+    const nextHeadingIndex = getFirstHeadingIndexAfter(tree, headingIndex);
+    if(headingIndex === -1) throw new Error("Heading not found");
+    return {
+      pre: {
+        type: "root",
+        children: tree.children.slice(0, headingIndex+1)
+      },
+      actual: {
+        type: "root",
+        children: tree.children.slice(headingIndex+1, nextHeadingIndex !== -1 ? nextHeadingIndex : undefined)
+      },
+      post: {
+        type: "root",
+        children: nextHeadingIndex !== -1 ? tree.children.slice(nextHeadingIndex) : []
+      }
+    }
+  }
+
+  async function stringfyTrees() {
+    return { 
+      pre: await stringifyTree(extractedTrees.pre), 
+      actual: await stringifyTree(extractedTrees.actual), 
+      post: await stringifyTree(extractedTrees.post)
+    }
+  }
 </script>
 
 <div class="w3-container" id="page">
@@ -37,12 +84,14 @@
     {#if result?.client_error} 
       <p class="w3-panel w3-red">Client Error, please contact us to investigate the cause!</p> 
     {/if}
-    {#await stringifyTree(page.tree)}
+    {#await stringfyTrees()}
       <p>stringifying markdown...</p>
-    {:then src}
+    {:then stringified}
       <form class="w3-container w3-padding-32" method="post" action={saveAction} use:enhance={handleSave}>
         <input type="hidden" name="hash" value={page.hash} />
-        <textarea name="text" id="textArea" value={src} />
+        <input type="hidden" name="pre" value={stringified.pre}>
+        <textarea id="textArea" name="actual" value={stringified.actual} />
+        <input type="hidden" name="post" value={stringified.post}>
         <br />
         <div class="buttonContainer w3-center w3-block">
           <button {disabled} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
@@ -51,7 +100,7 @@
       </form>
     {/await}
   {:else}
-    {#if toc}
+    {#if toc && !heading}
       <div id="toc_container">
         <div id="toc" class="w3-card-2">
           {#each page.headings as heading}
@@ -64,7 +113,11 @@
       </div>
     {/if}
     <div class="w3-container w3-padding-32" id="content">
-      {@html page.renderedTree}
+      {#await renderedTree}
+        <p>rendering markdown...</p>
+      {:then _renderedTree} 
+        {@html _renderedTree}
+      {/await}
     </div>
   {/if}
 </div>

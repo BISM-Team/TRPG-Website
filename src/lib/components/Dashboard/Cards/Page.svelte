@@ -18,6 +18,7 @@
   let page_source: string;
   let actionResult: ActionData | null = null;
   $: page_source = source.slice(0, source.indexOf("#") !== -1 ? source.indexOf("#") : undefined).toLowerCase();
+  $: heading = source.indexOf("#") !== -1 ? source.slice(source.indexOf("#")+1) : undefined;
 
   if(!hasContext(context.pages)) throw new Error("context not found");
   const pages = getContext<ContextType.pages>(context.pages);
@@ -45,11 +46,6 @@
     if(!page_data) throw new Error("unexpected error");
     return {
       ...page_data,
-      renderedTree: await renderTree(
-        JSON.parse(JSON.stringify(page_data.tree)),
-        page_data.user_id,
-        page_data.gm_id
-      ),
     };
   }
 
@@ -57,8 +53,12 @@
     registered = undefined;
   })
 
-  const handleSave: SubmitFunction = function() {
+  const handleSave: SubmitFunction = function({ formData }) {
     disabled = true;
+    formData.set("text", formData.get("pre")?.toString() + "\n" + formData.get("actual")?.toString() + "\n" + formData.get("post")?.toString());
+    formData.delete("pre");
+    formData.delete("actual");
+    formData.delete("post");
     return async ({ result, update }) => {
       actionResult = (result as unknown as any).data;
       await update({reset: false});
@@ -90,7 +90,7 @@
         <button class="w3-button w3-right" on:click={toggleEdit} disabled={disabled || $pages.get(page_source)?.editing}><span class="material-symbols-outlined">edit</span></button>
       </div>
     {/if}
-    <WikiPage page={_data} toc={false} {handleSave} saveAction="/campaign/{dashboard.campaignId}/wiki/{page_source}?/update" bind:disabled bind:edit
+    <WikiPage page={_data} toc={false} {handleSave} saveAction="/campaign/{dashboard.campaignId}/wiki/{page_source}?/update" {heading} bind:disabled bind:edit
               result = { actionResult ? { 
                 conflict: actionResult.creation_conflict || actionResult.update_conflict || actionResult.delete_conflict || false, 
                 client_error: actionResult.invalid_campaign_id_or_page_name || actionResult.missing_hash || actionResult.missing_page || actionResult.missing_text_or_tree || actionResult.no_first_heading || false 

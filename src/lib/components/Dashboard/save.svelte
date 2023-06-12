@@ -12,7 +12,7 @@
     numericVariables: NumericVariable[],
     character: Character | null
   };
-  export let disable: boolean;
+  export let disabled: boolean;
   export let edit: boolean;
   export let edited: boolean;
   export let removedCards: string[];
@@ -31,7 +31,7 @@
   }
 
   export const submitSave: SubmitFunction = async function(request) {
-    disable=true;
+    disabled=true;
 
     request.formData.set("cards", stringify(dashboard.cards.map((card, index) => { card.index=index; const {mod_properties, ...other_card} = card; return other_card;})));
     request.formData.set("numVars", stringify(dashboard.numericVariables));
@@ -48,7 +48,7 @@
       showSaveDialog=false;
       edit=false;
       edited=false;
-      disable=false;
+      disabled=false;
     } else {
       return async ({ result, update }) => {
         await update({reset: false});
@@ -58,20 +58,20 @@
           removedCards = [];
           if(_switch && _switch==="true") edit=false;
         }
-        disable=false;
+        disabled=false;
       }
     }
   }
 </script>
 
 {#if showSaveDialog}
-  <Modal {disable} on:close={toggleSaveDialog}>
+  <Modal {disabled} on:close={toggleSaveDialog}>
     <h3 class="w3-padding">Do you want to save your changes?</h3>
     <form action="?/save" method="post" use:enhance={submitSave}>
       <input type="hidden" name="switch" value="true">
       <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-      <button disabled={disable} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
-      <button disabled={disable} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>
+      <button {disabled} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
+      <button {disabled} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}

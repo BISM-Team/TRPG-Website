@@ -4,7 +4,7 @@
     import { afterNavigate } from '$app/navigation';
     import type { SubmitFunction } from '@sveltejs/kit';
 
-    let disable=false;
+    let disabled=false;
     let login_or_register=true;
     export let form: ActionData;
     let previousUrl = "/";
@@ -14,24 +14,24 @@
     })
 
     const onSubmit: SubmitFunction = async function() {
-      disable=true;
+      disabled=true;
         return async ({ update }) => {
           await update({reset: false});
-          disable=false;
+          disabled=false;
         }
     }
 
 </script>
 
 <header class='w3-border-top'>
-    <button disabled={disable} on:click={() => {login_or_register=true}} class={login_or_register ? 'w3-button w3-block w3-blue-gray w3-hover-blue-gray' : 'w3-button w3-block w3-teal'}>Login</button>
-    <button disabled={disable} on:click={() => {login_or_register=false}} class={!login_or_register ? 'w3-button w3-block w3-blue-gray w3-hover-blue-gray' : 'w3-button w3-block w3-teal'}>Register</button>
+    <button {disabled} on:click={() => {login_or_register=true}} class={login_or_register ? 'w3-button w3-block w3-blue-gray w3-hover-blue-gray' : 'w3-button w3-block w3-teal'}>Login</button>
+    <button {disabled} on:click={() => {login_or_register=false}} class={!login_or_register ? 'w3-button w3-block w3-blue-gray w3-hover-blue-gray' : 'w3-button w3-block w3-teal'}>Register</button>
 </header>
 
 <div id='content' class='w3-padding-large'>
     {#if login_or_register}
         <form action="?/login" method="post" class='w3-padding-16' use:enhance={onSubmit}>
-            <fieldset disabled={disable} class='w3-padding-16'>
+            <fieldset {disabled} class='w3-padding-16'>
                 <input type="hidden" name="redirect" value={previousUrl}>
 
                 <label for="email_input">Email</label>
@@ -44,12 +44,12 @@
 
                 {#if form?.login_server_error} <p class='w3-panel w3-red'>Error, service might be unavailable</p>
                 {:else if form?.login_failed} <p class='w3-panel w3-red'>Email or Password incorrect</p> {/if}
-                <button disabled={disable} type="submit" class='w3-margin-top w3-button w3-teal w3-block'>Login</button>
+                <button {disabled} type="submit" class='w3-margin-top w3-button w3-teal w3-block'>Login</button>
             </fieldset>
         </form>
     {:else}
         <form action="?/register" method="post" class='w3-padding-16' use:enhance={onSubmit}>
-            <fieldset disabled={disable} class='w3-padding-16'>
+            <fieldset {disabled} class='w3-padding-16'>
                 <input type="hidden" name="redirect" value={previousUrl}>
 
                 <label for="username_input">Username</label>
@@ -71,7 +71,7 @@
                 {:else if form?.register_password_mismatched} <p class='w3-panel w3-padding w3-red'>Passwords do not match!</p> {/if}
 
                 {#if form?.register_server_error} <p class='w3-panel w3-padding w3-red'>Error, service might be unavailable</p> {/if}
-                <button disabled={disable} type="submit" class='w3-button w3-teal w3-block'>Register</button>
+                <button {disabled} type="submit" class='w3-button w3-teal w3-block'>Register</button>
             </fieldset>
         </form>
     {/if}

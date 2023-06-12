@@ -18,24 +18,15 @@
     renderedTree: string
   }
 
-  export let disable: boolean;
+  export let disabled: boolean;
   export let edit: boolean;
   export let result: {
     conflict: boolean;
     client_error: boolean;
   } | null;
   export let toc: boolean;
-
-  const handleSubmit: SubmitFunction = async function () {
-    disable = true;
-    return async ({ result, update }) => {
-      await update({reset: false});
-      if (result.type === "success") { 
-        edit = false; 
-      }
-      disable = false;
-    };
-  };
+  export let handleSave: SubmitFunction;
+  export let saveAction: string = "?/update";
 </script>
 
 <div class="w3-container" id="page">
@@ -49,13 +40,13 @@
     {#await stringifyTree(page.tree)}
       <p>stringifying markdown...</p>
     {:then src}
-      <form class="w3-container w3-padding-32" method="post" action="?/update" use:enhance={handleSubmit}>
+      <form class="w3-container w3-padding-32" method="post" action={saveAction} use:enhance={handleSave}>
         <input type="hidden" name="hash" value={page.hash} />
         <textarea name="text" id="textArea" value={src} />
         <br />
         <div class="buttonContainer w3-center w3-block">
-          <button disabled={disable} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
-          <button disabled={disable} class="w3-button w3-teal" type="submit">Done</button>
+          <button {disabled} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
+          <button {disabled} class="w3-button w3-teal" type="submit">Done</button>
         </div>
       </form>
     {/await}

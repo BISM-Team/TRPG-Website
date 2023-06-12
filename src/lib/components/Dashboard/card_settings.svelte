@@ -13,7 +13,7 @@
     numericVariables: NumericVariable[],
     character: Character | null
   };
-  export let disable: boolean;
+  export let disabled: boolean;
   export let edited: boolean;
   export let card: CardData;
   let showSettingsDialog = false;
@@ -32,7 +32,7 @@
   }
 
   const submitSettings: SubmitFunction = async function (request) {
-    disable = true;
+    disabled = true;
     request.cancel();
     const index = dashboard.cards.findIndex(_card => _card.id === card.id);
     if(index === -1) throw new Error("Card not found.");
@@ -42,12 +42,12 @@
     dashboard.cards[index] = replaceCardSource(card, dashboard);
     edited = true;
     showSettingsDialog = false;
-    disable = false;
+    disabled = false;
   };
 </script>
 
 {#if showSettingsDialog}
-  <Modal {disable} on:close={toggle}>
+  <Modal {disabled} on:close={toggle}>
     <h3 class="w3-center">Card Settings</h3>
     <form method="post" use:enhance={submitSettings}>
       <label for="typeInput">Type</label>
@@ -61,8 +61,8 @@
         <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
       {/each}
             
-      <button disabled={disable} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
-      <button disabled={disable} type="submit" class="w3-margin-top w3-button w3-teal">Done</button>
+      <button {disabled} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
+      <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Done</button>
     </form>
   </Modal>
 {/if}

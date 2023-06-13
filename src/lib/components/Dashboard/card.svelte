@@ -26,7 +26,7 @@
     if(edit) {
       ev.preventDefault();
       ev.stopPropagation();
-      const element = document.getElementById("content" + card.id);
+      const element = document.getElementById("content_" + card.id);
       if (!element) throw new Error("Could not find root element of Card");
       let computedGeometry: DOMRect = element.getBoundingClientRect();
       dispatch("pick", {
@@ -41,7 +41,7 @@
     if(edit) {
       ev.preventDefault();
       ev.stopPropagation();
-      const element = document.getElementById("content" + card.id);
+      const element = document.getElementById("content_" + card.id);
       if (!element) throw new Error("Could not find root element of Card");
       let computedGeometry: DOMRect = element.getBoundingClientRect();
       dispatch("resize", {
@@ -55,7 +55,7 @@
 
 <CardSettings bind:dashboard bind:card bind:disabled bind:edited bind:this={settings} />
 
-<div id="content{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
+<div id="content_{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
   {#if edit}
     <button {disabled} id="removeButton" class="w3-button" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
     <div id="resizeArea" on:pointerdown={resize} />

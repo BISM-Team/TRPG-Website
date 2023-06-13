@@ -9,6 +9,9 @@
   import SideBarEntry from "./sideBarEntry.svelte";
   import { slide } from "svelte/transition";
   import WikiPage from "$lib/components/WikiPage.svelte";
+  import { parseSource } from "$lib/WorldWiki/tree/tree";
+  import { addHash } from "$lib/WorldWiki/tree/heading";
+  import type { Root } from "mdast";
 
   export let data: PageData;
   export let form: ActionData;
@@ -52,6 +55,7 @@
     formData.delete("pre");
     formData.delete("actual");
     formData.delete("post");
+
     return async ({ result, update }) => {
       await update({reset: false});
       if (result.type === "success") { 
@@ -60,6 +64,33 @@
       disabled = false;
     };
   };
+
+  const addHeading: SubmitFunction = async function({ formData }) {
+    disabled = true;
+    const pre_str = formData.get("pre")?.toString();
+    const heading = formData.get("heading")?.toString();
+    const level_str = formData.get("level")?.toString() ?? "2";
+    formData.delete("pre");
+    formData.delete("heading");
+    if(!pre_str || !heading) throw new Error("unexpected error");
+
+    const pre: Root = JSON.parse(pre_str);
+    const level = parseInt(level_str);
+    const actual = await parseSource(addHash(`${heading}`, level), data.user_id)
+    const children = pre.children.concat(actual.children);
+    formData.set("tree", JSON.stringify({
+      type: "root",
+      children,
+    }));
+
+    return async ({ result, update }) => {
+      await update({reset: false});
+      if (result.type === "success") { 
+        edit = false; 
+      }
+      disabled = false;
+    };
+  }
 </script>
 
 <Toolbar>
@@ -108,7 +139,7 @@
       {/each}
     </div>
   {/if}
-  <WikiPage bind:disabled bind:edit toc={true} page={data} {handleSave}
+  <WikiPage bind:disabled bind:edit toc={true} page={data} {handleSave} {addHeading}
             result={form ? { 
                           conflict: form.creation_conflict || form.update_conflict || form.delete_conflict || false, 
                           client_error: form.invalid_campaign_id_or_page_name || form.missing_hash || form.missing_page || form.missing_text_or_tree || form.no_first_heading || false 

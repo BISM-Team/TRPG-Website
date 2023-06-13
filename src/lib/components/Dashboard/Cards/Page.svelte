@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { renderTree } from "$lib/WorldWiki/tree/tree";
+  import { parseSource } from "$lib/WorldWiki/tree/tree";
   import { propagateErrors } from "$lib/utils";
   import type { Character, Dashboard } from "@prisma/client";
   import { getContext, hasContext, onDestroy, onMount } from "svelte";
@@ -8,49 +8,79 @@
   import WikiPage from "$lib/components/WikiPage.svelte";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { ActionData } from "../../../../routes/campaign/[campaign]/wiki/[page]/$types";
+  import type { Root } from "mdast";
+  import { addHash } from "$lib/WorldWiki/tree/heading";
+  import { writable, type Unsubscriber } from "svelte/store";
 
   export let source: string;
   export let dashboard: Dashboard & { 
     character: Character | null 
   };
-  let disabled = false;
-  let edit = false;
-  let page_source: string;
-  let actionResult: ActionData | null = null;
-  $: page_source = source.slice(0, source.indexOf("#") !== -1 ? source.indexOf("#") : undefined).toLowerCase();
-  $: heading = source.indexOf("#") !== -1 ? source.slice(source.indexOf("#")+1) : undefined;
 
   if(!hasContext(context.pages)) throw new Error("context not found");
   const pages = getContext<ContextType.pages>(context.pages);
 
-  let registered: string | undefined = undefined;
-  let data: ReturnType<typeof loadData>;
-  $: data = loadData(page_source) || $pages;
+  let disabled = false;
+  let edit = false;
+  let actionResult: ActionData | null = null;
+  let mounted: boolean = false;
 
-  async function loadData(source: string) {
-    if(!$pages.has(source)) {
-      const page_response = await fetch(`/api/campaign/${dashboard.campaignId}/wiki/${source}`);
+  function updateEditState(edit: boolean, source: string = page_source) {
+    pages.update((pages) => {
+      if(edit && registered && registered !== source) {
+        const old_page = pages.get(registered);
+        if(old_page) old_page.editing = false;
+      }
+      const page_store = pages.get(source);
+      if(page_store) page_store.editing = edit;
+      return pages;
+    })
+  }
+
+  $: page_store = loadData(page_source);
+  $: page_source = source.slice(0, source.indexOf("#") !== -1 ? source.indexOf("#") : undefined).toLowerCase();
+  $: heading = source.indexOf("#") !== -1 ? source.slice(source.indexOf("#")+1) : undefined;
+  $: updateEditState(edit);
+
+  let registered: string | undefined = undefined;
+
+  async function fetchPage() {
+    const page_response = await fetch(`/api/campaign/${dashboard.campaignId}/wiki/${source}`);
       await propagateErrors(page_response, $page.url);
       if (!page_response.ok) throw new Error("unexpected error");
-      const fetched_page = await page_response.json();
-      if(!$pages.has(source)) 
-        $pages.set(source, {
-          ...fetched_page,
-          editing: 0,
-        });
+      return await page_response.json();
+  }
+
+  function loadData(source: string) {
+    if(!mounted) return;
+    console.log("loadData " + source);
+    if(!$pages.has(source)) {
+      console.log("loadData " + source, $pages);
+      $pages.set(source, {
+        page: fetchPage(),
+        editing: false,
+      });
     }
-    if(registered !== source) {
-      registered = source;
-    }
-    const page_data = $pages.get(source);
-    if(!page_data) throw new Error("unexpected error");
-    return {
-      ...page_data,
-    };
+    if(registered !== source) updateEditState(edit)
+    registered = source;
+    return $pages.get(source);
+  }
+
+  onMount(() => {
+    mounted = true;
+    pages.subscribe(() => {
+      page_store = loadData(page_source);
+    })
+  });
+
+  function toggleEdit() {
+    edit = !edit;
   }
 
   onDestroy(() => {
+    updateEditState(edit, "");
     registered = undefined;
+    mounted = false;
   })
 
   const handleSave: SubmitFunction = function({ formData }) {
@@ -70,32 +100,54 @@
     };
   }
 
-  function toggleEdit() {
-    edit = !edit;
-  }
+  const addHeading: SubmitFunction = async function({ formData }) {
+    if(!page_store) throw new Error("page not loaded correctly");
+    disabled = true;
+    const pre_str = formData.get("pre")?.toString();
+    const heading = formData.get("heading")?.toString();
+    const level_str = formData.get("level")?.toString() ?? "2";
+    formData.delete("pre");
+    formData.delete("heading");
+    if(!pre_str || !heading) throw new Error("unexpected error");
 
-  $: pages.update((pages) => {
-      const page = pages.get(page_source);
-      page && (page.editing = edit);
-      return pages;
-    })
+    const pre: Root = JSON.parse(pre_str);
+    const level = parseInt(level_str);
+    const actual: Root = await parseSource(addHash(`${heading}`, level), (await page_store?.page).user_id)
+    const children = pre.children.concat(actual.children);
+    formData.set("tree", JSON.stringify({
+      type: "root",
+      children,
+    }));
+
+    return async ({ result, update }) => {
+      actionResult = (result as unknown as any).data;
+      await update({reset: false});
+      if (result.type === "success") { 
+        pages.set(new Map());
+        edit = false; 
+      }
+      disabled = false;
+    };
+  }
 </script>
 
 <div class="content w3-card-4">
-  {#await data}
-    <p>loading page...</p>
-  {:then _data}
-    {#if !edit}
-      <div class="w3-container w3-block">
-        <button class="w3-button w3-right" on:click={toggleEdit} disabled={disabled || $pages.get(page_source)?.editing}><span class="material-symbols-outlined">edit</span></button>
-      </div>
-    {/if}
-    <WikiPage page={_data} toc={false} {handleSave} saveAction="/campaign/{dashboard.campaignId}/wiki/{page_source}?/update" {heading} bind:disabled bind:edit
-              result = { actionResult ? { 
-                conflict: actionResult.creation_conflict || actionResult.update_conflict || actionResult.delete_conflict || false, 
-                client_error: actionResult.invalid_campaign_id_or_page_name || actionResult.missing_hash || actionResult.missing_page || actionResult.missing_text_or_tree || actionResult.no_first_heading || false 
-              } : null} />
-  {/await}
+  {#if page_store}
+    {#await page_store.page}
+      <p>loading page...</p>
+    {:then data}
+      {#if !edit}
+        <div class="w3-container w3-block">
+          <button class="w3-button w3-right" on:click={toggleEdit} disabled={disabled || (page_store.editing && !edit)}><span class="material-symbols-outlined">edit</span></button>
+        </div>
+      {/if}
+      <WikiPage page={data} toc={false} {handleSave} {addHeading} saveAction="/campaign/{dashboard.campaignId}/wiki/{page_source}?/update" {heading} disabled={disabled || (page_store.editing && !edit)} bind:edit
+                result = { actionResult ? { 
+                  conflict: actionResult.creation_conflict || actionResult.update_conflict || actionResult.delete_conflict || false, 
+                  client_error: actionResult.invalid_campaign_id_or_page_name || actionResult.missing_hash || actionResult.missing_page || actionResult.missing_text_or_tree || actionResult.no_first_heading || false 
+                } : null} />
+    {/await}
+  {/if}
 </div>
 
 <style>

@@ -2,6 +2,7 @@
   import { enhance } from "$app/forms";
   import { addHash, getFirstHeadingIndexAfter, searchHeadingIndex } from "$lib/WorldWiki/tree/heading";
   import { renderTree, stringifyTree } from "$lib/WorldWiki/tree/tree";
+  import { capitalizeFirstLetter } from "$lib/utils";
   import type { Heading } from "@prisma/client";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { Root } from "mdast";
@@ -24,6 +25,7 @@
   } | null;
   export let toc: boolean;
   export let handleSave: SubmitFunction;
+  export let addHeading: SubmitFunction;
   export let saveAction: string = "?/update";
   export let heading: string | undefined = undefined;
 
@@ -33,24 +35,42 @@
     actual: Root;
     post: Root;
   }
+  let missing_heading: boolean = false;
   $: extractedTrees = extractTree(page.tree, heading)
   $: renderedTree = renderTree(JSON.parse(JSON.stringify(extractedTrees.actual)), page.user_id, page.gm_id)
 
   function extractTree(tree: Root, heading: string | undefined): typeof extractedTrees {
-    if(!heading) return {
-      pre: {
-        type: "root",
-        children: []
-      },
-      actual: tree,
-      post: {
-        type: "root",
-        children: []
-      }
-    };
+    if(!heading) {
+      missing_heading = false;
+      return {
+        pre: {
+          type: "root",
+          children: []
+        },
+        actual: tree,
+        post: {
+          type: "root",
+          children: []
+        }
+      };
+    }
     const headingIndex = searchHeadingIndex(tree, heading);
     const nextHeadingIndex = getFirstHeadingIndexAfter(tree, headingIndex);
-    if(headingIndex === -1) throw new Error("Heading not found");
+    if(headingIndex === -1) {
+      console.log(tree, heading, headingIndex);
+      missing_heading = true;
+      return {
+        pre: tree,
+        actual: {
+          type: "root",
+          children: []
+        },
+        post: {
+          type: "root",
+          children: []
+        }
+      };
+    } else missing_heading = false;
     return {
       pre: {
         type: "root",
@@ -68,10 +88,11 @@
   }
 
   async function stringfyTrees() {
+    const obj = JSON.parse(JSON.stringify(extractedTrees));
     return { 
-      pre: await stringifyTree(extractedTrees.pre), 
-      actual: await stringifyTree(extractedTrees.actual), 
-      post: await stringifyTree(extractedTrees.post)
+      pre: await stringifyTree(obj.pre), 
+      actual: await stringifyTree(obj.actual), 
+      post: await stringifyTree(obj.post)
     }
   }
 </script>
@@ -116,7 +137,20 @@
       {#await renderedTree}
         <p>rendering markdown...</p>
       {:then _renderedTree} 
-        {@html _renderedTree}
+        {#if heading && missing_heading}
+          <div class="w3-center">
+            <h3 class="w3-section w3-padding">Heading '{capitalizeFirstLetter(heading)}' does not exist yet</h3>
+            <p>Do you want to create it?</p>
+            <form id="btnContainer" class="w3-container" method="post" action={saveAction} use:enhance={addHeading}>
+              <input type="hidden" name="hash" value={page.hash} />
+              <input type="hidden" name="pre" value={JSON.stringify(extractedTrees.pre)}>
+              <input type="hidden" name="heading" value={capitalizeFirstLetter(heading)}>
+              <button {disabled} class="w3-margin w3-button w3-teal" type="submit">Yes</button>
+            </form>
+          </div>
+        {:else}
+          {@html _renderedTree}
+        {/if}
       {/await}
     </div>
   {/if}

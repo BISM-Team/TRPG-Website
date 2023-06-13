@@ -113,13 +113,13 @@
           .find((element) => {
             return (
               picked &&
-              element.id.startsWith("content") &&
+              element.id.startsWith("content_") &&
               !element.id.endsWith(`${picked.id}`)
             );
           });
-        if (element && element.id.startsWith("content")) {
+        if (element && element.id.startsWith("content_")) {
           picked.refractary = true;
-          hoverWhileDragging(element.id.replace("content", ""));
+          hoverWhileDragging(element.id.replace("content_", ""));
           setTimeout(() => {
             if (picked) picked.refractary = false;
           }, drag_refractary_period);

@@ -13,14 +13,16 @@ export namespace ContextType {
     Map<
       string,
       {
-        hash: string;
-        headings: (Omit<Heading, "index"> & {
-          viewers: string[];
-          modifiers: string[];
-        })[];
-        tree: Root;
-        user_id: string;
-        gm_id: string;
+        page: Promise<{
+          hash: string;
+          headings: (Omit<Heading, "index"> & {
+            viewers: string[];
+            modifiers: string[];
+          })[];
+          tree: Root;
+          user_id: string;
+          gm_id: string;
+        }>;
         editing: boolean;
       }
     >

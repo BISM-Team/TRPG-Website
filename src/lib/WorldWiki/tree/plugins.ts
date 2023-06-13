@@ -8,6 +8,7 @@ import { isNodeVisible } from "./visibility";
 import { isTreeVisible } from "./tree";
 import { getTags } from "./tags";
 import { randomHex } from "$lib/utils";
+import { createId } from "@paralleldrive/cuid2";
 
 export function directiveToHeading() {
   return function (tree: Root) {
@@ -58,7 +59,7 @@ export function addHeadingIds(options?: { randomizer?: () => string } | void) {
       advHeading.attributes = advHeading.attributes || {};
       if (!advHeading.attributes.id)
         advHeading.attributes.id = (
-          (options ? options.randomizer : undefined) || (() => randomHex(4))
+          (options ? options.randomizer : undefined) || createId
         )();
     });
   };

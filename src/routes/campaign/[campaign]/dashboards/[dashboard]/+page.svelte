@@ -8,11 +8,9 @@
   import Save from "$lib/components/Dashboard/save.svelte";
   import Modal from "$lib/components/modal.svelte";
   import ErrorBar from "$lib/components/error_bar.svelte";
-  import { onMount, setContext } from "svelte";
+  import { onDestroy, setContext } from "svelte";
   import { context, type ContextType, type WritableOf } from "$lib/components/Dashboard/context";
   import { writable } from "svelte/store";
-  import type { Heading } from "@prisma/client";
-  import type { Root } from "mdast";
 
   export let data: PageData;
   export let form: ActionData;
@@ -36,7 +34,7 @@
     pages.set(new Map());
   }
 
-  onMount(resetPages);
+  onDestroy(resetPages);
 
   function closeError() {
     if(form?.client_error) form.client_error = false;

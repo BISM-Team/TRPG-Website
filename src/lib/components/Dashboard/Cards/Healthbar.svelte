@@ -7,16 +7,17 @@
   <br>
   <br>
   <div class="main">
-      <label> Current HP</label>
+      <label class="label"> Current HP</label>
       <input class= "input" type="number" aria-label="Current HP" min="0" max="500" value="">
-      <label> Max HP</label>
+      <label class="label"> Max HP</label>
       <input readonly class= "input" type="number" aria-label="Max HP" min="0" max="500" value="">
      
     <br>
   </div>
 </div>
 
-<style>
+<style lang="postcss">
+
     .content {
       padding: 2em;
       overflow: auto;

@@ -7,9 +7,9 @@
 
 {#if node.name.toLowerCase().trim() !== "unsorted" || node.children.length}
   <div class="entryContainer">
-    <div class="w3-button entry">
+    <div class="btn entry">
       {#if node.children.length}
-      <button class="w3-button expand" on:click={() => { expanded=!expanded }}>
+      <button class="btn expand" on:click={() => { expanded=!expanded }}>
           <span class="material-symbols-outlined" style:display="block">
             {expanded ? "arrow_drop_down" : "arrow_right"}
           </span>
@@ -33,7 +33,8 @@
   </div>
 {/if}
 
-<style>
+<style lang="postcss">
+
   .entryContainer {
     padding-left: 0.7em;
   }

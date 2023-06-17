@@ -55,10 +55,10 @@
 
 {#if showCreateDialog}
   <Modal {disabled} on:close={toggle}>
-    <h3 class="w3-center">Create Card</h3>
+    <h3 class="h3 text-center">Create Card</h3>
     <form method="post" use:enhance={submitCreateCard}>
-      <label for="typeInput">Type</label>
-      <select id="typeInput" class="w3-select w3-border w3-margin-bottom" bind:value={selected_type} required>
+      <label class="label" for="typeInput">Type</label>
+      <select id="typeInput" class="select w3-border w3-margin-bottom" bind:value={selected_type} required>
         {#each type_options as type}
           <option value={type}>{capitalizeFirstLetter(type)}</option>
         {/each}
@@ -68,8 +68,8 @@
         <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
       {/each}
             
-      <button {disabled} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
-      <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+      <button {disabled} type="button" on:click={toggle} class="w3-margin-top btn-secondary">Cancel</button>
+      <button {disabled} type="submit" class="w3-margin-top btn btn-primary">Create</button>
     </form>
   </Modal>
 {/if}

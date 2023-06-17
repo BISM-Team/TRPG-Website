@@ -27,10 +27,10 @@
   <Modal {disabled} on:close={toggleCreateDialog}>
     <div id="modalContent">
       <form method="post" action="?/create" use:enhance={handleSubmit}>
-        <label for="nameInput">Name</label>
-        <input type="text" name="name" id="nameInput" class="w3-input w3-border w3-margin-bottom"/>
-        <button {disabled} type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
-        <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+        <label class="label" for="nameInput">Name</label>
+        <input type="text" name="name" id="nameInput" class="input w3-border w3-margin-bottom"/>
+        <button {disabled} type="button" on:click={toggleCreateDialog} class="w3-margin-top btn-secondary">Cancel</button>
+        <button {disabled} type="submit" class="w3-margin-top btn-primary">Create</button>
       </form>
     </div>
   </Modal>
@@ -39,11 +39,11 @@
 <div class="cards">
     {#each data.characters as character}
         <Card link={"./characters/" + character.id}>
-          <h3 class="w3-padding-32">{character.name}</h3>
+          <h3 class="h3 p-2">{character.name}</h3>
         </Card>
     {/each}
 
     <Card on:buttonClick={toggleCreateDialog}>
-      <h3 class="w3-padding-32">New Character</h3>
+      <h3 class="h3 p-2">New Character</h3>
     </Card>
 </div>

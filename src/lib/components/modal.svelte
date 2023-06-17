@@ -22,13 +22,14 @@
 <svelte:document on:pointerup={clickOutside} on:keyup={keyUp}/>
 
 <div bind:this={wrapper} id="modalWrapper">
-  <div id="modalContent" class="w3-center w3-container">
-    <button id="closeButton" class="w3-button" {disabled} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
+  <div id="modalContent" class="text-center w3-container">
+    <button id="closeButton" {disabled} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
     <slot />
   </div>
 </div>
 
-<style>
+<style lang="postcss">
+
   #modalWrapper {
     position: fixed; /* Stay in place */
     display: flex;

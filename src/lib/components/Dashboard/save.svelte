@@ -66,12 +66,12 @@
 
 {#if showSaveDialog}
   <Modal {disabled} on:close={toggleSaveDialog}>
-    <h3 class="w3-padding">Do you want to save your changes?</h3>
+    <h3 class="h3 w3-padding">Do you want to save your changes?</h3>
     <form action="?/save" method="post" use:enhance={submitSave}>
       <input type="hidden" name="switch" value="true">
       <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-      <button {disabled} class="w3-button w3-margin w3-grey" name="save" value="false" type="submit">Discard</button>
-      <button {disabled} class="w3-button w3-margin w3-teal" name="save" value="true" type="submit">Yes</button>
+      <button {disabled} class="btn-secondary" name="save" value="false" type="submit">Discard</button>
+      <button {disabled} class="btn-primary" name="save" value="true" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}

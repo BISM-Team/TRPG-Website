@@ -48,18 +48,18 @@
       <input type="hidden" name="dashboardId" value={data.dashboard.id} />
       <input type="hidden" name="switch" value="false">
     </form>
-    <button disabled={disabled || !edited} id="saveButton" class="w3-button" type="submit" form="hiddenSaveForm">
-      <span class="material-symbols-outlined w3-text-white">save</span>
+    <button disabled={disabled || !edited} id="saveButton" type="submit" form="hiddenSaveForm">
+      <span class="material-symbols-outlined">save</span>
     </button>
-    <button {disabled} id="newButton" class="w3-button" on:click={create.toggle}>
-      <span class="material-symbols-outlined w3-text-white">add</span>
+    <button {disabled} id="newButton" on:click={create.toggle}>
+      <span class="material-symbols-outlined">add</span>
     </button>
   {/if}
-  <button {disabled} id="editButton" class="w3-button" on:click={save.toggleEdit}>
-    <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
+  <button {disabled} id="editButton" on:click={save.toggleEdit}>
+    <span class="material-symbols-outlined">{edit ? "visibility" : "edit"}</span>
   </button>
-  <button {disabled} id="menuButton" class="w3-button" on:click={menu.toggle}>
-    <span class="material-symbols-outlined w3-text-white">more_horiz</span>
+  <button {disabled} id="menuButton" on:click={menu.toggle}>
+    <span class="material-symbols-outlined">more_horiz</span>
   </button>
 </Toolbar>
 

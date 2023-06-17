@@ -1,6 +1,7 @@
 <script lang="ts">
   import { propagateErrors } from "$lib/utils";
   import { createEventDispatcher } from "svelte";
+  import ErrorBar from "./error_bar.svelte";
   const dispatch = createEventDispatcher();
 
   export let campaignId: string;
@@ -20,7 +21,7 @@
 
 <div id="container">
   <!-- svelte-ignore a11y-autofocus -->
-  <input class="w3-input" type="text" id="searchInput" autofocus bind:value={searchText}>
+  <input class="input" type="text" id="searchInput" autofocus bind:value={searchText}>
   {#await initial_load}
     <p>Loading...</p>
   {:then results} 
@@ -32,7 +33,7 @@
           </a>
         {/each}
         {#if results.findIndex((page) => page.toLowerCase()===searchText.trim().toLowerCase()) === -1 && searchText}
-        <a data-sveltekit-preload-data="off" data-sveltekit-preload-code="hover" href={"./"+searchText.trim()} on:click={close} class="w3-text-gray">
+        <a data-sveltekit-preload-data="off" data-sveltekit-preload-code="hover" href={"./"+searchText.trim()} on:click={close} class="text-gray">
           <li>
             {searchText.trim()}
           </li>
@@ -41,11 +42,11 @@
       {/key}
     </ul>
   {:catch}
-    <p class="w3-panel w3-red w3-block">Could not load data from server, please try again.</p>
+    <ErrorBar text="Could not load data from server, please try again."/>
   {/await}
 </div>
 
-<style>
+<style lang="postcss">
   input {
     margin-bottom: 1em;
   }

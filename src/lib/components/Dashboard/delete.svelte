@@ -32,12 +32,12 @@
 
 {#if showDeleteDialog}
   <Modal {disabled} on:close={toggle}>
-    <h4 class="w3-padding">{message}</h4>
+    <h4 class="h4 w3-padding">{message}</h4>
     <form action="?/delete" id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={submitDelete}>
-      <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboardId}/>
+      <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboardId} class="input"/>
 
-      <button {disabled} class="w3-button w3-margin w3-grey" type="button" on:click={toggle}>Cancel</button>
-      <button {disabled} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
+      <button {disabled} class="w3-margin btn-secondary" type="button" on:click={toggle}>Cancel</button>
+      <button {disabled} class="w3-margin btn-primary" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}

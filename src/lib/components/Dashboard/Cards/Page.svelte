@@ -137,8 +137,8 @@
       <p>loading page...</p>
     {:then data}
       {#if !edit}
-        <div class="w3-container w3-block">
-          <button class="w3-button w3-right" on:click={toggleEdit} disabled={disabled || (page_store.editing && !edit)}><span class="material-symbols-outlined">edit</span></button>
+        <div class="w3-container block">
+          <button class="btn w3-right" on:click={toggleEdit} disabled={disabled || (page_store.editing && !edit)}><span class="material-symbols-outlined">edit</span></button>
         </div>
       {/if}
       <WikiPage page={data} toc={false} {handleSave} {addHeading} saveAction="/campaign/{dashboard.campaignId}/wiki/{page_source}?/update" {heading} disabled={disabled || (page_store.editing && !edit)} bind:edit
@@ -150,7 +150,8 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
+
   .content {
     padding: 2vh 2vw;
     overflow: auto;

@@ -1,77 +1,64 @@
 <script lang="ts">
+  import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
+  import '@skeletonlabs/skeleton/styles/skeleton.css';
+  import "../app.postcss";
+  import "$lib/components/Wiki/Heading.svelte";
+  import { LightSwitch, storePopup } from '@skeletonlabs/skeleton';
+  import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+  storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
   import { goto } from "$app/navigation";
   import type { LayoutData } from "./$types";
+  import { AppShell, AppBar } from "@skeletonlabs/skeleton";
+  import { page } from '$app/stores';
   export let data: LayoutData;
 
   async function logout() {
     const response = await fetch("/api/logout", { method: "POST" });
-    if(response.ok) await goto("/", { invalidateAll: true })
+    if (response.ok) await goto("/", { invalidateAll: true });
+  }
+
+  function isHome() {
+    return $page.url.pathname === "/";
+  }
+
+  function isActiveRoute(path: string) {
+    return $page.url.pathname.startsWith(path);
   }
 </script>
 
-<header class="w3-container w3-center w3-teal">
-  <h1>BISM Website</h1>
-  <nav>
-    <a href="/" class="w3-block w3-button">Home</a>
-    <a href="/characters" class="w3-block w3-button">Characters</a>
-    <a href="/campaign" class="w3-block w3-button">Campaign</a>
-    {#if data.auth}
-      <button class="w3-block w3-button" on:click={logout}>Logout</button>
-    {:else}
-      <a href="/login" class="w3-block w3-button">Login/Signup</a>
-    {/if}
-  </nav>
-</header>
+<AppShell regionPage="relative" slotPageHeader="sticky top-0 z-10">
+	<svelte:fragment slot="header">
+    <AppBar >
+      <svelte:fragment slot="lead">
+        <h1 class="h2">BISM Website</h1>
+      </svelte:fragment>
+      <nav class="list-nav">
+        <ul class="flex flex-row w-full justify-evenly">
+          {#key $page.url}
+            <li><a class="block btn" href="/" class:bg-primary-active-token={isHome()}>Home</a></li>
+            <li><a class="block btn" href="/characters" class:bg-primary-active-token={isActiveRoute("/characters")}>Characters</a></li>
+            <li><a class="block btn" href="/campaign" class:bg-primary-active-token={isActiveRoute("/campaign")}>Campaign</a></li>
+            <li>
+              {#if data.auth}
+                <button class="block btn" on:click={logout}>Logout</button>
+              {:else}
+                <a class="block btn" href="/login" class:bg-primary-active-token={isActiveRoute("/login")}>Login/Signup</a>
+              {/if}
+            </li>
+          {/key}
+        </ul>
+      </nav>
+      <svelte:fragment slot="trail">
+        <LightSwitch />
+      </svelte:fragment>
+    </AppBar>
+  </svelte:fragment>
+	<slot />
+</AppShell>
 
-<main>
-  <slot />
-</main>
-
-<style>
-  header {
-    padding: 1em;
-    padding-bottom: 0;
-  }
-
-  h1 {
-    margin-top: 0;
-  }
-
-  a {
+<style lang="postcss">
+  li > a {
     text-decoration: none;
-  }
-
-  nav {
-    display: flex;
-    flex-direction: row;
-    height: 20%;
-    width: 100%;
-    justify-content: space-evenly;
-  }
-
-  :global(form label) {
-    display: block;
-    margin-bottom: 0.5em;
-  }
-
-  :global(form input) {
-    display: block;
-    margin-bottom: 1em;
-  }
-
-  :global(form button) {
-    width: 6em;
-    margin: 0 1.5em;
-    margin-top: 0.5em;
-  }
-
-  :global(.cards) {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    margin-top: 4em;
-    padding: 3em;
   }
 </style>

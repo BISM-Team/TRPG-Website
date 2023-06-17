@@ -8,16 +8,16 @@
   export let defaultProps: any;
 </script>
 
-<label for="field_{key}Input">{capitalizeFirstLetter(key)}</label>
+<label class="label" for="field_{key}Input">{capitalizeFirstLetter(key)}</label>
 {#if typeof (defaultProps[key] ?? defaultProps[0]) === "string"}
-  <input id="field_{key}Input" class="w3-input w3-border w3-margin-bottom" type="text" bind:value={props[key]} required/>
+  <input id="field_{key}Input" class="input w3-border w3-margin-bottom" type="text" bind:value={props[key]} required/>
 {:else if typeof (defaultProps[key] ?? defaultProps[0]) === "number"}
-  <input id="field_{key}Input" class="w3-input w3-border w3-margin-bottom" type="number" bind:value={props[key]} required/>
+  <input id="field_{key}Input" class="input w3-border w3-margin-bottom" type="number" bind:value={props[key]} required/>
 {:else if typeof (defaultProps[key] ?? defaultProps[0]) === "boolean"}
-  <input id="field_{key}Input" class="w3-check w3-margin-bottom" type="checkbox" style:position="static" bind:checked={props[key]}/>
+  <input id="field_{key}Input" class="checkbox w3-margin-bottom" type="checkbox" bind:checked={props[key]}/>
 {:else if typeof (defaultProps[key] ?? defaultProps[0]) === "object"}
   {#if (defaultProps[key] ?? defaultProps[0]).type === "enum"}
-  <select id="field_{key}Input" class="w3-select w3-border w3-margin-bottom" bind:value={props[key]} required>
+  <select id="field_{key}Input" class="select w3-border w3-margin-bottom" bind:value={props[key]} required>
     {#each Object.keys((defaultProps[key] ?? defaultProps[0]).enum) as value}
       <option value={value}>{value}</option>
     {/each}
@@ -27,13 +27,13 @@
       {#each Object.keys(props[key]) as _key, index}
         <div class="nested_field">
           {#if Array.isArray(props[key])}
-            <button type="button" class="w3-button add_btn" on:click={() => { props[key] = props[key].toSpliced(index, 1) }}><span class="material-symbols-outlined" style:display="block">Remove</span></button>
+            <button type="button" class="btn add_btn" on:click={() => { props[key] = props[key].toSpliced(index, 1) }}><span class="material-symbols-outlined">Remove</span></button>
           {/if}
           <svelte:self key={_key} {selected_type} props={props[key]} defaultProps={(defaultProps[key] ?? defaultProps[0])}/>
         </div>
       {/each}
       {#if Array.isArray(props[key])}
-        <button type="button" class="w3-button add_btn" on:click={() => { props[key][props[key].length] = JSON.parse(JSON.stringify(defaultProps[key][0])) }}><span class="material-symbols-outlined" style:display="block">Add</span></button>
+        <button type="button" class="btn add_btn" on:click={() => { props[key][props[key].length] = JSON.parse(JSON.stringify(defaultProps[key][0])) }}><span class="material-symbols-outlined">Add</span></button>
       {/if}
     </div>
   {/if}
@@ -41,7 +41,8 @@
   <p>Invalid prop {key}.</p>
 {/if}
 
-<style>
+<style lang="postcss">
+
   .nested {
     margin: 1em 1em;
     padding: 0.5em 1em;

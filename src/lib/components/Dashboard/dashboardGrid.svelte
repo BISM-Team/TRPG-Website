@@ -235,7 +235,8 @@
   </div>
 {/if}
 
-<style>
+<style lang="postcss">
+
   #grid {
     display: flex;
     flex-flow: row wrap;

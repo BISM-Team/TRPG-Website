@@ -122,7 +122,7 @@ export function filterOutNonVisibleLinks(
   };
 }
 
-export function integrateDirectiveInfo(
+export function customHeadings(
   options?: { user_id: string; gm_id: string } | void
 ) {
   if (!options || !options.user_id || !options.gm_id) {
@@ -130,16 +130,19 @@ export function integrateDirectiveInfo(
   }
 
   return function (tree: Root) {
-    visit(tree, "heading", (child, i) => {
+    visit(tree, "heading", (node, i) => {
       if (i === null) return;
-      const node_data_ref = child.data || (child.data = { hProperties: {} });
+      const advHeading = node as AdvancedHeading;
+      const node_data_ref = node.data || (node.data = { hProperties: {} });
       const hProperties_ref = node_data_ref.hProperties as any;
-      if (isNodeModifiable(tree, i, options.user_id, options.gm_id)) {
-        hProperties_ref.class = (hProperties_ref.class || "") + "modifiable";
-      }
-      const advHeading = child as AdvancedHeading;
-      if (advHeading.attributes && advHeading.attributes.id)
-        hProperties_ref.id = advHeading.attributes.id;
+      node_data_ref.hName = "wiki-heading";
+      node_data_ref.hProperties = {
+        id: advHeading.attributes?.id,
+        tag: "h" + node.depth,
+        modifiers: advHeading.attributes?.modifiers,
+        viewers: advHeading.attributes?.viewers,
+        user_id: options.user_id,
+      };
     });
   };
 }

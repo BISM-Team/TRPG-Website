@@ -42,11 +42,11 @@
   <Modal {disabled} on:close={toggleAddDialog}>
     <div id="modalContent">
       <form method="post" action="?/add" use:enhance={handleSubmit}>
-        <input type="text" id="searchInput" bind:value={textSearch}>
+        <input type="text" id="searchInput" class="input" bind:value={textSearch}>
         <div class="cards">
           {#each characters.filter(character => !textSearch || character.name.toLowerCase().trim().includes(textSearch.toLowerCase().trim())) as character}
             <Card button={{role: "submit", name: "characterId", value: character.id}}>
-              <h5 class="w3-padding-16">{character.name}</h5>
+              <h5 class="p-1">{character.name}</h5>
             </Card>
           {/each}
         </div>
@@ -58,11 +58,11 @@
 <div class="cards">
     {#each data.characters as character}
         <Card link={"./characters/" + character.id}>
-          <h3 class="w3-padding-32">{character.name}</h3>
+          <h3 class="h3 p-2">{character.name}</h3>
         </Card>
     {/each}
 
     <Card on:buttonClick={toggleAddDialog}>
-      <h3 class="w3-padding-32">Add character</h3>
+      <h3 class="h3 p-2">Add character</h3>
     </Card>
 </div>

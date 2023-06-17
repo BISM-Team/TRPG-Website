@@ -94,33 +94,33 @@
 </script>
 
 <Toolbar>
-  <button {disabled} id="sideBarButton" class="w3-button" style:margin-right="auto" on:click={toggleSidebar}>
-    <span class="material-symbols-outlined w3-text-white">menu</span>
+  <button {disabled} id="sideBarButton" class="mr-auto btn" on:click={toggleSidebar}>
+    <span class="material-symbols-outlined text-primary-200">menu</span>
   </button>
   {#if edit}
-    <button {disabled} id="deleteButton" class="w3-button" on:click={toggleDeleteModal}>
-      <span class="material-symbols-outlined w3-text-white">delete</span>
+    <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
+      <span class="material-symbols-outlined text-primary-200">delete</span>
     </button>
   {:else}
-    <button {disabled} id="searchButton" class="w3-button" on:click={toggleSearchModal}>
-      <span class="material-symbols-outlined w3-text-white">search</span>
+    <button {disabled} id="searchButton" on:click={toggleSearchModal}>
+      <span class="material-symbols-outlined text-primary-200">search</span>
     </button>
   {/if}
-  <button {disabled} id="editButton" class="w3-button" on:click={toggleEdit}>
-    <span class="material-symbols-outlined w3-text-white">{edit ? "visibility" : "edit"}</span>
+  <button {disabled} id="editButton" on:click={toggleEdit}>
+    <span class="material-symbols-outlined text-primary-200">{edit ? "visibility" : "edit"}</span>
   </button>
 </Toolbar>
 
 {#if showDeleteModal}
   <Modal {disabled} on:close={toggleDeleteModal}>
-    <h2 class="w3-padding">Do you want to delete this page?</h2>
+    <h2 class="h2 w3-padding">Do you want to delete this page?</h2>
     <p>
       <em>Note that only the content you are allowed to modify will be deleted</em>
     </p>
     <form id="deleteConfirmationButtons" class="w3-container" method="post" action="?/delete" use:enhance={handleDelete}>
       <input type="hidden" name="hash" value={data.hash} />
-      <button {disabled} class="w3-button w3-margin w3-grey" type="button" on:click={toggleDeleteModal}>Cancel</button>
-      <button {disabled} class="w3-button w3-margin w3-teal" type="submit">Yes</button>
+      <button {disabled} class="btn-secondary" type="button" on:click={toggleDeleteModal}>Cancel</button>
+      <button {disabled} class="btn-primary" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}
@@ -131,9 +131,9 @@
   </Modal>
 {/if}
 
-<div class="layoutWithSidebar">
+<div class="flex flex-row h-full">
   {#if showSidebar}
-    <div class="sidebarContainer w3-padding-32 w3-teal" transition:slide={{ axis: "x" }}>
+    <div class="sidebarContainer p-2 h-full bg-surface-300-600-token" transition:slide={{ axis: "x" }}>
       {#each data.campaign.wikiTree.children as child}
         <SideBarEntry node={child}/>
       {/each}
@@ -145,14 +145,3 @@
                           client_error: form.invalid_campaign_id_or_page_name || form.missing_hash || form.missing_page || form.missing_text_or_tree || form.no_first_heading || false 
                         } : null}/>
 </div>
-
-<style>
-  .layoutWithSidebar {
-    display: flex;
-    flex-grow: 1;
-  }
-
-  .sidebarContainer {
-    height: 100vh;
-  }
-</style>

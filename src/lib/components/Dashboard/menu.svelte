@@ -184,80 +184,80 @@
 {#if menuDialog.show}
   <Modal {disabled} on:close={toggle}>
     {#if !menuDialog.save_as && !menuDialog.load_from_template && !menuDialog.settings}
-      <h3 class="w3-center w3-margin-bottom">Menu</h3>
-      <button {disabled} id="gotoSaveTo" class="w3-button w3-block" on:click={openSaveTo}>Save to template</button>
-      <button {disabled} id="gotoLoadFrom" class="w3-button w3-block" on:click={openLoadFrom}>Load from template</button>
-      <button {disabled} id="gotoSettings" class="w3-button w3-block" on:click={openSettings}>Settings</button>
-      <button {disabled} id="deleteButton" class="w3-button w3-block" on:click={deleteDialog.toggle}>Delete</button>
+      <h3 class="h3 text-center w3-margin-bottom">Menu</h3>
+      <button {disabled} id="gotoSaveTo" class="btn block" on:click={openSaveTo}>Save to template</button>
+      <button {disabled} id="gotoLoadFrom" class="btn block" on:click={openLoadFrom}>Load from template</button>
+      <button {disabled} id="gotoSettings" class="btn block" on:click={openSettings}>Settings</button>
+      <button {disabled} id="deleteButton" class="btn block" on:click={deleteDialog.toggle}>Delete</button>
       {#if removeFromCampaign}
-        <button {disabled} id="removeFromCampaignButton" class="w3-button w3-block" on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button>
+        <button {disabled} id="removeFromCampaignButton" class="btn block" on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button>
       {/if}
     {:else if menuDialog.save_as}
-      <h3 class="w3-center w3-margin-bottom">Save to Template</h3>
-      <button {disabled} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <h3 class="h3 text-center w3-margin-bottom">Save to Template</h3>
+      <button {disabled} class="goBackBtn btn" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
-        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-        <input {disabled} type="text" id="saveAs" bind:value={menuDialog.save_as.value}/>
+        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id} class="input"/>
+        <input {disabled} type="text" id="saveAs" bind:value={menuDialog.save_as.value} class="input"/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.save_as && (!menuDialog.save_as.value || template.name.toLowerCase().includes(menuDialog.save_as.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
-              <h5 class="w3-padding-16">{template.name}</h5>
+              <h5 class="p-1">{template.name}</h5>
             </Card>
           {/each}
           {#if menuDialog.save_as.value && !templates.find(template => (menuDialog.save_as && (template.name === menuDialog.save_as.value)))}
             <Card button={{role: "submit", name: "name", value: menuDialog.save_as.value}}>
-              <h5 class="w3-padding-16">{menuDialog.save_as.value}</h5>
+              <h5 class="p-1">{menuDialog.save_as.value}</h5>
             </Card>
           {/if}
         </div>
       </form>
     {:else if menuDialog.load_from_template}
-      <h3 class="w3-center w3-margin-bottom">Load from Template</h3>
-      <button {disabled} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <h3 class="h3 text-center w3-margin-bottom">Load from Template</h3>
+      <button {disabled} class="goBackBtn btn" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
-        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-        <input {disabled} type="text" id="saveAs" bind:value={menuDialog.load_from_template.value}/>
+        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id} class="input"/>
+        <input {disabled} type="text" id="saveAs" bind:value={menuDialog.load_from_template.value} class="input"/>
         <div class="cards">
           {#each templates.filter(template => (menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name.toLowerCase().includes(menuDialog.load_from_template.value.trim().toLowerCase())))) as template}
             <Card button={{role: "submit", name: "templateId", value: template.id}}>
-              <h5 class="w3-padding-16">{template.name}</h5>
+              <h5 class="p-1">{template.name}</h5>
             </Card>
           {/each}
         </div>
       </form>
     {:else if menuDialog.settings}
-      <h3 class="w3-center w3-margin-bottom">Settings</h3>
-      <button {disabled} class="goBackBtn w3-button" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
+      <h3 class="h3 text-center w3-margin-bottom">Settings</h3>
+      <button {disabled} class="goBackBtn btn" on:click={menuBack}><span class="material-symbols-outlined">arrow_back</span></button>
       <form action="?/settings" method="POST" use:enhance={submitSettings}>
-        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-        <label for="name">Name</label>
-        <input {disabled} type="text" name="name" id="name" bind:value={dashboard.name}/>
-        <h4 class="w3-margin-top">Numeric Variables</h4>
+        <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id} class="input"/>
+        <label class="label" for="name">Name</label>
+        <input {disabled} type="text" name="name" id="name" bind:value={dashboard.name} class="input"/>
+        <h4 class="h4 w3-margin-top">Numeric Variables</h4>
         <div class="variablesContainer">
           {#each dashboard.numericVariables as numVar}
             <div class="variable">
-              <input {disabled} type="checkbox" id="show_{numVar.id}" class="w3-check show_checkbox" style:position="static" bind:checked={numVar.show}>
-              <input {disabled} type="text" bind:value={numVar.name} style="width: {numVar.name.length+1}ch" required/>
-              <input {disabled} type="number" id={numVar.id} bind:value={numVar.value} style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
-              <button {disabled} type="button" class="w3-button" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined" style:display="block">delete</span></button>
+              <input {disabled} type="checkbox" id="show_{numVar.id}" class="checkbox show_checkbox" bind:checked={numVar.show}>
+              <input {disabled} type="text" bind:value={numVar.name} class="input" style="width: {numVar.name.length+1}ch" required/>
+              <input {disabled} type="number" id={numVar.id} bind:value={numVar.value} class="input" style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
+              <button {disabled} type="button" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined">delete</span></button>
             </div>
           {/each}
-          <button {disabled} type="button" class="w3-button variable" on:click={() => {addVariable("numeric")}}>Add</button>
+          <button {disabled} type="button" class="btn variable" on:click={() => {addVariable("numeric")}}>Add</button>
         </div>
-        <h4 class="w3-margin-top">String Variables</h4>
+        <h4 class="h4 w3-margin-top">String Variables</h4>
         <div id="variablesContainer">
           {#each dashboard.stringVariables as strVar}
             <div class="variable">
-              <input {disabled} type="checkbox" id="show_{strVar.id}" class="w3-check show_checkbox" style:position="static" bind:checked={strVar.show}>
-              <input {disabled} type="text" bind:value={strVar.name} style="width: {strVar.name.length+1}ch" required/>
-              <input {disabled} type="text" id={strVar.id} bind:value={strVar.value} style="width: {strVar.value.length+1}ch">
-              <button {disabled} type="button" class="w3-button" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined" style:display="block">delete</span></button>
+              <input {disabled} type="checkbox" id="show_{strVar.id}" class="checkbox show_checkbox" bind:checked={strVar.show}>
+              <input {disabled} type="text" bind:value={strVar.name} class="input" style="width: {strVar.name.length+1}ch" required/>
+              <input {disabled} type="text" id={strVar.id} bind:value={strVar.value} class="input" style="width: {strVar.value.length+1}ch">
+              <button {disabled} type="button" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined">delete</span></button>
             </div>
           {/each}
-          <button {disabled} type="button" class="w3-button variable" on:click={() => {addVariable("string")}}>Add</button>
+          <button {disabled} type="button" class="btn variable" on:click={() => {addVariable("string")}}>Add</button>
         </div>
-        <button {disabled} type="button" on:click={discard} class="w3-margin-top w3-button w3-grey">Discard</button>
-        <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Save</button>
+        <button {disabled} type="button" on:click={discard} class="w3-margin-top btn-secondary">Discard</button>
+        <button {disabled} type="submit" class="w3-margin-top btn-primary">Save</button>
       </form>
     {/if}
   </Modal>
@@ -268,7 +268,8 @@
   {/if}
 {/if}
 
-<style>
+<style lang="postcss">
+
   .goBackBtn {
     position: absolute;
     background-color: transparent;

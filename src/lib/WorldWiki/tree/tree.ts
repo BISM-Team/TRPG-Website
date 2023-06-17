@@ -10,9 +10,8 @@ import {
   directiveToHeading,
   headingToDirective,
   addHeadingIds,
-  integrateDirectiveInfo,
+  customHeadings,
   filterOutNonVisible,
-  filterOutNonVisibleLinks,
   tagsDirectiveToLinks,
   resolveCustomElements,
 } from "./plugins";
@@ -55,7 +54,7 @@ export async function filterOutTree(
 async function prepareTree(tree: Root, user_id: string, gm_id: string) {
   return await unified()
     .use(tagsDirectiveToLinks)
-    .use(integrateDirectiveInfo, { user_id: user_id, gm_id })
+    .use(customHeadings, { user_id: user_id, gm_id })
     .use(resolveCustomElements)
     .use(remarkRehype)
     .run(tree);

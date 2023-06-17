@@ -35,14 +35,15 @@
     <p>loading data...</p>
   {:then data} 
     {#if data}
-      <p class="w3-center" title={source}>{data}</p>
+      <p class="text-center" title={source}>{data}</p>
     {:else}
-      <p class="w3-center">Property not found</p>
+      <p class="text-center">Property not found</p>
     {/if}
   {/await}
 </div>
 
-<style>
+<style lang="postcss">
+
   .content {
     padding: 2vh 2vw;
     overflow: auto;

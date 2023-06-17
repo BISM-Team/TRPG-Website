@@ -27,11 +27,11 @@
 {#if show_modal}
   <Modal {disabled} on:close={toggleCreateDialog}>
     <form action="?/create" method="post" use:enhance={submitCreate}>
-      <label for="nameInput">Name</label>
-      <input type="text" name="name" id="nameInput" class="w3-input w3-border w3-margin-bottom" value={form?.name || ""}/>
+      <label class="label" for="nameInput">Name</label>
+      <input type="text" name="name" id="nameInput" class="input w3-border w3-margin-bottom" value={form?.name || ""}/>
 
-      <button {disabled} type="button" on:click={toggleCreateDialog} class="w3-margin-top w3-button">Cancel</button>
-      <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Create</button>
+      <button {disabled} type="button" on:click={toggleCreateDialog} class="btn-secondary">Cancel</button>
+      <button {disabled} type="submit" class="btn-primary">Create</button>
     </form>
   </Modal>
 {/if}
@@ -39,14 +39,15 @@
 <div class="cards">
   {#each data.campaigns as campaign}
     <Card link={"./campaign/" + campaign.id}>
-      <h3 class="w3-padding-32">{campaign.name}</h3>
+      <h3 class="h3 p-2">{campaign.name}</h3>
     </Card>
   {/each}
 
   <Card on:buttonClick={toggleCreateDialog}>
-    <h3 class="w3-padding-32">Create a campaign</h3>
+    <h3 class="h3 p-2">Create a campaign</h3>
   </Card>
 </div>
 
-<style>
+<style lang="postcss">
+
 </style>

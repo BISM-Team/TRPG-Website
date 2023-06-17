@@ -20,12 +20,7 @@
 
   const type_options = Object.keys(map) as CardType[];
   let selected_type: CardType = card.type;
-  let props: any;
-  onChangeType();
-
-  function onChangeType() {
-    props = card.type === selected_type ? card.properties : map[selected_type].props
-  }
+  $: props = card.type === selected_type ? card.properties : map[selected_type].props;
 
   export function toggle() {
     showSettingsDialog = !showSettingsDialog;
@@ -48,10 +43,10 @@
 
 {#if showSettingsDialog}
   <Modal {disabled} on:close={toggle}>
-    <h3 class="w3-center">Card Settings</h3>
+    <h3 class="h3 text-center">Card Settings</h3>
     <form method="post" use:enhance={submitSettings}>
-      <label for="typeInput">Type</label>
-      <select id="typeInput" class="w3-input w3-border w3-margin-bottom" bind:value={selected_type} on:change={onChangeType} required>
+      <label class="label" for="typeInput" >Type</label>
+      <select id="typeInput" class="select w3-border w3-margin-bottom" bind:value={selected_type} required>
         {#each type_options as type}
           <option value={type}>{capitalizeFirstLetter(type)}</option>
         {/each}
@@ -61,8 +56,8 @@
         <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
       {/each}
             
-      <button {disabled} type="button" on:click={toggle} class="w3-margin-top w3-button">Cancel</button>
-      <button {disabled} type="submit" class="w3-margin-top w3-button w3-teal">Done</button>
+      <button {disabled} type="button" on:click={toggle} class="w3-margin-top btn-secondary">Cancel</button>
+      <button {disabled} type="submit" class="w3-margin-top btn btn-primary">Done</button>
     </form>
   </Modal>
 {/if}

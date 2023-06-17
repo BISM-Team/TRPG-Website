@@ -15,7 +15,8 @@
         : default_height}"
 />
 
-<style>
+<style lang="postcss">
+
     .prototype-content {
         background-color: white;
         border: 0.5em solid #f1f1f1;

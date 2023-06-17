@@ -6,6 +6,7 @@
   import type { Heading } from "@prisma/client";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { Root } from "mdast";
+  import ErrorBar from "./error_bar.svelte";
 
   export let page: {
     hash: string, 
@@ -100,23 +101,23 @@
 <div class="w3-container" id="page">
   {#if edit}
     {#if result?.conflict} 
-      <p class="w3-panel w3-red">Someone updated this page just now, please refresh the page and try again. <br /> If this happens again please contact us.</p> 
+      <ErrorBar text="Someone updated this page just now, please refresh the page and try again. <br /> If this happens again please contact us."/>
     {/if}
     {#if result?.client_error} 
-      <p class="w3-panel w3-red">Client Error, please contact us to investigate the cause!</p> 
+      <ErrorBar text="Client Error, please contact us to investigate the cause!"/>
     {/if}
     {#await stringfyTrees()}
       <p>stringifying markdown...</p>
     {:then stringified}
-      <form class="w3-container w3-padding-32" method="post" action={saveAction} use:enhance={handleSave}>
-        <input type="hidden" name="hash" value={page.hash} />
-        <input type="hidden" name="pre" value={stringified.pre}>
-        <textarea id="textArea" name="actual" value={stringified.actual} />
-        <input type="hidden" name="post" value={stringified.post}>
+      <form class="w3-container p-2" method="post" action={saveAction} use:enhance={handleSave}>
+        <input type="hidden" name="hash" value={page.hash} class="input"/>
+        <input type="hidden" name="pre" value={stringified.pre} class="input">
+        <textarea id="textArea" name="actual" value={stringified.actual} class="textarea"/>
+        <input type="hidden" name="post" value={stringified.post} class="input">
         <br />
-        <div class="buttonContainer w3-center w3-block">
-          <button {disabled} class="w3-button w3-grey" type="button" on:click={() => {edit = false;}}>Cancel</button>
-          <button {disabled} class="w3-button w3-teal" type="submit">Done</button>
+        <div class="buttonContainer text-center block">
+          <button {disabled} class="btn-secondary" type="button" on:click={() => {edit = false;}}>Cancel</button>
+          <button {disabled} class="btn-primary" type="submit">Done</button>
         </div>
       </form>
     {/await}
@@ -125,27 +126,27 @@
       <div id="toc_container">
         <div id="toc" class="w3-card-2">
           {#each page.headings as heading}
-            <a class="w3-block w3-container w3-padding" href="#{heading.id}">
-              <span class="w3-text-gray">{addHash("", heading.level).trim()}</span>
+            <a class="block transition-[text-decoration] w3-container w3-padding" href="#{heading.id}">
+              <span class="text-gray">{addHash("", heading.level).trim()}</span>
               {heading.text}
             </a>
           {/each}
         </div>
       </div>
     {/if}
-    <div class="w3-container w3-padding-32" id="content">
+    <div class="w3-container p-2" id="content">
       {#await renderedTree}
         <p>rendering markdown...</p>
       {:then _renderedTree} 
         {#if heading && missing_heading}
-          <div class="w3-center">
-            <h3 class="w3-section w3-padding">Heading '{capitalizeFirstLetter(heading)}' does not exist yet</h3>
+          <div class="text-center">
+            <h3 class="h3 w3-section w3-padding">Heading '{capitalizeFirstLetter(heading)}' does not exist yet</h3>
             <p>Do you want to create it?</p>
             <form id="btnContainer" class="w3-container" method="post" action={saveAction} use:enhance={addHeading}>
-              <input type="hidden" name="hash" value={page.hash} />
-              <input type="hidden" name="pre" value={JSON.stringify(extractedTrees.pre)}>
-              <input type="hidden" name="heading" value={capitalizeFirstLetter(heading)}>
-              <button {disabled} class="w3-margin w3-button w3-teal" type="submit">Yes</button>
+              <input type="hidden" name="hash" value={page.hash} class="input"/>
+              <input type="hidden" name="pre" value={JSON.stringify(extractedTrees.pre)} class="input"/>
+              <input type="hidden" name="heading" value={capitalizeFirstLetter(heading)} class="input"/>
+              <button {disabled} class="w3-margin btn btn-primary" type="submit">Yes</button>
             </form>
           </div>
         {:else}
@@ -156,7 +157,8 @@
   {/if}
 </div>
 
-<style>
+<style lang="postcss">
+  
   #page {
     position: relative;
     width: 100%;
@@ -190,7 +192,6 @@
 
   #toc a {
     text-decoration: underline solid rgba(0, 0, 0, 0) 1px;
-    transition: 0.2s ease-out;
   }
 
   #toc a:hover {

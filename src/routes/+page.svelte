@@ -6,13 +6,13 @@
       name: "Characters",
       description:
         "View and edit your characters, or create new ones to use in campaigns",
-      link: "/Characters",
+      link: "/characters",
     },
     {
       name: "Campaign",
       description:
         "Explore and enter all the campaigns you have been invited to or created",
-      link: "/Campaign",
+      link: "/campaign",
     },
   ];
 </script>
@@ -20,13 +20,16 @@
 <div class="cards">
   {#each cards as data}
     <Card link={data.link}>
-      <h3 class="w3-center w3-padding-32 w3-border-bottom">{data.name}</h3>
-      <p class="w3-padding-32">{data.description}</p>
+      <svelte:fragment slot="card-header">
+        <h3 class="h3 text-center p-2">{data.name}</h3>
+      </svelte:fragment>
+      <p class="p-2">{data.description}</p>
     </Card>
   {/each}
 </div>
 
-<style>
+<style lang="postcss">
+
   h3 {
     margin: 0;
   }

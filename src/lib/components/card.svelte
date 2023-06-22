@@ -13,35 +13,38 @@
   }
 </script>
 
-<div id="container" class="card-container w3-card-4 w3-margin w3-center">
-  {#if link}
-    <a href={link} class="w3-container">
+{#if link}
+  <a href={link} class="card block card-hover p-4">
+    {#if $$slots["card-header"]}
+      <div class="card-header">
+        <slot name="card-header"/>
+      </div>
+    {/if}
+    <div class="p-4">
       <slot />
-    </a>
-  {:else}
-    <button on:click={onClick} role={button.role} name={button.name} value={button.value} class="w3-container w3-block">
+    </div>
+  </a>
+{:else}
+  <button on:click={onClick} role={button.role} name={button.name} value={button.value} class="card block card-hover p-4">
+    {#if $$slots["card-header"]}
+      <div class="card-header">
+        <slot name="card-header"/>
+      </div>
+    {/if}
+    <div class="p-4">
       <slot />
-    </button>
-  {/if}
-</div>
+    </div>
+  </button>
+{/if}
 
-<style>
-  #container {
-    min-width: 20%;
-    transition: ease-out 200ms;
-  }
-
-  #container:hover {
-    transform: scale(110%);
-  }
-
+<style lang="postcss">
   a {
     display: block;
     text-decoration: none;
   }
 
   button {
-    background-color: transparent;
+    background-color: inherit;
     border: none;
     cursor: pointer;
     margin: 0;

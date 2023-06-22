@@ -1,0 +1,35 @@
+/* Write your global styles here, in PostCSS syntax */
+
+@tailwind base;
+
+html,
+body {
+  @apply h-full overflow-hidden;
+}
+
+form button {
+  @apply mx-6 mb-0 mt-2 w-32;
+}
+
+.cards {
+  @apply mt-16 flex w-full flex-row flex-wrap justify-evenly p-12;
+}
+
+.material-symbols-outlined {
+  @apply block;
+  color: inherit;
+}
+
+@layer base {
+  .btn-primary {
+    @apply bg-primary-active-token;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-300-600-token;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-surface-200-700-token;
+  }
+}

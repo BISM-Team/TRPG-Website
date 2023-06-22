@@ -4,4 +4,4 @@
   export let text: string;
 </script>
 
-<p class="w3-center w3-panel w3-red w3-margin">{capitalizeFirstLetter(text)}</p>
+<p class="text-center w3-panel bg-error-500 w3-margin">{capitalizeFirstLetter(text)}</p>

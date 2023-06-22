@@ -3,11 +3,11 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-  export let disable: boolean;
+  export let disabled: boolean;
   let wrapper: HTMLElement;
 
   function closeModal() {
-    if(!disable && wrapper) dispatch("close")
+    if(!disabled && wrapper) dispatch("close")
   }
 
   function clickOutside(event: MouseEvent) {
@@ -17,25 +17,19 @@
   function keyUp(ev: KeyboardEvent) {
     if(ev.key === "Escape") closeModal();
   }
-
-  onMount(() => {
-    window.addEventListener("pointerup", clickOutside);
-    window.addEventListener("keyup", keyUp);
-    return () => {
-      window.removeEventListener("pointerup", clickOutside);
-      window.removeEventListener("keyup", keyUp);
-    };
-  });
 </script>
 
+<svelte:document on:click={clickOutside} on:keyup={keyUp}/>
+
 <div bind:this={wrapper} id="modalWrapper">
-  <div id="modalContent" class="w3-center w3-container">
-    <button id="closeButton" class="w3-button" disabled={disable} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
+  <div id="modalContent" class="text-center w3-container">
+    <button id="closeButton" class="btn" {disabled} on:click={closeModal}><span class="material-symbols-outlined">close</span></button>
     <slot />
   </div>
 </div>
 
-<style>
+<style lang="postcss">
+
   #modalWrapper {
     position: fixed; /* Stay in place */
     display: flex;
@@ -61,7 +55,6 @@
     padding: 1em 2em;
     margin: auto;
     min-height: 20vh;
-    max-width: 40vw;
     overflow: hidden;
   }
 

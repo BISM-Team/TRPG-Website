@@ -2,26 +2,13 @@
 
 </script>
 
-<div id="topRightButtonContainer" class="w3-block">
+<div id="topRightButtonContainer" class="sticky top-0 flex justify-right py-0 px-1 gap-1 z-20 bg-surface-200-700-token">
   <slot></slot>
 </div>
 
-<style>
-  #topRightButtonContainer {
-    position: sticky;
-    top: 0;
-    background-color: teal;
-    display: flex;
-    justify-content: right;
-    padding: 0em 1em;
-    gap: 1em;
-    z-index: 50;
-  }
+<style lang="postcss">
+
   #topRightButtonContainer > :global(*) {
-    text-align: center;
-    box-sizing: content-box;
-    width: 4em;
-    height: 24px;
-    transition: 0.1s ease-out;
+    @apply text-center box-content w-4 h-24;
   }
 </style>

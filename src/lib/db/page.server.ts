@@ -4,9 +4,10 @@ import {
   type Campaign_User,
   type Heading,
   type Page,
-  type Prisma,
+  Prisma,
 } from "@prisma/client";
 import { db } from "./db.server";
+import type { Root } from "mdast";
 
 export async function getViewablePages(
   user_id: string,
@@ -58,21 +59,31 @@ export async function getModifiablePages(
 export async function getPage(name: string, campaign: Campaign) {
   return await db.page.findUnique({
     where: { name_campaignId: { name: name, campaignId: campaign.id } },
-    include: { headings: { include: { viewers: true, modifiers: true } } },
+    include: {
+      headings: {
+        include: { viewers: true, modifiers: true },
+        orderBy: { index: "asc" },
+      },
+    },
   });
 }
 
-export async function getPageHeaders(name: string, campaign: Campaign) {
+export async function getPageHeadings(name: string, campaign: Campaign) {
   return await db.page.findUnique({
     where: { name_campaignId: { name: name, campaignId: campaign.id } },
-    select: { headings: { include: { viewers: true, modifiers: true } } },
+    select: {
+      headings: {
+        include: { viewers: true, modifiers: true },
+        orderBy: { index: "asc" },
+      },
+    },
   });
 }
 
 export async function createPage(
   name: string,
   campaign: Campaign,
-  content: Prisma.JsonObject,
+  content: Root,
   headings: (Heading & { viewers: string[]; modifiers: string[] })[]
 ) {
   const _headings = headings.map((heading) => ({
@@ -102,9 +113,10 @@ export async function createPage(
 export async function modifyPage(
   name: string,
   campaign: Campaign,
-  content: Prisma.JsonObject,
+  content: Root,
   headings: (Heading & { viewers: string[]; modifiers: string[] })[],
-  updatedAt: Date
+  prev_hash: string,
+  next_hash: string
 ): Promise<Page> {
   const _headings = headings.map((heading) => ({
     id: heading.id,
@@ -121,7 +133,7 @@ export async function modifyPage(
   return await db.page.update({
     where: {
       name_campaignId: { name: name, campaignId: campaign.id },
-      updatedAt: updatedAt,
+      hash: prev_hash,
     },
     data: {
       content: content,
@@ -129,6 +141,7 @@ export async function modifyPage(
         deleteMany: {},
         create: _headings,
       },
+      hash: next_hash,
     },
   });
 }
@@ -136,12 +149,12 @@ export async function modifyPage(
 export async function deletePage(
   name: string,
   campaign: Campaign,
-  updatedAt: Date
+  prev_hash: string
 ) {
   return await db.page.delete({
     where: {
       name_campaignId: { name: name, campaignId: campaign.id },
-      updatedAt: updatedAt,
+      hash: prev_hash,
     },
   });
 }

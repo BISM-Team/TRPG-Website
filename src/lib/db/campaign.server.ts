@@ -1,16 +1,18 @@
-import { Role, type Campaign, type User } from "@prisma/client";
+import { Role, type Campaign, Prisma } from "@prisma/client";
 import { db } from "./db.server";
+import { exclude } from "../utils";
 
 export async function getUserCampaigns(user_id: string) {
-  return await db.campaign.findMany({
-    where: {
-      Campaign_User: {
-        some: {
-          userId: user_id,
-        },
+  return (
+    await db.campaign_User.findMany({
+      where: {
+        userId: user_id,
       },
-    },
-  });
+      select: {
+        campaign: true,
+      },
+    })
+  ).map((obj) => exclude(obj.campaign, ["wikiTree"]));
 }
 
 export async function getUserCampaign(user_id: string, campaignId: string) {
@@ -53,9 +55,11 @@ export async function createUserCampaign(
   user_id: string,
   campaign: Omit<Campaign, "id" | "createdAt">
 ) {
+  const { wikiTree, ...rest } = campaign;
   return await db.campaign.create({
     data: {
-      ...campaign,
+      ...rest,
+      wikiTree: wikiTree,
       Campaign_User: {
         create: [
           {
@@ -82,6 +86,27 @@ export async function deleteUserCampaign(user_id: string, campaignId: string) {
           role: Role.gm,
         },
       },
+    },
+  });
+}
+
+export async function updateCampaignWikiTree(
+  user_id: string,
+  campaignId: string,
+  wikiTree: PrismaJson.WikiTree
+) {
+  return await db.campaign.update({
+    where: {
+      id: campaignId,
+      Campaign_User: {
+        some: {
+          userId: user_id,
+          role: Role.gm,
+        },
+      },
+    },
+    data: {
+      wikiTree: wikiTree,
     },
   });
 }

@@ -1,5 +1,4 @@
 import type { AnimationConfig, FlipParams } from "svelte/animate";
-import { is_function } from "svelte/internal";
 import { cubicOut } from "svelte/easing"
 
 export function flip(node: Element, { from, to }: { from: DOMRect, to: DOMRect}, params: FlipParams = {}) : AnimationConfig {
@@ -12,7 +11,7 @@ export function flip(node: Element, { from, to }: { from: DOMRect, to: DOMRect},
     const { delay = 0, duration = (d) => Math.sqrt(d) * 120, easing = cubicOut } = params;
     return {
         delay,
-        duration: is_function(duration) ? duration(Math.sqrt(dx * dx + dy * dy)) : duration,
+        duration: typeof duration === "function" ? duration(Math.sqrt(dx * dx + dy * dy)) : duration,
         easing,
         css: (t, u) => {
             const current_time = initial_time + t;

@@ -13,7 +13,7 @@ const config = {
     adapter: adapter(),
     csp: {
       directives: {
-        "connect-src": ["self", "https://vitals.vercel-insights.com"],
+        "connect-src": ["self", "vitals.vercel-insights.com"],
       },
     },
   },

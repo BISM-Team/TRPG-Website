@@ -36,14 +36,14 @@
       <nav class="list-nav">
         <ul class="flex flex-row w-full justify-evenly">
           {#key $page.url}
-            <li><a class="block btn" href="/" class:bg-primary-active-token={isHome()}>Home</a></li>
-            <li><a class="block btn" href="/characters" class:bg-primary-active-token={isActiveRoute("/characters")}>Characters</a></li>
-            <li><a class="block btn" href="/campaign" class:bg-primary-active-token={isActiveRoute("/campaign")}>Campaign</a></li>
+            <li><a class="btn" href="/" class:bg-primary-active-token={isHome()}>Home</a></li>
+            <li><a class="btn" href="/characters" class:bg-primary-active-token={isActiveRoute("/characters")}>Characters</a></li>
+            <li><a class="btn" href="/campaign" class:bg-primary-active-token={isActiveRoute("/campaign")}>Campaign</a></li>
             <li>
               {#if data.auth}
-                <button class="block btn" on:click={logout}>Logout</button>
+                <button class="btn" on:click={logout}>Logout</button>
               {:else}
-                <a class="block btn" href="/login" class:bg-primary-active-token={isActiveRoute("/login")}>Login/Signup</a>
+                <a class="btn" href="/login" class:bg-primary-active-token={isActiveRoute("/login")}>Login/Signup</a>
               {/if}
             </li>
           {/key}

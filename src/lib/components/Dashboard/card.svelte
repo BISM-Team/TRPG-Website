@@ -57,9 +57,9 @@
 
 <div id="content_{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
   {#if edit}
-    <button {disabled} id="removeButton" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
+    <button {disabled} id="removeButton" class="btn" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
     <div id="resizeArea" on:pointerdown={resize} />
-    <button {disabled} id="settingsButton" on:click={settings.toggle}>
+    <button {disabled} id="settingsButton" class="btn" on:click={settings.toggle}>
       <span class="material-symbols-outlined">settings</span>
     </button>
   {/if}

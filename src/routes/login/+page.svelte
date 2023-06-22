@@ -48,7 +48,7 @@
                 {#if form?.login_server_error} <ErrorBar text={"Error, service might be unavailable"}/>
                 {:else if form?.login_failed} <ErrorBar text={"Email or Password incorrect"}/> {/if}
                 <div class="w-full text-center">
-                  <button {disabled} type="submit" class='btn-primary'>Login</button>
+                  <button {disabled} type="submit" class='btn btn-primary'>Login</button>
                 </div>
             </fieldset>
         </form>
@@ -77,7 +77,7 @@
 
                 {#if form?.register_server_error} <ErrorBar text={"Error, service might be unavailable"}/> {/if}
                 <div class="w-full text-center">
-                  <button {disabled} type="submit" class='btn-primary'>Register</button>
+                  <button {disabled} type="submit" class='btn btn-primary'>Register</button>
                 </div>
             </fieldset>
         </form>

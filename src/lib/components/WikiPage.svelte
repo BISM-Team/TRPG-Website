@@ -116,8 +116,8 @@
         <input type="hidden" name="post" value={stringified.post} class="input">
         <br />
         <div class="buttonContainer text-center block">
-          <button {disabled} class="btn-secondary" type="button" on:click={() => {edit = false;}}>Cancel</button>
-          <button {disabled} class="btn-primary" type="submit">Done</button>
+          <button {disabled} class="btn btn-secondary" type="button" on:click={() => {edit = false;}}>Cancel</button>
+          <button {disabled} class="btn btn-primary" type="submit">Done</button>
         </div>
       </form>
     {/await}
@@ -146,7 +146,7 @@
               <input type="hidden" name="hash" value={page.hash} class="input"/>
               <input type="hidden" name="pre" value={JSON.stringify(extractedTrees.pre)} class="input"/>
               <input type="hidden" name="heading" value={capitalizeFirstLetter(heading)} class="input"/>
-              <button {disabled} class="w3-margin btn btn-primary" type="submit">Yes</button>
+              <button {disabled} class="btn btn-primary" type="submit">Yes</button>
             </form>
           </div>
         {:else}

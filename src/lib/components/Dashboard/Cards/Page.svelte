@@ -131,14 +131,14 @@
   }
 </script>
 
-<div class="content w3-card-4">
+<div class="content card">
   {#if page_store}
     {#await page_store.page}
       <p>loading page...</p>
     {:then data}
       {#if !edit}
-        <div class="w3-container block">
-          <button class="btn w3-right" on:click={toggleEdit} disabled={disabled || (page_store.editing && !edit)}><span class="material-symbols-outlined">edit</span></button>
+        <div class="block absolute top-0 w-full shadow-sm text-right">
+          <button class="btn" on:click={toggleEdit} disabled={disabled || (page_store.editing && !edit)}><span class="material-symbols-outlined">edit</span></button>
         </div>
       {/if}
       <WikiPage page={data} toc={false} {handleSave} {addHeading} saveAction="/campaign/{dashboard.campaignId}/wiki/{page_source}?/update" {heading} disabled={disabled || (page_store.editing && !edit)} bind:edit
@@ -151,7 +151,6 @@
 </div>
 
 <style lang="postcss">
-
   .content {
     padding: 2vh 2vw;
     overflow: auto;

@@ -30,8 +30,8 @@
   <Modal {disabled} on:close={toggle}>
     <h4 class="h4 w3-padding">Remove Character from Campaign</h4>
     <form action="?/remove" id="removeConfirmationButtons" class="w3-container" method="post" use:enhance={submitRemove}>
-      <button {disabled} class="btn-secondary" type="button" on:click={toggle}>Cancel</button>
-      <button {disabled} class="btn-primary" type="submit">Remove</button>
+      <button {disabled} type="button" class="btn btn-secondary" on:click={toggle}>Cancel</button>
+      <button {disabled} type="submit" class="btn btn-primary">Remove</button>
     </form>
   </Modal>
 {/if}

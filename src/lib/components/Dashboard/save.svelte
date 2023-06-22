@@ -70,8 +70,8 @@
     <form action="?/save" method="post" use:enhance={submitSave}>
       <input type="hidden" name="switch" value="true">
       <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboard.id}/>
-      <button {disabled} class="btn-secondary" name="save" value="false" type="submit">Discard</button>
-      <button {disabled} class="btn-primary" name="save" value="true" type="submit">Yes</button>
+      <button {disabled} type="submit" class="btn btn-secondary" name="save" value="false" >Discard</button>
+      <button {disabled} type="submit" class="btn btn-primary" name="save" value="true">Yes</button>
     </form>
   </Modal>
 {/if}

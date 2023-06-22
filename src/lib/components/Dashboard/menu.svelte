@@ -185,12 +185,12 @@
   <Modal {disabled} on:close={toggle}>
     {#if !menuDialog.save_as && !menuDialog.load_from_template && !menuDialog.settings}
       <h3 class="h3 text-center w3-margin-bottom">Menu</h3>
-      <button {disabled} id="gotoSaveTo" class="btn block" on:click={openSaveTo}>Save to template</button>
-      <button {disabled} id="gotoLoadFrom" class="btn block" on:click={openLoadFrom}>Load from template</button>
-      <button {disabled} id="gotoSettings" class="btn block" on:click={openSettings}>Settings</button>
-      <button {disabled} id="deleteButton" class="btn block" on:click={deleteDialog.toggle}>Delete</button>
+      <button {disabled} id="gotoSaveTo" class="btn" on:click={openSaveTo}>Save to template</button>
+      <button {disabled} id="gotoLoadFrom" class="btn" on:click={openLoadFrom}>Load from template</button>
+      <button {disabled} id="gotoSettings" class="btn" on:click={openSettings}>Settings</button>
+      <button {disabled} id="deleteButton" class="btn" on:click={deleteDialog.toggle}>Delete</button>
       {#if removeFromCampaign}
-        <button {disabled} id="removeFromCampaignButton" class="btn block" on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button>
+        <button {disabled} id="removeFromCampaignButton" class="btn" on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button>
       {/if}
     {:else if menuDialog.save_as}
       <h3 class="h3 text-center w3-margin-bottom">Save to Template</h3>
@@ -239,7 +239,7 @@
               <input {disabled} type="checkbox" id="show_{numVar.id}" class="checkbox show_checkbox" bind:checked={numVar.show}>
               <input {disabled} type="text" bind:value={numVar.name} class="input" style="width: {numVar.name.length+1}ch" required/>
               <input {disabled} type="number" id={numVar.id} bind:value={numVar.value} class="input" style="width: {(numVar.value?.toString().length ?? 0)+4}ch" required>
-              <button {disabled} type="button" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined">delete</span></button>
+              <button {disabled} type="button" class="btn" on:click={() => {deleteVariable(numVar.id, "numeric")}}><span class="material-symbols-outlined">delete</span></button>
             </div>
           {/each}
           <button {disabled} type="button" class="btn variable" on:click={() => {addVariable("numeric")}}>Add</button>
@@ -251,13 +251,13 @@
               <input {disabled} type="checkbox" id="show_{strVar.id}" class="checkbox show_checkbox" bind:checked={strVar.show}>
               <input {disabled} type="text" bind:value={strVar.name} class="input" style="width: {strVar.name.length+1}ch" required/>
               <input {disabled} type="text" id={strVar.id} bind:value={strVar.value} class="input" style="width: {strVar.value.length+1}ch">
-              <button {disabled} type="button" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined">delete</span></button>
+              <button {disabled} type="button" class="btn" on:click={() => {deleteVariable(strVar.id, "string")}}><span class="material-symbols-outlined">delete</span></button>
             </div>
           {/each}
           <button {disabled} type="button" class="btn variable" on:click={() => {addVariable("string")}}>Add</button>
         </div>
-        <button {disabled} type="button" on:click={discard} class="w3-margin-top btn-secondary">Discard</button>
-        <button {disabled} type="submit" class="w3-margin-top btn-primary">Save</button>
+        <button {disabled} type="button" class="btn btn-secondary" on:click={discard}>Discard</button>
+        <button {disabled} type="submit" class="btn btn-primary">Save</button>
       </form>
     {/if}
   </Modal>

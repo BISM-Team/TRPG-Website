@@ -56,8 +56,8 @@
         <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
       {/each}
             
-      <button {disabled} type="button" on:click={toggle} class="w3-margin-top btn-secondary">Cancel</button>
-      <button {disabled} type="submit" class="w3-margin-top btn btn-primary">Done</button>
+      <button {disabled} type="button" on:click={toggle} class="btn btn-secondary">Cancel</button>
+      <button {disabled} type="submit" class="btn btn-primary">Done</button>
     </form>
   </Modal>
 {/if}

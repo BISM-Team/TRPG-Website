@@ -19,11 +19,11 @@
   }
 </script>
 
-<svelte:document on:pointerup={clickOutside} on:keyup={keyUp}/>
+<svelte:document on:click={clickOutside} on:keyup={keyUp}/>
 
 <div bind:this={wrapper} id="modalWrapper">
   <div id="modalContent" class="text-center w3-container">
-    <button id="closeButton" {disabled} on:pointerup={closeModal}><span class="material-symbols-outlined">close</span></button>
+    <button id="closeButton" class="btn" {disabled} on:click={closeModal}><span class="material-symbols-outlined">close</span></button>
     <slot />
   </div>
 </div>

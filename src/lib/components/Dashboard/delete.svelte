@@ -36,8 +36,8 @@
     <form action="?/delete" id="deleteConfirmationButtons" class="w3-container" method="post" use:enhance={submitDelete}>
       <input type="hidden" name="dashboardId" id="dashboardIdInput" value={dashboardId} class="input"/>
 
-      <button {disabled} class="w3-margin btn-secondary" type="button" on:click={toggle}>Cancel</button>
-      <button {disabled} class="w3-margin btn-primary" type="submit">Yes</button>
+      <button {disabled} class="btn btn-secondary" type="button" on:click={toggle}>Cancel</button>
+      <button {disabled} class="btn btn-primary" type="submit">Yes</button>
     </form>
   </Modal>
 {/if}

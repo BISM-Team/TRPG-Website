@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
 
   export let disabled: boolean;
   let wrapper: HTMLElement;
 
   function closeModal() {
-    if(!disabled && wrapper) dispatch("close")
+    if (!disabled && wrapper) dispatch('close');
   }
 
   function clickOutside(event: MouseEvent) {
@@ -15,21 +14,22 @@
   }
 
   function keyUp(ev: KeyboardEvent) {
-    if(ev.key === "Escape") closeModal();
+    if (ev.key === 'Escape') closeModal();
   }
 </script>
 
-<svelte:document on:click={clickOutside} on:keyup={keyUp}/>
+<svelte:document on:click={clickOutside} on:keyup={keyUp} />
 
 <div bind:this={wrapper} id="modalWrapper">
-  <div id="modalContent" class="text-center w3-container">
-    <button id="closeButton" class="btn" {disabled} on:click={closeModal}><span class="material-symbols-outlined">close</span></button>
+  <div id="modalContent" class="w3-container text-center">
+    <button id="closeButton" class="btn" {disabled} on:click={closeModal}
+      ><span class="material-symbols-outlined">close</span></button
+    >
     <slot />
   </div>
 </div>
 
 <style lang="postcss">
-
   #modalWrapper {
     position: fixed; /* Stay in place */
     display: flex;

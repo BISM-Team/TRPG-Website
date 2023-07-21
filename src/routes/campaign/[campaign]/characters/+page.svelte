@@ -1,19 +1,20 @@
 <script lang="ts">
-    import type { PageData } from './$types';
-    import { enhance } from '$app/forms';
-    import Card from '$lib/components/card.svelte';
-    import Modal from '$lib/components/modal.svelte';
-    import type { SubmitFunction } from '@sveltejs/kit';
+  import type { PageData } from './$types';
+  import { enhance } from '$app/forms';
+  import Card from '$lib/components/card.svelte';
+  import Modal from '$lib/components/modal.svelte';
+  import type { SubmitFunction } from '@sveltejs/kit';
   import { propagateErrors } from '$lib/utils';
   import { page } from '$app/stores';
   import type { Character } from '@prisma/client';
+  import type { Jsonify } from '../../../../../$api';
     
     export let data: PageData;
     let show_modal = false;
     let disabled = false;
 
     let textSearch: string = "";
-    let characters: Character[] = [];
+    let characters: Jsonify<Character>[] = [];
 
     async function toggleAddDialog() {
       show_modal = !show_modal;
@@ -34,7 +35,7 @@
       const response = await fetch(`/api/campaign/${data.params.campaign}/characters?not_in=true`);
       await propagateErrors(response, $page.url);
       if(!response.ok) throw new Error("unexpected error");
-      characters = (await response.json()).characters as Character[];
+      characters = (await response.json()).characters;
     }
 </script>
 

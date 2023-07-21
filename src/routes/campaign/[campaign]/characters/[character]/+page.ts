@@ -9,12 +9,12 @@ export const load = (async ({ fetch, params, url }) => {
   await propagateErrors(response, url);
   if (!response.ok) throw new Error("unexpected error");
   const data = await response.json();
-  if (!data.character || !data.character.dashboard) throw error(404);
-  // @ts-ignore
+  if (!data.character || !("dashboard" in data.character)) throw error(404);
+  const charater_dashboard = data.character.dashboard;
   const new_cards = data.character.dashboard.cards.map((card) => {
-    return replaceCardSource(card, data.character.dashboard);
+    return replaceCardSource(card, charater_dashboard);
   });
-  const { cards, ...other_dashboard } = data.character.dashboard;
+  const { cards, ...other_dashboard } = charater_dashboard;
   const { dashboard, ...other_character } = data.character;
   return {
     character: other_character,
@@ -22,3 +22,4 @@ export const load = (async ({ fetch, params, url }) => {
     params,
   };
 }) satisfies PageLoad;
+

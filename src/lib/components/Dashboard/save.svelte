@@ -5,13 +5,14 @@
   import { invalidateAll } from "$app/navigation";
   import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
   import type { SubmitFunction } from "@sveltejs/kit";
+  import type { Jsonify } from "../../../../$api";
 
-  export let dashboard: Dashboard & {
+  export let dashboard: Jsonify<Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  };
+  }>;
   export let disabled: boolean;
   export let edit: boolean;
   export let edited: boolean;

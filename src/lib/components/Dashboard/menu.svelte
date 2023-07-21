@@ -10,13 +10,14 @@
   import type { SubmitFunction } from "@sveltejs/kit"
   import Delete from "./delete.svelte";
   import RemoveFromCampaign from "./removeFromCampaign.svelte";
+  import type { Jsonify } from "../../../../$api";
 
-  export let dashboard: Dashboard & {
+  export let dashboard: Jsonify<Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  };
+  }>;
   export let deleteRedirectUrl: string;
   export let disabled: boolean;
   export let edited: boolean;
@@ -109,7 +110,6 @@
     const response = await fetch("/api/dashboardTemplates?type=dashboard");
     await propagateErrors(response, new URL(window.location.href));
     if(!response.ok) throw new Error("unexpected error")
-    // @ts-ignore
     templates = (await response.json()).map((template) => {
       const { createdAt, ...rest } = template;
       return {

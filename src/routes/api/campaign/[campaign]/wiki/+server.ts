@@ -1,4 +1,4 @@
-import { json } from "@sveltejs/kit";
+import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 function flattenTree(tree: PrismaJson.WikiTreeNode) {
@@ -15,7 +15,7 @@ export const GET = async function ({ url, params, fetch }) {
   const response = await fetch(
     `/api/campaign/${params.campaign}?modifiable=${modifiable}`
   );
-  if (!response.ok) return response;
+  if (!response.ok) throw error(500);
   const campaign = await response.json();
 
   const result = flattenTree(campaign.wikiTree);
@@ -24,3 +24,4 @@ export const GET = async function ({ url, params, fetch }) {
     pages: result.filter((page) => page !== "root" && page !== "Unsorted"),
   });
 } satisfies RequestHandler;
+

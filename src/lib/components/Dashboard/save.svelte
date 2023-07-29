@@ -5,7 +5,7 @@
   import { invalidateAll } from "$app/navigation";
   import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
   import type { SubmitFunction } from "@sveltejs/kit";
-  import type { Jsonify } from "../../../../$api";
+  import type { Jsonify } from "@sveltejs/kit";
 
   export let dashboard: Jsonify<Dashboard & {
     cards: (CardData & { mod_properties: any }) [],

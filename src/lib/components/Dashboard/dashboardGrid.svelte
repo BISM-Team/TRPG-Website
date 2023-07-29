@@ -6,7 +6,7 @@
   import { spring, type Spring } from "svelte/motion";
   import { arraymove } from "$lib/utils";
   import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
-  import type { Jsonify } from "../../../../$api";
+  import type { Jsonify } from "@sveltejs/kit";
 
   export let dashboard: Jsonify<Dashboard & {
     cards: (CardData & { mod_properties: any }) [],

@@ -7,7 +7,7 @@
   import { propagateErrors } from '$lib/utils';
   import { page } from '$app/stores';
   import type { Character } from '@prisma/client';
-  import type { Jsonify } from '../../../../../$api';
+  import type { Jsonify } from '@sveltejs/kit';
     
     export let data: PageData;
     let show_modal = false;

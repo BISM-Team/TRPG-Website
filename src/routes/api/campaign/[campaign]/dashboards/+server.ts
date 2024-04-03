@@ -7,7 +7,7 @@ import { getUserDashboards } from "$lib/db/dashboard.server";
 export const GET = async function ({ locals, params }) {
   const user = getLogin(locals);
   if (!(await getUserCampaign(user.id, params.campaign)))
-    throw error(404, "Campaign not found");
+    error(404, "Campaign not found");
   return json({
     dashboards: await getUserDashboards(user.id, params.campaign),
   });

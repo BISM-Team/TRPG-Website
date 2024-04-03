@@ -25,7 +25,7 @@ function filterNode(
 export const GET = async function ({ locals, params, url }) {
   const user = getLogin(locals);
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
-  if (!campaign) throw error(404, "Campaign not found");
+  if (!campaign) error(404, "Campaign not found");
 
   const modifiable =
     url.searchParams.get("modifiable")?.toLowerCase() === "true";

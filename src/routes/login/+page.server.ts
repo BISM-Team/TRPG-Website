@@ -5,7 +5,7 @@ import type { Actions } from "./$types";
 
 export const load = (async ({ locals }) => {
   if (locals.user) {
-    throw redirect(307, "/");
+    redirect(307, "/");
   } else return {};
 }) satisfies PageServerLoad;
 
@@ -35,7 +35,7 @@ export const actions: Actions = {
       return fail(500, { login_server_error: true });
     }
 
-    throw redirect(303, redirect_url);
+    redirect(303, redirect_url);
   },
 
   register: async (event) => {
@@ -73,6 +73,6 @@ export const actions: Actions = {
       return fail(500, { register_server_error: true });
     }
 
-    if (redirect_url) throw redirect(303, redirect_url);
+    if (redirect_url) redirect(303, redirect_url);
   },
 };

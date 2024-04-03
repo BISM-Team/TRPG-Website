@@ -147,7 +147,7 @@ async function inject_tag(tag_section_name: string, tree: Root, tag: string) {
     if (
       !inject(tag_section_name, tree, await parseSource(` - [${tag}](${tag})`))
     )
-      throw error(500, "inject failed for unknonw reasons");
+      error(500, "inject failed for unknonw reasons");
     else return true;
   }
 }

@@ -14,7 +14,7 @@ export const GET = async function ({ params, locals, fetch }) {
   const campaign = await getUserCampaignWithGmInfo(user.id, params.campaign);
 
   if (!campaign || !allowed_page_names_regex_whole_word.test(params.page))
-    throw error(400, "Invalid campaign or page name");
+    error(400, "Invalid campaign or page name");
 
   const gm_id = campaign.Campaign_User[0]
     ? campaign.Campaign_User[0].userId
@@ -22,13 +22,13 @@ export const GET = async function ({ params, locals, fetch }) {
 
   const page = await getPage(params.page, campaign);
   if (!page) {
-    throw error(404, "Page not found, want to create it?");
+    error(404, "Page not found, want to create it?");
   }
 
   try {
     const tree = await filterOutTree(page.content, user.id, gm_id);
     if (!tree.children.length) {
-      throw error(403, "Page not viewable");
+      error(403, "Page not viewable");
     }
     const headings: (Omit<Heading, "index"> & {
       viewers: string[];
@@ -56,6 +56,6 @@ export const GET = async function ({ params, locals, fetch }) {
   } catch (exc) {
     if ((exc as HttpError).status === 403) throw exc;
     console.error(exc);
-    throw error(500, "Errors in parsing page, try again");
+    error(500, "Errors in parsing page, try again");
   }
 } satisfies RequestHandler;

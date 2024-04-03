@@ -11,6 +11,6 @@ export const GET = async function ({ locals, params, url }) {
     params.character,
     query.get("dashboard") && query.get("dashboard") === "true" ? true : false
   );
-  if (!character) throw error(404, "character not found");
+  if (!character) error(404, "character not found");
   return json({ character: character });
 } satisfies RequestHandler;

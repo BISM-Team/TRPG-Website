@@ -55,9 +55,9 @@ export function arraymove<type>(
 export async function propagateErrors(response: Response, url: URL) {
   if (!response.ok) {
     if (response.status === 401)
-      throw redirect(307, "/login?redirect=" + url.toString());
+      redirect(307, "/login?redirect=" + url.toString());
     else {
-      throw error(response.status, await response.json());
+      error(response.status, await response.json());
     }
   }
 }

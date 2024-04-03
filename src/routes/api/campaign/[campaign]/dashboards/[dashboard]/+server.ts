@@ -10,6 +10,6 @@ export const GET = async function ({ locals, params }) {
     params.dashboard,
     params.campaign
   );
-  if (!dashboard) throw error(404, "Dashboard not found");
+  if (!dashboard) error(404, "Dashboard not found");
   return json({ dashboard: dashboard });
 } satisfies RequestHandler;

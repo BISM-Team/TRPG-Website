@@ -13,7 +13,7 @@ export interface MyJwtPayload extends JwtPayload, Pick<User, "id" | "name"> {
 export async function getUserFromToken(token: string | undefined) {
   let jwtUser: string | JwtPayload;
   if (token && (jwtUser = jwt.verify(token, AUTH_SECRET))) {
-    if (typeof jwtUser === "string") throw error(400, "Invalid Token");
+    if (typeof jwtUser === "string") error(400, "Invalid Token");
     return jwtUser as MyJwtPayload;
   } else return null;
 }

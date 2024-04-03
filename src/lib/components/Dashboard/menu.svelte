@@ -10,14 +10,13 @@
   import type { SubmitFunction } from "@sveltejs/kit"
   import Delete from "./delete.svelte";
   import RemoveFromCampaign from "./removeFromCampaign.svelte";
-  import type { Jsonify } from "@sveltejs/kit";
 
-  export let dashboard: Jsonify<Dashboard & {
+  export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  }>;
+  };
   export let deleteRedirectUrl: string;
   export let disabled: boolean;
   export let edited: boolean;

@@ -7,14 +7,13 @@
   import { propagateErrors } from '$lib/utils';
   import { page } from '$app/stores';
   import type { Character } from '@prisma/client';
-  import type { Jsonify } from '@sveltejs/kit';
     
     export let data: PageData;
     let show_modal = false;
     let disabled = false;
 
     let textSearch: string = "";
-    let characters: Jsonify<Character>[] = [];
+    let characters: Character[] = [];
 
     async function toggleAddDialog() {
       show_modal = !show_modal;

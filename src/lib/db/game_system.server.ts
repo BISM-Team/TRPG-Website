@@ -1,4 +1,13 @@
-import type { Ability, Character, Effect, Item } from "@prisma/client";
+import type {
+  Ability,
+  CardData,
+  Character,
+  Dashboard,
+  Effect,
+  Item,
+  NumericVariable,
+  StringVariable,
+} from "@prisma/client";
 import { db } from "./db.server";
 import { buildTree } from "$lib/GameSystem/Execution_tree";
 
@@ -24,28 +33,44 @@ export async function getCharacter(
   character_id: string,
   dashboard: boolean,
   campaignId?: string
-) {
-  return await db.character.findUnique({
-    where: {
-      id: character_id,
-      userId: user_id,
-      Campaign_Character: campaignId
-        ? { some: { campaignId: campaignId } }
-        : undefined,
-    },
-    include: {
-      dashboard: dashboard
-        ? {
-            include: {
-              cards: true,
-              character: true,
-              stringVariables: true,
-              numericVariables: true,
-            },
-          }
-        : undefined,
-    },
-  });
+): Promise<
+  | null
+  | Character
+  | (Character & {
+      dashboard: Dashboard & {
+        cards: CardData[];
+        numericVariables: NumericVariable[];
+        stringVariables: StringVariable[];
+        character: Character;
+      };
+    })
+> {
+  const where = {
+    id: character_id,
+    userId: user_id,
+    Campaign_Character: campaignId
+      ? { some: { campaignId: campaignId } }
+      : undefined,
+  };
+
+  if (dashboard)
+    return await db.character.findUnique({
+      where,
+      include: {
+        dashboard: {
+          include: {
+            cards: true,
+            character: true,
+            stringVariables: true,
+            numericVariables: true,
+          },
+        },
+      },
+    });
+  else
+    return await db.character.findUnique({
+      where,
+    });
 }
 
 export async function createCharacter(
@@ -192,3 +217,4 @@ export async function removeCharacterFromCampaign(
     },
   });
 }
+

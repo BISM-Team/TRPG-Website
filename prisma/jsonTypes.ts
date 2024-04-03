@@ -18,6 +18,7 @@ declare global {
       children: WikiTreeNode[];
     };
 
-    type NonNullJson = string | number | boolean | symbol | bigint | object;
+    type NonNullJson = Record<string, any>;
   }
 }
+

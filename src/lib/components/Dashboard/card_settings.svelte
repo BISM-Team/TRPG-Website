@@ -3,16 +3,16 @@
   import { enhance } from "$app/forms";
   import type { CardData, Dashboard, NumericVariable, StringVariable, CardType, Character } from "@prisma/client";
   import { capitalizeFirstLetter, replaceCardSource } from "$lib/utils";
-  import type { SubmitFunction } from "@sveltejs/kit";
+  import type { SubmitFunction, Jsonify } from "@sveltejs/kit";
   import { map } from "./Cards/cards_map";
   import CardVariable from "./card_variable.svelte";
 
-  export let dashboard: Dashboard & {
+  export let dashboard: Jsonify<Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  };
+  }>;
   export let disabled: boolean;
   export let edited: boolean;
   export let card: CardData;

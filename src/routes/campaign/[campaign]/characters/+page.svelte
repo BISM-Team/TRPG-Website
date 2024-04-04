@@ -15,7 +15,7 @@
     let disabled = false;
 
     let textSearch: string = "";
-    let characters: Jsonify<Character>[] = [];
+    let characters: Character[] = [];
 
     async function toggleAddDialog() {
       show_modal = !show_modal;

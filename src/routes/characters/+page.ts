@@ -1,6 +1,4 @@
-import { goto } from "$app/navigation";
 import { propagateErrors } from "$lib/utils";
-import { redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ fetch, url }) => {
@@ -100,7 +98,6 @@ export const load = (async ({ fetch, url }) => {
   fetch(`/api/campaign/${id}${trailing}/dashboards`);
   fetch(`/api/campaign/${id}?${trailing}/dashboards`);
   fetch(`/api/campaign/${id}#${trailing}/dashboards`);
-
+  
   return { characters: (await response.json()).characters };
 }) satisfies PageLoad;
-

@@ -3,18 +3,17 @@
   import { createEventDispatcher } from "svelte";
   import { map } from "./Cards/cards_map";
   import CardSettings from "./card_settings.svelte";
-  import type { Jsonify } from "@sveltejs/kit";
   const dispatch = createEventDispatcher();
 
   const default_width = "auto";
   const default_height = "auto";
 
-  export let dashboard: Jsonify<Dashboard & {
+  export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  }>;
+  };
   export let card: CardData & { mod_properties: any };
   export let picked: boolean;
   export let edit: boolean;

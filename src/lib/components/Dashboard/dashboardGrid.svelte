@@ -6,14 +6,13 @@
   import { spring, type Spring } from "svelte/motion";
   import { arraymove } from "$lib/utils";
   import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
-  import type { Jsonify } from "@sveltejs/kit";
 
-  export let dashboard: Jsonify<Dashboard & {
+  export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  }>;
+  };
   export let disabled: boolean;
   export let edited: boolean;
   export let removedCards: string[];

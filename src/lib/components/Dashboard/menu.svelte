@@ -13,12 +13,12 @@
   import type { Jsonify } from "@sveltejs/kit";
   import type { fetch as kit_fetch } from "@sveltejs/kit";
 
-  export let dashboard: Jsonify<Dashboard & {
+  export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
     stringVariables: StringVariable[],
     numericVariables: NumericVariable[],
     character: Character | null
-  }>;
+  };
   export let deleteRedirectUrl: string;
   export let disabled: boolean;
   export let edited: boolean;

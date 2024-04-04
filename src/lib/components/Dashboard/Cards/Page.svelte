@@ -10,7 +10,8 @@
   import type { ActionData } from "../../../../routes/campaign/[campaign]/wiki/[page]/$types";
   import type { Root } from "mdast";
   import { addHash } from "$lib/WorldWiki/tree/heading";
-  import { writable, type Unsubscriber } from "svelte/store";
+  import type { fetch as kit_fetch } from "@sveltejs/kit";
+
 
   export let source: string;
   export let dashboard: Dashboard & { 
@@ -45,7 +46,7 @@
   let registered: string | undefined = undefined;
 
   async function fetchPage() {
-    const page_response = await fetch(`/api/campaign/${dashboard.campaignId}/wiki/${source}`);
+    const page_response = await (fetch as typeof kit_fetch)(`/api/campaign/${dashboard.campaignId}/wiki/${source}`);
       await propagateErrors(page_response, $page.url);
       if (!page_response.ok) throw new Error("unexpected error");
       return await page_response.json();

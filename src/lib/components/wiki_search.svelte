@@ -2,12 +2,13 @@
   import { propagateErrors } from "$lib/utils";
   import { createEventDispatcher } from "svelte";
   import ErrorBar from "./error_bar.svelte";
+  import type { fetch as kit_fetch } from "@sveltejs/kit";
   const dispatch = createEventDispatcher();
 
   export let campaignId: string;
   let searchText = "";
   let initial_load = (async () => {
-    const response = await fetch(`/api/campaign/${campaignId}/wiki`);
+    const response = await (fetch as typeof kit_fetch)(`/api/campaign/${campaignId}/wiki`);
     await propagateErrors(response, new URL(window.location.href));
     if (response.ok) {
       return (await response.json()).pages;

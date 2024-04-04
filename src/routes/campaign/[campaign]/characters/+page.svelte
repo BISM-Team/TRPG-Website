@@ -7,6 +7,8 @@
   import { propagateErrors } from '$lib/utils';
   import { page } from '$app/stores';
   import type { Character } from '@prisma/client';
+  import type { Jsonify } from '@sveltejs/kit';
+  import type { fetch as kit_fetch } from "@sveltejs/kit";
     
     export let data: PageData;
     let show_modal = false;
@@ -31,7 +33,7 @@
     };
 
     async function loadCharacters() {
-      const response = await fetch(`/api/campaign/${data.params.campaign}/characters?not_in=true`);
+      const response = await (fetch as typeof kit_fetch)(`/api/campaign/${data.params.campaign}/characters?not_in=true`);
       await propagateErrors(response, $page.url);
       if(!response.ok) throw new Error("unexpected error");
       characters = (await response.json()).characters;

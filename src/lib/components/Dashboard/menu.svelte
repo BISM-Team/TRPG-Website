@@ -10,6 +10,8 @@
   import type { SubmitFunction } from "@sveltejs/kit"
   import Delete from "./delete.svelte";
   import RemoveFromCampaign from "./removeFromCampaign.svelte";
+  import type { Jsonify } from "@sveltejs/kit";
+  import type { fetch as kit_fetch } from "@sveltejs/kit";
 
   export let dashboard: Dashboard & {
     cards: (CardData & { mod_properties: any }) [],
@@ -106,7 +108,7 @@
 
   async function loadTemplates() {
     disabled = true;
-    const response = await fetch("/api/dashboardTemplates?type=dashboard");
+    const response = await (fetch as typeof kit_fetch)("/api/dashboardTemplates?type=dashboard");
     await propagateErrors(response, new URL(window.location.href));
     if(!response.ok) throw new Error("unexpected error")
     templates = (await response.json()).map((template) => {

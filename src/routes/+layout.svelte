@@ -11,10 +11,11 @@
   import type { LayoutData } from "./$types";
   import { AppShell, AppBar } from "@skeletonlabs/skeleton";
   import { page } from '$app/stores';
+  import type { fetch as kit_fetch } from "@sveltejs/kit";
   export let data: LayoutData;
 
   async function logout() {
-    const response = await fetch("/api/logout", { method: "POST" });
+    const response = await (fetch as typeof kit_fetch)("/api/logout", { method: "POST" });
     if (response.ok) await goto("/", { invalidateAll: true });
   }
 

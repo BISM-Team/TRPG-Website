@@ -2,6 +2,8 @@
   import { page } from "$app/stores";
   import { propagateErrors } from "$lib/utils";
   import type { Character, Dashboard } from "@prisma/client";
+  import type { fetch as kit_fetch } from "@sveltejs/kit";
+
 
   export let source: string;
   export let dashboard: Dashboard & { 
@@ -16,12 +18,12 @@
     let prop;
     if(dashboard.character) {
       prop = source;
-      response = await fetch(`/api/characters/${dashboard.character.id}`);
+      response = await (fetch as typeof kit_fetch)(`/api/characters/${dashboard.character.id}`);
     } else {
       const index = source.indexOf(".");
       const id = source.slice(0, index);
       prop = source.slice(index+1);
-      response = await fetch(`/api/characters/${id}`);
+      response = await (fetch as typeof kit_fetch)(`/api/characters/${id}`);
     }
     await propagateErrors(response, $page.url);
     if(!response.ok) throw new Error("unexpected error");

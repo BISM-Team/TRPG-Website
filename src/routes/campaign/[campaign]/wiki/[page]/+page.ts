@@ -12,7 +12,7 @@ const fetchCampaign = async function ({ fetch, params, url }) {
 export const load: PageLoad = async (event) => {
   const { params, fetch, url } = event;
   const page_response = await fetch(
-    `/api/campaign/${params.campaign}/wiki/${params.page}`
+    `/api/campaign/${params.campaign}/wiki/${params.page}`,
   );
   await propagateErrors(page_response, url);
   if (!page_response.ok) throw new Error("unexpected error");
@@ -20,6 +20,7 @@ export const load: PageLoad = async (event) => {
 
   return {
     ...data,
-    campaign: fetchCampaign(event),
+    campaign: await fetchCampaign(event),
   };
 };
+

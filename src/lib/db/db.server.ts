@@ -3,7 +3,7 @@ import type { PrismaClient as ImportedPrismaClient } from "@prisma/client";
 import { createRequire } from "module";
 
 const { PrismaClient: RequiredPrismaClient } = createRequire(
-  import.meta.url ?? __filename
+  import.meta.url ?? __filename,
 )("@prisma/client");
 
 const _PrismaClient: typeof ImportedPrismaClient = RequiredPrismaClient;
@@ -32,7 +32,7 @@ export const db = new PrismaClient(
           },
         ],
       }
-    : {}
+    : {},
 );
 
 if (LOG_LEVEL.includes("DBQUERY")) {
@@ -52,3 +52,4 @@ if (LOG_LEVEL.includes("QUERY")) {
     return result;
   });
 }
+

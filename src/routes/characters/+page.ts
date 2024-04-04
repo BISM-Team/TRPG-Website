@@ -30,8 +30,6 @@ export const load = (async ({ fetch, url }) => {
   goto(new URL("")); // unchecked
 
   // @ts-expect-error no matched endpoints
-  fetch("/");
-  // @ts-expect-error no matched endpoints
   fetch("");
   // @ts-expect-error no matched endpoints
   fetch("/api");
@@ -39,10 +37,17 @@ export const load = (async ({ fetch, url }) => {
   fetch("/api/campaign", { method: "POST" });
   // @ts-expect-error invalid method
   fetch("/api/logout");
-  // @ts-expect-error no matched endpoints (is a route)
-  fetch("/campaign");
   // @ts-expect-error type 'number' is not assignable to parameter of type 'URL | RequestInfo'
   fetch(2);
+
+  // can fetch routes with GET
+  fetch("/");
+  fetch("/campaign");
+
+  // @ts-expect-error cannote fetch routes with other methods
+  fetch("/", { method: "POST" });
+  // @ts-expect-error cannote fetch routes with other methods
+  fetch("/campaign", { method: "POST" });
 
   fetch(`/api/campaign/${id}`);
   fetch(`/api/campaign/${id}`, { method: "GET" });

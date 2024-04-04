@@ -2,13 +2,14 @@
   import { page } from "$app/stores";
   import { propagateErrors } from "$lib/utils";
   import type { Character, Dashboard } from "@prisma/client";
+  import type { Jsonify } from "@sveltejs/kit";
   import type { fetch as kit_fetch } from "@sveltejs/kit";
 
 
   export let source: string;
-  export let dashboard: Dashboard & { 
+  export let dashboard: Jsonify<Dashboard & { 
     character: Character | null 
-  };
+  }>;
 
   let data: ReturnType<typeof loadData>;
   $: data = loadData(source);

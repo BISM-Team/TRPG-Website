@@ -11,12 +11,13 @@
   import type { Root } from "mdast";
   import { addHash } from "$lib/WorldWiki/tree/heading";
   import type { fetch as kit_fetch } from "@sveltejs/kit";
+  import type { Jsonify } from "@sveltejs/kit";
 
 
   export let source: string;
-  export let dashboard: Dashboard & { 
+  export let dashboard: Jsonify<Dashboard & { 
     character: Character | null 
-  };
+  }>;
 
   if(!hasContext(context.pages)) throw new Error("context not found");
   const pages = getContext<ContextType.pages>(context.pages);

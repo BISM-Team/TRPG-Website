@@ -8,7 +8,10 @@ export const load = (async ({ fetch, url }) => {
   await propagateErrors(response, url);
   if (!response.ok) throw new Error('unexpected error');
 
-  let id = 'caolhc';
+  return { characters: (await response.json()).characters };
+}) satisfies PageLoad;
+
+/*let id = 'caolhc';
 
   // @ts-expect-error no matched routes
   goto('');
@@ -24,8 +27,8 @@ export const load = (async ({ fetch, url }) => {
   goto('https://external-url');
 
   goto('/');
-  goto('/campaign');
-  goto(`/campaign/${id}`);
+  goto('/campaigns');
+  goto(`/campaigns/${id}`);
   goto('/campaig' + 'n'); // unchecked
   goto(new URL('')); // unchecked
 
@@ -42,15 +45,15 @@ export const load = (async ({ fetch, url }) => {
 
   // can fetch routes with GET
   fetch('/');
-  fetch('/campaign');
+  fetch('/campaigns');
 
   // @ts-expect-error cannote fetch routes with other methods
   fetch('/', { method: 'POST' });
   // @ts-expect-error cannote fetch routes with other methods
   fetch('/campaign', { method: 'POST' });
 
-  fetch(`/api/campaign/${id}`);
-  fetch(`/api/campaign/${id}`, { method: 'GET' });
+  fetch(`/api/campaigns/${id}`);
+  fetch(`/api/campaigns/${id}`, { method: 'GET' });
   fetch('/api/logout', { method: 'POST' });
   fetch('/api/campaign' + '', { method: 'GET' }); // untyped and unchecked
   fetch('/' + '/api'); // untyped and unchecked
@@ -74,13 +77,13 @@ export const load = (async ({ fetch, url }) => {
     redirect(300, new URL(''));
   } catch {}
   try {
-    redirect(300, '/api/campaign');
+    redirect(300, '/api/campaigns');
   } catch {}
   try {
-    redirect(300, '/campaign');
+    redirect(300, '/campaigns');
   } catch {}
   try {
-    redirect(300, `/campaign/${id}`);
+    redirect(300, `/campaigns/${id}`);
   } catch {}
   try {
     redirect(300, `/campaign/${id}` + 'a'); // unchecked
@@ -94,32 +97,28 @@ export const load = (async ({ fetch, url }) => {
 
   let trailing: string = 'abc';
   // slug route trailing
-  fetch(`/api/campaign/${id}?`);
-  fetch(`/api/campaign/${id}?trailing`);
-  fetch(`/api/campaign/${id}#`);
-  fetch(`/api/campaign/${id}#trailing`);
-  fetch(`/api/campaign/${id}${trailing}`);
-  fetch(`/api/campaign/${id}?${trailing}`);
-  fetch(`/api/campaign/${id}#${trailing}`);
+  fetch(`/api/campaigns/${id}?`);
+  fetch(`/api/campaigns/${id}?trailing`);
+  fetch(`/api/campaigns/${id}#`);
+  fetch(`/api/campaigns/${id}#trailing`);
+  fetch(`/api/campaigns/${id}${trailing}`);
+  fetch(`/api/campaigns/${id}?${trailing}`);
+  fetch(`/api/campaigns/${id}#${trailing}`);
 
   // static route trailing
-  fetch(`/api/campaign?`);
-  fetch(`/api/campaign?trailing`);
-  fetch(`/api/campaign#`);
-  fetch(`/api/campaign#trailing`);
-  fetch(`/api/campaign${trailing}`);
-  fetch(`/api/campaign?${trailing}`);
-  fetch(`/api/campaign#${trailing}`);
+  fetch(`/api/campaigns?`);
+  fetch(`/api/campaigns?trailing`);
+  fetch(`/api/campaigns#`);
+  fetch(`/api/campaigns#trailing`);
+  fetch(`/api/campaigns${trailing}`);
+  fetch(`/api/campaigns?${trailing}`);
+  fetch(`/api/campaigns#${trailing}`);
 
   // tecnhically allowed wierd slugs
-  fetch(`/api/campaign/${id}?/dashboards`);
-  fetch(`/api/campaign/${id}?trailing/dashboards`);
-  fetch(`/api/campaign/${id}#/dashboards`);
-  fetch(`/api/campaign/${id}#trailing/dashboards`);
-  fetch(`/api/campaign/${id}${trailing}/dashboards`);
-  fetch(`/api/campaign/${id}?${trailing}/dashboards`);
-  fetch(`/api/campaign/${id}#${trailing}/dashboards`);
-
-  return { characters: (await response.json()).characters };
-}) satisfies PageLoad;
-
+  fetch(`/api/campaigns/${id}?/dashboards`);
+  fetch(`/api/campaigns/${id}?trailing/dashboards`);
+  fetch(`/api/campaigns/${id}#/dashboards`);
+  fetch(`/api/campaigns/${id}#trailing/dashboards`);
+  fetch(`/api/campaigns/${id}${trailing}/dashboards`);
+  fetch(`/api/campaigns/${id}?${trailing}/dashboards`);
+  fetch(`/api/campaigns/${id}#${trailing}/dashboards`);*/

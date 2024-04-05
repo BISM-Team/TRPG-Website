@@ -51,8 +51,13 @@
             <li>
               <a
                 class="btn"
-                href="/campaign"
-                class:bg-primary-active-token={isActiveRoute('/campaign')}>Campaign</a
+                href="/campaigns"
+                class:bg-primary-active-token={isActiveRoute('/campaigns')}>Campaigns</a
+              >
+            </li>
+            <li>
+              <a class="btn" href="/wikis" class:bg-primary-active-token={isActiveRoute('/wikis')}
+                >Wikis</a
               >
             </li>
             <li>

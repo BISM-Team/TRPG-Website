@@ -26,12 +26,19 @@ model User {
 
   dashboards           Dashboard[]
   dashboards_templates DashboardTemplate[]
+  Characters           Character[]
   Campaign_User        Campaign_User[]
-  Character            Character[]
+  Wiki_User            Wiki_User[]
+  Dashboard_Campaign   Dashboard_Campaign[]
 }
 
-enum Role {
+enum CampaignRole {
   gm
+  member
+}
+
+enum WikiRole {
+  creator
   member
 }
 
@@ -42,7 +49,8 @@ model Campaign_User {
   campaignId String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  role Role
+  role     CampaignRole
+  accepted Boolean      @default(true)
 
   @@id([userId, campaignId])
   @@index([userId])
@@ -56,50 +64,114 @@ model Campaign_Character {
   campaignId String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  accepted Boolean @default(true)
+
   @@id([characterId, campaignId])
   @@index([characterId])
   @@index([campaignId])
+}
+
+model Wiki_User {
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  wikiId String
+  wiki   Wiki   @relation(fields: [wikiId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  role     WikiRole
+  accepted Boolean  @default(true)
+
+  @@id([userId, wikiId])
+  @@index([userId])
+  @@index([wikiId])
+}
+
+model Dashboard_Campaign {
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  dashboardId String    @unique
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  default Boolean
+
+  @@id([userId, campaignId, dashboardId])
+  @@index([userId])
+  @@index([campaignId])
+  @@index([dashboardId])
+}
+
+model Dashboard_Character {
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  characterId String
+
+  dashboardId String    @unique
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  default Boolean
+
+  @@id([characterId, dashboardId])
+  @@index([characterId])
+  @@index([dashboardId])
 }
 
 model Campaign {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   name      String
-  /// [WikiTree]
-  wikiTree  Json
 
-  Page               Page[]
-  Dashboard          Dashboard[]
+  Wiki               Wiki[]
+  Dashboard_Campaign Dashboard_Campaign[]
   Campaign_User      Campaign_User[]
   Campaign_Character Campaign_Character[]
 }
 
-model Page {
-  name       String
-  createdAt  DateTime  @default(now())
-  hash       String    @default(cuid())
-  /// [Root]
-  content    Json
-  headings   Heading[]
-  campaignId String
-  campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+model Wiki {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  name      String
+  /// [WikiTree]
+  wikiTree  Json
 
-  @@id([name, campaignId])
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  pages     Page[]
+  Wiki_User Wiki_User[]
+
   @@index([campaignId])
 }
 
-model Heading {
-  id             String @id
-  text           String
-  level          Int
-  index          Int
-  pageName       String
-  pageCampaignId String
-  page           Page   @relation(fields: [pageName, pageCampaignId], references: [name, campaignId], onDelete: Cascade, onUpdate: Cascade)
-  modifiers      User[] @relation("Modifier")
-  viewers        User[] @relation("Viewer")
+model Page {
+  name      String
+  createdAt DateTime  @default(now())
+  hash      String    @default(cuid())
+  /// [Root]
+  content   Json
+  headings  Heading[]
 
-  @@index([pageName, pageCampaignId])
+  wikiId String
+  wiki   Wiki   @relation(fields: [wikiId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([name, wikiId])
+  @@index([wikiId])
+}
+
+model Heading {
+  id         String @id
+  text       String
+  level      Int
+  index      Int
+  pageName   String
+  pageWikiId String
+  page       Page   @relation(fields: [pageName, pageWikiId], references: [name, wikiId], onDelete: Cascade, onUpdate: Cascade)
+  modifiers  User[] @relation("Modifier")
+  viewers    User[] @relation("Viewer")
+
+  @@index([pageName, pageWikiId])
 }
 
 enum DashboardType {
@@ -135,13 +207,10 @@ model Dashboard {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  campaignId String?
-  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  character Character?
+  dashboard_campaign  Dashboard_Campaign?
+  dashboard_character Dashboard_Character?
 
   @@index([userId])
-  @@index([campaignId])
 }
 
 model NumericVariable {
@@ -213,19 +282,16 @@ model Character {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  dashboardId        String               @unique
-  dashboard          Dashboard            @relation(fields: [dashboardId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  Campaign_Character Campaign_Character[]
+  Campaign_Character  Campaign_Character[]
+  Dashboard_Character Dashboard_Character[]
 
   @@index([userId])
-  @@index([dashboardId])
 }
 
 model Item {
-  id      String   @id @default(cuid())
-  name    String   @unique
-  effects Effect[]
-
+  id         String      @id @default(cuid())
+  name       String      @unique
+  effects    Effect[]
   characters Character[]
 }
 

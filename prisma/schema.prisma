@@ -136,8 +136,8 @@ model Wiki {
   /// [WikiTree]
   wikiTree  Json
 
-  campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   pages     Page[]
   Wiki_User Wiki_User[]

@@ -34,6 +34,23 @@ export async function getWikiWithCreatorInfo(user_id: string, wiki_id: string) {
   });
 }
 
+export async function createWiki(
+  user_id: string,
+  data: { name: string; wikiTree: PrismaJson.WikiTree }
+) {
+  return await db.wiki.create({
+    data: {
+      ...data,
+      Wiki_User: {
+        create: {
+          userId: user_id,
+          role: WikiRole.creator
+        }
+      }
+    }
+  });
+}
+
 export async function updateWiki(user_id: string, wiki: Wiki) {
   return await db.wiki.update({
     where: {

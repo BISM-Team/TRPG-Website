@@ -19,9 +19,9 @@
       cards: (CardData & { mod_properties: any })[];
       stringVariables: StringVariable[];
       numericVariables: NumericVariable[];
-      character: Character | null;
     }
   >;
+  export let character: Jsonify<Character> | null;
   export let disabled: boolean;
   export let edited: boolean;
   export let removedCards: string[];
@@ -252,6 +252,7 @@
           bind:disabled
           bind:edited
           bind:dashboard
+          {character}
           {card}
           picked={false}
           {edit}
@@ -266,7 +267,15 @@
 
 {#if picked}
   <div class="pickedCard" style="top:{$actionData.y_or_height}px; left:{$actionData.x_or_width}px;">
-    <Card bind:disabled bind:edited bind:dashboard card={picked.card} picked={true} {edit} />
+    <Card
+      bind:disabled
+      bind:edited
+      bind:dashboard
+      {character}
+      card={picked.card}
+      picked={true}
+      {edit}
+    />
   </div>
 {/if}
 

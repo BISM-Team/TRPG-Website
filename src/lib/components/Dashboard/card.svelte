@@ -1,20 +1,29 @@
 <script lang="ts">
-  import type { CardData, Character, Dashboard, NumericVariable, StringVariable } from "@prisma/client";
-  import { createEventDispatcher } from "svelte";
-  import { map } from "./Cards/cards_map";
-  import CardSettings from "./card_settings.svelte";
-  import type { Jsonify } from "@sveltejs/kit";
+  import type {
+    CardData,
+    Character,
+    Dashboard,
+    NumericVariable,
+    StringVariable
+  } from '@prisma/client';
+  import { createEventDispatcher } from 'svelte';
+  import { map } from './Cards/cards_map';
+  import CardSettings from './card_settings.svelte';
+  import type { Jsonify } from '@sveltejs/kit';
   const dispatch = createEventDispatcher();
 
-  const default_width = "auto";
-  const default_height = "auto";
+  const default_width = 'auto';
+  const default_height = 'auto';
 
-  export let dashboard: Jsonify<Dashboard & {
-    cards: (CardData & { mod_properties: any }) [],
-    stringVariables: StringVariable[],
-    numericVariables: NumericVariable[],
-    character: Character | null
-  }>;
+  export let dashboard: Jsonify<
+    Dashboard & {
+      cards: (CardData & { mod_properties: any })[];
+      stringVariables: StringVariable[];
+      numericVariables: NumericVariable[];
+    }
+  >;
+  export let character: Jsonify<Character> | null;
+
   export let card: CardData & { mod_properties: any };
   export let picked: boolean;
   export let edit: boolean;
@@ -24,31 +33,31 @@
   let settings: CardSettings;
 
   function pick(ev: MouseEvent) {
-    if(edit) {
+    if (edit) {
       ev.preventDefault();
       ev.stopPropagation();
-      const element = document.getElementById("content_" + card.id);
-      if (!element) throw new Error("Could not find root element of Card");
+      const element = document.getElementById('content_' + card.id);
+      if (!element) throw new Error('Could not find root element of Card');
       let computedGeometry: DOMRect = element.getBoundingClientRect();
-      dispatch("pick", {
+      dispatch('pick', {
         id: card.id,
         geometry: computedGeometry,
-        mousepos: { x: ev.pageX, y: ev.pageY },
+        mousepos: { x: ev.pageX, y: ev.pageY }
       });
     }
   }
 
   function resize(ev: MouseEvent) {
-    if(edit) {
+    if (edit) {
       ev.preventDefault();
       ev.stopPropagation();
-      const element = document.getElementById("content_" + card.id);
-      if (!element) throw new Error("Could not find root element of Card");
+      const element = document.getElementById('content_' + card.id);
+      if (!element) throw new Error('Could not find root element of Card');
       let computedGeometry: DOMRect = element.getBoundingClientRect();
-      dispatch("resize", {
+      dispatch('resize', {
         id: card.id,
         geometry: computedGeometry,
-        mousepos: { x: ev.pageX, y: ev.pageY },
+        mousepos: { x: ev.pageX, y: ev.pageY }
       });
     }
   }
@@ -56,25 +65,43 @@
 
 <CardSettings bind:dashboard bind:card bind:disabled bind:edited bind:this={settings} />
 
-<div id="content_{card.id}" class="card-wrapper" style:cursor={picked ? 'grab' : 'default'} style:touch-action={edit ? 'none' : 'auto'}>
+<div
+  id="content_{card.id}"
+  class="card-wrapper"
+  style:cursor={picked ? 'grab' : 'default'}
+  style:touch-action={edit ? 'none' : 'auto'}
+>
   {#if edit}
-    <button {disabled} id="removeButton" class="btn" on:click={() => { dispatch("remove", { id: card.id }) }}><span class="material-symbols-outlined">close</span></button>
+    <button
+      {disabled}
+      id="removeButton"
+      class="btn"
+      on:click={() => {
+        dispatch('remove', { id: card.id });
+      }}><span class="material-symbols-outlined">close</span></button
+    >
     <div id="resizeArea" on:pointerdown={resize} />
     <button {disabled} id="settingsButton" class="btn" on:click={settings.toggle}>
       <span class="material-symbols-outlined">settings</span>
     </button>
   {/if}
-  <div  style:width={card.width ? Math.max(10, card.width) + 'vw' : default_width}
-        style:height={card.height ? Math.max(10, card.height) + 'vh' : default_height}
-        style:touch-action={edit ? 'none' : 'auto'}
-        style:cursor={edit ? picked ? 'grabbing' : 'grab' : 'default'}
-        on:pointerdown={pick}>
-    <svelte:component this={map[card.type].component} {...card.mod_properties} {dashboard}/>
+  <div
+    style:width={card.width ? Math.max(10, card.width) + 'vw' : default_width}
+    style:height={card.height ? Math.max(10, card.height) + 'vh' : default_height}
+    style:touch-action={edit ? 'none' : 'auto'}
+    style:cursor={edit ? (picked ? 'grabbing' : 'grab') : 'default'}
+    on:pointerdown={pick}
+  >
+    <svelte:component
+      this={map[card.type].component}
+      {...card.mod_properties}
+      {dashboard}
+      {character}
+    />
   </div>
 </div>
 
 <style lang="postcss">
-
   .card-wrapper {
     position: relative;
     background-color: transparent;

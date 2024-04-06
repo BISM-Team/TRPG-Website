@@ -1,19 +1,27 @@
 <script lang="ts">
-  import Modal from "$lib/components/modal.svelte";
-  import { enhance } from "$app/forms";
-  import type { CardData, Dashboard, NumericVariable, StringVariable, CardType, Character } from "@prisma/client";
-  import { capitalizeFirstLetter, replaceCardSource } from "$lib/utils";
-  import type { SubmitFunction } from "@sveltejs/kit";
-  import { map } from "./Cards/cards_map";
-  import CardVariable from "./card_variable.svelte";
-  import type { Jsonify } from "@sveltejs/kit";
+  import Modal from '$lib/components/modal.svelte';
+  import { enhance } from '$app/forms';
+  import type {
+    CardData,
+    Dashboard,
+    NumericVariable,
+    StringVariable,
+    CardType,
+    Character
+  } from '@prisma/client';
+  import { capitalizeFirstLetter, replaceCardSource } from '$lib/utils';
+  import type { SubmitFunction } from '@sveltejs/kit';
+  import { map } from './Cards/cards_map';
+  import CardVariable from './card_variable.svelte';
+  import type { Jsonify } from '@sveltejs/kit';
 
-  export let dashboard: Jsonify<Dashboard & {
-    cards: (CardData & { mod_properties: any }) [],
-    stringVariables: StringVariable[],
-    numericVariables: NumericVariable[],
-    character: Character | null
-  }>;
+  export let dashboard: Jsonify<
+    Dashboard & {
+      cards: (CardData & { mod_properties: any })[];
+      stringVariables: StringVariable[];
+      numericVariables: NumericVariable[];
+    }
+  >;
   export let disabled: boolean;
   export let edited: boolean;
   export let card: CardData;
@@ -30,8 +38,8 @@
   const submitSettings: SubmitFunction = async function (request) {
     disabled = true;
     request.cancel();
-    const index = dashboard.cards.findIndex(_card => _card.id === card.id);
-    if(index === -1) throw new Error("Card not found.");
+    const index = dashboard.cards.findIndex((_card) => _card.id === card.id);
+    if (index === -1) throw new Error('Card not found.');
 
     card.type = selected_type;
     card.properties = JSON.parse(JSON.stringify(props));
@@ -46,19 +54,24 @@
   <Modal {disabled} on:close={toggle}>
     <h3 class="h3 text-center">Card Settings</h3>
     <form method="post" use:enhance={submitSettings}>
-      <label class="label" for="typeInput" >Type</label>
-      <select id="typeInput" class="select w3-border w3-margin-bottom" bind:value={selected_type} required>
+      <label class="label" for="typeInput">Type</label>
+      <select
+        id="typeInput"
+        class="w3-border w3-margin-bottom select"
+        bind:value={selected_type}
+        required
+      >
         {#each type_options as type}
           <option value={type}>{capitalizeFirstLetter(type)}</option>
         {/each}
       </select>
 
       {#each Object.keys(map[selected_type].props) as key}
-        <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props}/>
+        <CardVariable {key} {selected_type} bind:props defaultProps={map[selected_type].props} />
       {/each}
-            
-      <button {disabled} type="button" on:click={toggle} class="btn btn-secondary">Cancel</button>
-      <button {disabled} type="submit" class="btn btn-primary">Done</button>
+
+      <button {disabled} type="button" on:click={toggle} class="btn-secondary btn">Cancel</button>
+      <button {disabled} type="submit" class="btn-primary btn">Done</button>
     </form>
   </Modal>
 {/if}

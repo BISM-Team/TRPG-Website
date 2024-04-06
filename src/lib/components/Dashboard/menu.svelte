@@ -25,7 +25,6 @@
       cards: (CardData & { mod_properties: any })[];
       stringVariables: StringVariable[];
       numericVariables: NumericVariable[];
-      character: Character | null;
     }
   >;
   export let deleteRedirectUrl: string;

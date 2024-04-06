@@ -15,11 +15,8 @@
 
   export let source: string;
   export let wikiId: string;
-  export let dashboard: Jsonify<
-    Dashboard & {
-      character: Character | null;
-    }
-  >;
+  export let dashboard: Jsonify<Dashboard>;
+  export let character: Jsonify<Character> | null;
 
   if (!hasContext(context.pages)) throw new Error('context not found');
   const pages = getContext<ContextType.pages>(context.pages);

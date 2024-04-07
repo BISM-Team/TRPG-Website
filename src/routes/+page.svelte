@@ -83,100 +83,129 @@
   </Modal>
 {/if}
 
-<div class="card-container">
-  <h2>Campaigns</h2>
-  <div class="cards">
-    {#await data.campaigns}
-      <p>Loading...</p>
-    {:then campaigns}
-      {#each campaigns as campaign}
-        <Card link={'/campaigns/' + campaign.id}>
-          <svelte:fragment slot="card-header">
+<div class="section-container">
+  <h2 class="h2">Campaigns</h2>
+  <div class="card-container">
+    <div class="cards">
+      {#await data.campaigns}
+        <p>Loading...</p>
+      {:then campaigns}
+        {#each campaigns as campaign}
+          <Card link={'/campaigns/' + campaign.id}>
             <h3 class="h3 p-2 text-center">{campaign.name}</h3>
-          </svelte:fragment>
-        </Card>
-      {:else}
-        {#if data.auth}
-          <p>No campaigns yet! Create or participate in a campaign</p>
+          </Card>
         {:else}
-          <p>Please login to view and create your campaigns</p>
-        {/if}
-      {/each}
-      {#if data.auth}
+          {#if data.auth}
+            <p>No campaigns yet! Create or participate in a campaign</p>
+          {:else}
+            <p>Please login to view and create your campaigns</p>
+          {/if}
+        {/each}
+      {/await}
+    </div>
+    {#if data.auth}
+      <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('campaign')}>
-          <h3 class="h3 p-2">+</h3>
+          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
         </Card>
-      {/if}
-    {/await}
+      </div>
+    {/if}
   </div>
 </div>
 
-<div class="card-container">
-  <h2>Characters</h2>
-  <div class="cards">
-    {#await data.characters}
-      <p>Loading...</p>
-    {:then characters}
-      {#each characters as character}
-        <Card link={'/characters/' + character.id}>
-          <svelte:fragment slot="card-header">
+<hr />
+
+<div class="section-container">
+  <h2 class="h2">Characters</h2>
+  <div class="card-container">
+    <div class="cards">
+      {#await data.characters}
+        <p>Loading...</p>
+      {:then characters}
+        {#each characters as character}
+          <Card link={'/characters/' + character.id}>
             <h3 class="h3 p-2 text-center">{character.name}</h3>
-          </svelte:fragment>
-        </Card>
-      {:else}
-        {#if data.auth}
-          <p>No characters yet! Create one</p>
+          </Card>
         {:else}
-          <p>Please login to view and create your characters</p>
-        {/if}
-      {/each}
-      {#if data.auth}
+          {#if data.auth}
+            <p>No characters yet! Create one</p>
+          {:else}
+            <p>Please login to view and create your characters</p>
+          {/if}
+        {/each}
+      {/await}
+    </div>
+    {#if data.auth}
+      <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('character')}>
-          <h3 class="h3 p-2">+</h3>
+          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
         </Card>
-      {/if}
-    {/await}
+      </div>
+    {/if}
   </div>
 </div>
+<hr />
 
-<div class="card-container">
-  <h2>Wikis</h2>
-  <div class="cards">
-    {#await data.wikis}
-      <p>Loading...</p>
-    {:then wikis}
-      {#each wikis as wiki}
-        <Card link={'/wikis/' + wiki.id + '/pages/index'}>
-          <svelte:fragment slot="card-header">
+<div class="section-container">
+  <h2 class="h2">Wikis</h2>
+  <div class="card-container">
+    <div class="cards">
+      {#await data.wikis}
+        <p>Loading...</p>
+      {:then wikis}
+        {#each wikis as wiki}
+          <Card link={'/wikis/' + wiki.id + '/pages/index'}>
             <h3 class="h3 p-2 text-center">{wiki.name}</h3>
-          </svelte:fragment>
-        </Card>
-      {:else}
-        {#if data.auth}
-          <p>No wikis yet! Create or participate in a wiki</p>
+          </Card>
         {:else}
-          <p>Please login to view and create your wikis</p>
-        {/if}
-      {/each}
-      {#if data.auth}
+          {#if data.auth}
+            <p>No wikis yet! Create or participate in a wiki</p>
+          {:else}
+            <p>Please login to view and create your wikis</p>
+          {/if}
+        {/each}
+      {/await}
+    </div>
+    {#if data.auth}
+      <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('wiki')}>
-          <h3 class="h3 p-2">+</h3>
+          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
         </Card>
-      {/if}
-    {/await}
+      </div>
+    {/if}
   </div>
 </div>
 
-<p>Auth: {data.auth}</p>
-
-<style lang="postcss">
+<style>
   h3 {
     margin: 0;
   }
   p {
     line-height: 1.5em;
   }
+  .section-container {
+    margin: 3em 1em;
+  }
+
   .card-container {
-    margin: 3em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 3em;
+    overflow-x: auto;
+    gap: 2em;
+    padding: 0em 1em;
+  }
+
+  .cards {
+    margin: 0;
+    padding: 2em 0;
+    justify-content: start;
+    flex-wrap: nowrap;
+    gap: 3em;
+  }
+
+  .add-button {
+    padding: 2em 0;
   }
 </style>

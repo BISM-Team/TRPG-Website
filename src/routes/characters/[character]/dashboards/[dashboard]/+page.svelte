@@ -78,16 +78,6 @@
   };
 </script>
 
-<div>
-  <label for="idSelect">Layout</label>
-  <select class="select" name="id" id="idSelect" bind:this={select} on:change={onChange}>
-    {#each data.character.Dashboard_Character as dashboard_character}
-      <option value={dashboard_character.dashboardId}> {dashboard_character.dashboard.name}</option>
-    {/each}
-  </select>
-  <button class="btn-primary" on:click={toggleModal}>+</button>
-</div>
-
 {#if show_modal}
   <Modal bind:disabled on:close={toggleModal}>
     <form action="?/createDashboard" method="post" use:enhance={submit}>
@@ -110,17 +100,32 @@
       <button {disabled} type="button" on:click={toggleModal} class="btn-secondary btn"
         >Cancel</button
       >
-      <button {disabled} type="submit" class="btn-primary btn">Done</button>
+      <button {disabled} type="submit" class="btn-primary btn">Create</button>
     </form>
   </Modal>
 {/if}
 
-{#if data.dashboard}
-  {#await data.dashboard}
-    <p>Loading...</p>
-  {:then}
-    {#if dashboard}
-      <Toolbar>
+<Toolbar>
+  <svelte:fragment slot="center">
+    <label for="idSelect" class="label">Layout</label>
+    <select class="select" name="id" id="idSelect" bind:this={select} on:change={onChange}>
+      {#if data.params.dashboard === 'empty'}
+        <option value="" selected>-</option>
+      {/if}
+      {#each data.character.Dashboard_Character as dashboard_character}
+        <option
+          value={dashboard_character.dashboardId}
+          selected={dashboard_character.dashboardId === data.params.dashboard}
+        >
+          {dashboard_character.dashboard.name}</option
+        >
+      {/each}
+    </select>
+    <button class="btn-primary btn" on:click={toggleModal}>+</button>
+  </svelte:fragment>
+  <svelte:fragment slot="right">
+    {#await data.dashboard then}
+      {#if dashboard}
         {#if edit}
           <form
             action="?/save"
@@ -152,8 +157,16 @@
         <button {disabled} id="menuButton" on:click={menu.toggle}>
           <span class="material-symbols-outlined text-primary-200">more_horiz</span>
         </button>
-      </Toolbar>
+      {/if}
+    {/await}
+  </svelte:fragment>
+</Toolbar>
 
+{#if data.dashboard}
+  {#await data.dashboard}
+    <p style:margin="3em">Loading...</p>
+  {:then}
+    {#if dashboard}
       <Save
         {dashboard}
         bind:edit
@@ -179,7 +192,7 @@
         bind:this={menu}
         bind:edited
         bind:edit
-        deleteRedirectUrl={'/characters'}
+        deleteRedirectUrl={'/characters/' + data.params.character}
         bind:removedCards
         bind:removedNumVar
         bind:removedStrVar
@@ -205,6 +218,4 @@
       {/if}
     {/if}
   {/await}
-{:else}
-  <h3>No layouts created, create one!</h3>
 {/if}

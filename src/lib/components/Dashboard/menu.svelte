@@ -228,21 +228,26 @@
   <Modal {disabled} on:close={toggle}>
     {#if !menuDialog.save_as && !menuDialog.load_from_template && !menuDialog.settings}
       <h3 class="w3-margin-bottom h3 text-center">Menu</h3>
-      <button {disabled} id="gotoSaveTo" class="btn" on:click={openSaveTo}>Save to template</button>
-      <button {disabled} id="gotoLoadFrom" class="btn" on:click={openLoadFrom}
-        >Load from template</button
-      >
-      <button {disabled} id="gotoSettings" class="btn" on:click={openSettings}>Settings</button>
-      <button {disabled} id="deleteButton" class="btn" on:click={deleteDialog.toggle}>Delete</button
-      >
-      {#if removeFromCampaign}
-        <button
-          {disabled}
-          id="removeFromCampaignButton"
-          class="btn"
-          on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button
+      <div class="flex flex-col">
+        <button {disabled} id="gotoSaveTo" class="btn" on:click={openSaveTo}
+          >Save to template</button
         >
-      {/if}
+        <button {disabled} id="gotoLoadFrom" class="btn" on:click={openLoadFrom}
+          >Load from template</button
+        >
+        <button {disabled} id="gotoSettings" class="btn" on:click={openSettings}>Settings</button>
+        <button {disabled} id="deleteButton" class="btn" on:click={deleteDialog.toggle}
+          >Delete</button
+        >
+        {#if removeFromCampaign}
+          <button
+            {disabled}
+            id="removeFromCampaignButton"
+            class="btn"
+            on:click={removeFromCampaignDialog.toggle}>Remove from Campaign</button
+          >
+        {/if}
+      </div>
     {:else if menuDialog.save_as}
       <h3 class="w3-margin-bottom h3 text-center">Save to Template</h3>
       <button {disabled} class="goBackBtn btn" on:click={menuBack}
@@ -432,7 +437,7 @@
   </Modal>
 
   <Delete
-    message="Do you want to delete this character?"
+    message="Do you want to delete this layout?"
     redirectUrl={deleteRedirectUrl}
     dashboardId={dashboard.id}
     bind:edit
@@ -481,5 +486,9 @@
   .variable > * {
     display: block;
     margin: 1em;
+  }
+
+  h3 {
+    margin-bottom: 1em;
   }
 </style>

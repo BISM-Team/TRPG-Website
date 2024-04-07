@@ -1,4 +1,9 @@
-import { createDashboard, updateCards, updateDashboard } from '$lib/db/dashboards.server';
+import {
+  createDashboard,
+  deleteDashboard,
+  updateCards,
+  updateDashboard
+} from '$lib/db/dashboards.server';
 import { fail } from '@sveltejs/kit';
 import { getLogin } from '$lib/utils.server';
 import { parse } from 'devalue';
@@ -15,7 +20,7 @@ import {
   loadTemplateToDashboard,
   saveDashboardToTemplate
 } from '$lib/db/dashboard_templates.server';
-import { deleteCharacter, getCharacter } from '$lib/db/characters.server';
+import { getCharacter } from '$lib/db/characters.server';
 
 export const actions: Actions = {
   createDashboard: async function ({ request, locals, params }) {
@@ -84,7 +89,7 @@ export const actions: Actions = {
     }
   },
 
-  delete: async function ({ locals, request, params }) {
+  delete: async function ({ locals, request }) {
     const user = getLogin(locals);
     const data = await request.formData();
     const dashboardId = data.get('dashboardId')?.toString();
@@ -92,7 +97,7 @@ export const actions: Actions = {
     if (!dashboardId) return fail(400, { client_error: true });
 
     try {
-      await deleteCharacter(user.id, params.character);
+      await deleteDashboard(user.id, dashboardId);
     } catch (exc) {
       console.error(exc);
       return fail(500, { server_error: true });

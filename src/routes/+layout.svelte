@@ -35,12 +35,11 @@
   <svelte:fragment slot="header">
     <AppBar>
       <svelte:fragment slot="lead">
-        <h1 class="h2">BISM Website</h1>
+        <h1 class="h2"><a href="/">BISM Website</a></h1>
       </svelte:fragment>
       <nav class="list-nav">
         <ul class="flex w-full flex-row justify-evenly">
           {#key $page.url}
-            <li><a class="btn" href="/" class:bg-primary-active-token={isHome()}>Home</a></li>
             <li>
               <a
                 class="btn"

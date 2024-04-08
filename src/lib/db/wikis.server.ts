@@ -15,6 +15,15 @@ export async function getWikis(user_id: string) {
   return await db.wiki.findMany({ where: { Wiki_User: { some: { userId: user_id } } } });
 }
 
+export async function getWikisToAdd(user_id: string) {
+  return await db.wiki.findMany({
+    where: {
+      Wiki_User: { some: { userId: user_id } },
+      campaignId: null
+    }
+  });
+}
+
 export async function getWiki(user_id: string, wiki_id: string) {
   return await db.wiki.findUnique({
     where: { id: wiki_id, Wiki_User: { some: { userId: user_id } } }

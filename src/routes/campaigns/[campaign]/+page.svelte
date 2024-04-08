@@ -44,10 +44,13 @@
   };
 
   const load_wikis: () => Promise<({ name: string } & Record<string, any>)[]> = async () => {
-    const response = await (fetch as typeof kit_fetch)(`/api/wikis`);
+    const response = await (fetch as typeof kit_fetch)(`/api/wikis/search`);
     await propagateErrors(response, new URL(window.location.href));
     if (response.ok) {
-      return (await response.json()).wikis.map((wiki) => ({ name: wiki.name, id: wiki.id }));
+      const data = await response.json();
+      if ('wikis' in data) {
+        return data.wikis.map((wiki) => ({ name: wiki.name, id: wiki.id }));
+      } else throw new Error('unexpected fetch behaviour');
     } else throw new Error('unexpected branch');
   };
 </script>

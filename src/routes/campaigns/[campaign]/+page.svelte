@@ -59,8 +59,8 @@
         <form action="?/addPlayer" method="post" use:enhance={submitAdd('player')}>
           <div class="cards">
             {#each results as player}
-              <Card>
-                <button type="submit" name="playerId" value={player.id}>{player.name}</button>
+              <Card button={{ type: 'submit', name: 'playerId', value: player.id }}>
+                {player.name}
               </Card>
             {/each}
           </div>

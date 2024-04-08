@@ -272,12 +272,12 @@
           {#each templates.filter((template) => menuDialog.save_as && (!menuDialog.save_as.value || template.name
                   .toLowerCase()
                   .includes(menuDialog.save_as.value.trim().toLowerCase()))) as template}
-            <Card button={{ role: 'submit', name: 'templateId', value: template.id }}>
+            <Card button={{ type: 'submit', name: 'templateId', value: template.id }}>
               <h5 class="p-1">{template.name}</h5>
             </Card>
           {/each}
           {#if menuDialog.save_as.value && !templates.find((template) => menuDialog.save_as && template.name === menuDialog.save_as.value)}
-            <Card button={{ role: 'submit', name: 'name', value: menuDialog.save_as.value }}>
+            <Card button={{ type: 'submit', name: 'name', value: menuDialog.save_as.value }}>
               <h5 class="p-1">{menuDialog.save_as.value}</h5>
             </Card>
           {/if}
@@ -307,7 +307,7 @@
           {#each templates.filter((template) => menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name
                   .toLowerCase()
                   .includes(menuDialog.load_from_template.value.trim().toLowerCase()))) as template}
-            <Card button={{ role: 'submit', name: 'templateId', value: template.id }}>
+            <Card button={{ type: 'submit', name: 'templateId', value: template.id }}>
               <h5 class="p-1">{template.name}</h5>
             </Card>
           {/each}

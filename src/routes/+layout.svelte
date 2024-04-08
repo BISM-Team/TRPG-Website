@@ -43,15 +43,15 @@
             <li>
               <a
                 class="btn"
-                href="/characters"
-                class:bg-primary-active-token={isActiveRoute('/characters')}>Characters</a
+                href="/campaigns"
+                class:bg-primary-active-token={isActiveRoute('/campaigns')}>Campaigns</a
               >
             </li>
             <li>
               <a
                 class="btn"
-                href="/campaigns"
-                class:bg-primary-active-token={isActiveRoute('/campaigns')}>Campaigns</a
+                href="/characters"
+                class:bg-primary-active-token={isActiveRoute('/characters')}>Characters</a
               >
             </li>
             <li>

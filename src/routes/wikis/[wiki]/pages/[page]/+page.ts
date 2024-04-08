@@ -17,7 +17,8 @@ export const load: PageLoad = async (event) => {
 
   return {
     ...data,
-    wiki: await fetchWiki(event)
+    wiki: await fetchWiki(event),
+    params
   };
 };
 

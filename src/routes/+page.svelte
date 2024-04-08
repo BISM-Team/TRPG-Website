@@ -14,7 +14,7 @@
   export let data: PageData;
 
   const toggleCreateDialog = (field: keyof typeof show_modal) =>
-    function toggleCreateDialog() {
+    function () {
       const tmp = show_modal[field];
       show_modal = {
         campaign: false,

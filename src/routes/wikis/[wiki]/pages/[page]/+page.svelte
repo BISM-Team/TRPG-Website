@@ -4,14 +4,15 @@
   import { enhance } from '$app/forms';
   import Modal from '$lib/components/modal.svelte';
   import Toolbar from '$lib/components/toolbar.svelte';
-  import WikiSearch from '$lib/components/wiki_search.svelte';
-  import { page } from '$app/stores';
   import SideBarEntry from './sideBarEntry.svelte';
   import { slide } from 'svelte/transition';
   import WikiPage from '$lib/components/WikiPage.svelte';
   import { parseSource } from '$lib/WorldWiki/tree/tree';
   import { addHash } from '$lib/WorldWiki/tree/heading';
   import type { Root } from 'mdast';
+  import type { fetch as kit_fetch } from '@sveltejs/kit';
+  import { propagateErrors } from '$lib/utils';
+  import Search from '$lib/components/search.svelte';
 
   export let data: PageData;
   export let form: ActionData;
@@ -101,24 +102,34 @@
       disabled = false;
     };
   };
+
+  const load_search: () => Promise<({ name: string } & Record<string, any>)[]> = async () => {
+    const response = await (fetch as typeof kit_fetch)(`/api/wikis/${data.params.wiki}/search`);
+    await propagateErrors(response, new URL(window.location.href));
+    if (response.ok) {
+      return (await response.json()).pages.map((page) => ({ name: page }));
+    } else throw new Error('unexpected branch');
+  };
 </script>
 
 <Toolbar>
-  <button {disabled} id="sideBarButton" class="btn mr-auto" on:click={toggleSidebar}>
-    <span class="material-symbols-outlined text-primary-200">menu</span>
-  </button>
-  {#if edit}
-    <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
-      <span class="material-symbols-outlined text-primary-200">delete</span>
+  <svelte:fragment slot="right">
+    <button {disabled} id="sideBarButton" class="btn mr-auto" on:click={toggleSidebar}>
+      <span class="material-symbols-outlined text-primary-200">menu</span>
     </button>
-  {:else}
-    <button {disabled} id="searchButton" on:click={toggleSearchModal}>
-      <span class="material-symbols-outlined text-primary-200">search</span>
+    {#if edit}
+      <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
+        <span class="material-symbols-outlined text-primary-200">delete</span>
+      </button>
+    {:else}
+      <button {disabled} id="searchButton" on:click={toggleSearchModal}>
+        <span class="material-symbols-outlined text-primary-200">search</span>
+      </button>
+    {/if}
+    <button {disabled} id="editButton" on:click={toggleEdit}>
+      <span class="material-symbols-outlined text-primary-200">{edit ? 'visibility' : 'edit'}</span>
     </button>
-  {/if}
-  <button {disabled} id="editButton" on:click={toggleEdit}>
-    <span class="material-symbols-outlined text-primary-200">{edit ? 'visibility' : 'edit'}</span>
-  </button>
+  </svelte:fragment>
 </Toolbar>
 
 {#if showDeleteModal}
@@ -145,7 +156,28 @@
 
 {#if showSearchModal}
   <Modal {disabled} on:close={toggleSearchModal}>
-    <WikiSearch wikiId={$page.params.wiki} on:close={toggleSearchModal} />
+    <Search fetch_function={load_search}>
+      <svelte:fragment slot="results" let:results>
+        {#each results as page}
+          <a href={'/wikis/' + data.params.wiki + '/pages/' + page} on:click={toggleSearchModal}>
+            <li>{page}</li>
+          </a>
+        {/each}
+      </svelte:fragment>
+      <svelte:fragment slot="not_found" let:searchText>
+        <a
+          data-sveltekit-preload-data="off"
+          data-sveltekit-preload-code="hover"
+          href={'./' + searchText.trim()}
+          on:click={toggleSearchModal}
+          class="text-gray"
+        >
+          <li>
+            {searchText.trim()}
+          </li>
+        </a>
+      </svelte:fragment>
+    </Search>
   </Modal>
 {/if}
 

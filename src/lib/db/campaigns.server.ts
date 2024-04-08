@@ -38,7 +38,9 @@ export async function getCampaign(user_id: string, campaignId: string) {
             }
           }
         }
-      }
+      },
+      Campaign_User: true,
+      wikis: true
     }
   });
 }
@@ -162,6 +164,58 @@ export async function deleteCampaign(user_id: string, campaignId: string) {
         some: {
           userId: user_id,
           role: CampaignRole.gm
+        }
+      }
+    }
+  });
+}
+
+export async function addWikiToCampaign(user_id: string, campaignId: string, wikiId: string) {
+  return await db.campaign.update({
+    where: {
+      id: campaignId,
+      Campaign_User: {
+        some: {
+          userId: user_id,
+          role: CampaignRole.gm
+        }
+      }
+    },
+    data: {
+      wikis: {
+        connect: {
+          id: wikiId,
+          Wiki_User: {
+            some: {
+              userId: user_id
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+export async function removeWikiFromCampaign(user_id: string, campaignId: string, wikiId: string) {
+  return await db.campaign.update({
+    where: {
+      id: campaignId,
+      Campaign_User: {
+        some: {
+          userId: user_id,
+          role: CampaignRole.gm
+        }
+      }
+    },
+    data: {
+      wikis: {
+        disconnect: {
+          id: wikiId,
+          Wiki_User: {
+            some: {
+              userId: user_id
+            }
+          }
         }
       }
     }

@@ -109,7 +109,7 @@ model Campaign {
   createdAt DateTime @default(now())
   name      String
 
-  Wiki               Wiki[]
+  wikis              Wiki[]
   Dashboard_Campaign Dashboard_Campaign[]
   Campaign_User      Campaign_User[]
 }

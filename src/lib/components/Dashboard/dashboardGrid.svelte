@@ -6,6 +6,7 @@
   import { spring, type Spring } from 'svelte/motion';
   import { arraymove } from '$lib/utils';
   import type {
+    Campaign,
     CardData,
     Character,
     Dashboard,
@@ -21,7 +22,10 @@
       numericVariables: NumericVariable[];
     }
   >;
-  export let character: Jsonify<Character> | null;
+  export let target:
+    | { character: Jsonify<Character>; campaign: undefined }
+    | { character: undefined; campaign: Jsonify<Campaign> };
+
   export let disabled: boolean;
   export let edited: boolean;
   export let removedCards: string[];
@@ -252,7 +256,7 @@
           bind:disabled
           bind:edited
           bind:dashboard
-          {character}
+          {target}
           {card}
           picked={false}
           {edit}
@@ -271,7 +275,7 @@
       bind:disabled
       bind:edited
       bind:dashboard
-      {character}
+      {target}
       card={picked.card}
       picked={true}
       {edit}

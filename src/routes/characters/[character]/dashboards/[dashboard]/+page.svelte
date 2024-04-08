@@ -206,7 +206,7 @@
 
       <DashboardGrid
         bind:dashboard
-        character={data.character}
+        target={{ character: data.character, campaign: undefined }}
         bind:edited
         bind:disabled
         bind:removedCards

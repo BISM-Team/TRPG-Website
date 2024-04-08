@@ -57,20 +57,6 @@ model Campaign_User {
   @@index([campaignId])
 }
 
-model Campaign_Character {
-  characterId String
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  accepted Boolean @default(true)
-
-  @@id([characterId, campaignId])
-  @@index([characterId])
-  @@index([campaignId])
-}
-
 model Wiki_User {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -126,7 +112,6 @@ model Campaign {
   Wiki               Wiki[]
   Dashboard_Campaign Dashboard_Campaign[]
   Campaign_User      Campaign_User[]
-  Campaign_Character Campaign_Character[]
 }
 
 model Wiki {
@@ -282,7 +267,6 @@ model Character {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  Campaign_Character  Campaign_Character[]
   Dashboard_Character Dashboard_Character[]
 
   @@index([userId])

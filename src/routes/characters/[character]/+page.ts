@@ -1,4 +1,4 @@
-import { propagateErrors, replaceCardSource } from '$lib/utils';
+import { propagateErrors } from '$lib/utils';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 

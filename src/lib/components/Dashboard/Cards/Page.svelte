@@ -2,7 +2,7 @@
   import { page } from '$app/stores';
   import { parseSource } from '$lib/WorldWiki/tree/tree';
   import { propagateErrors } from '$lib/utils';
-  import type { Character, Dashboard } from '@prisma/client';
+  import type { Campaign, Character, Dashboard } from '@prisma/client';
   import { getContext, hasContext, onDestroy, onMount } from 'svelte';
   import { context, type ContextType } from '../context';
   import WikiPage from '$lib/components/WikiPage.svelte';
@@ -16,7 +16,9 @@
   export let source: string;
   export let wikiId: string;
   export let dashboard: Jsonify<Dashboard>;
-  export let character: Jsonify<Character> | null;
+  export let target:
+    | { character: Jsonify<Character>; campaign: undefined }
+    | { character: undefined; campaign: Jsonify<Campaign> };
 
   if (!hasContext(context.pages)) throw new Error('context not found');
   const pages = getContext<ContextType.pages>(context.pages);

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {
+    Campaign,
     CardData,
     Character,
     Dashboard,
@@ -22,7 +23,9 @@
       numericVariables: NumericVariable[];
     }
   >;
-  export let character: Jsonify<Character> | null;
+  export let target:
+    | { character: Jsonify<Character>; campaign: undefined }
+    | { character: undefined; campaign: Jsonify<Campaign> };
 
   export let card: CardData & { mod_properties: any };
   export let picked: boolean;
@@ -96,7 +99,7 @@
       this={map[card.type].component}
       {...card.mod_properties}
       {dashboard}
-      {character}
+      {target}
     />
   </div>
 </div>

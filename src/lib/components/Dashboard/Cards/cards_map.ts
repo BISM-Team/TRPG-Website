@@ -4,7 +4,7 @@ import Healthbar from './Healthbar.svelte';
 import Page from './Page.svelte';
 import Property from './Property.svelte';
 
-type Props<T extends SvelteComponent> = Omit<ComponentProps<T>, 'dashboard'>;
+type Props<T extends SvelteComponent> = Omit<ComponentProps<T>, 'dashboard' | 'target'>;
 
 export const map: {
   [Type in CardType]: {

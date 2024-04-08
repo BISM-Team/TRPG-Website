@@ -14,11 +14,10 @@ async function loadCharacter(fetch: PageLoadEvent['fetch'], characterId: string,
 
 async function loadDashboard(fetch: PageLoadEvent['fetch'], dashboardId: string, url: URL) {
   const response = await fetch(`/api/dashboards/${dashboardId}`);
-  await propagateErrors(response, url);
-  if (!response.ok) throw new Error('unexpected error');
+  if (!response.ok) return null;
   const data = await response.json();
 
-  if (!data.dashboard) error(404);
+  if (!data.dashboard) return null;
 
   const new_cards = data.dashboard.cards.map((card) => {
     return replaceCardSource(card, data.dashboard);
@@ -31,7 +30,10 @@ export const load = (async ({ fetch, params, url }) => {
   return {
     params,
     character: await loadCharacter(fetch, params.character, url),
-    dashboard: params.dashboard !== 'empty' ? loadDashboard(fetch, params.dashboard, url) : null
+    dashboard:
+      params.dashboard !== 'empty'
+        ? loadDashboard(fetch, params.dashboard, url).catch(() => {})
+        : null
   };
 }) satisfies PageLoad;
 

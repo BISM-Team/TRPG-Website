@@ -23,7 +23,7 @@ import {
 import { getCharacter } from '$lib/db/characters.server';
 
 export const actions: Actions = {
-  createDashboard: async function ({ request, locals, params }) {
+  create: async function ({ request, locals, params }) {
     const user = getLogin(locals);
 
     const data = await request.formData();
@@ -33,39 +33,44 @@ export const actions: Actions = {
 
     if (!name || isDefault === undefined) return fail(400, { client_error: true });
 
-    const character = await getCharacter(user.id, params.character);
-    if (!character) return fail(404, { client_error: true });
+    try {
+      const character = await getCharacter(user.id, params.character);
+      if (!character) return fail(404, { client_error: true });
 
-    let dashboardId;
-    if (templateId) {
-      const template = await getDashboardTemplate(user.id, templateId);
-      if (!template) return fail(404, { client_error: true, template_non_existant: true });
+      let dashboardId;
+      if (templateId) {
+        const template = await getDashboardTemplate(user.id, templateId);
+        if (!template) return fail(404, { client_error: true, template_non_existant: true });
 
-      const dashboard = await createDashboardFromTemplate(
-        user.id,
-        name,
-        template,
-        isDefault === 'true' ? true : false,
-        {
-          character,
-          campaign: undefined
-        }
-      );
-      dashboardId = dashboard.id;
-    } else {
-      const dashboard = await createDashboard(
-        user.id,
-        name,
-        DashboardType.character_sheet,
-        isDefault === 'true' ? true : false,
-        {
-          character,
-          campaign: undefined
-        }
-      );
-      dashboardId = dashboard.id;
+        const dashboard = await createDashboardFromTemplate(
+          user.id,
+          name,
+          template,
+          isDefault === 'true' ? true : false,
+          {
+            character,
+            campaign: undefined
+          }
+        );
+        dashboardId = dashboard.id;
+      } else {
+        const dashboard = await createDashboard(
+          user.id,
+          name,
+          DashboardType.character_sheet,
+          isDefault === 'true' ? true : false,
+          {
+            character,
+            campaign: undefined
+          }
+        );
+        dashboardId = dashboard.id;
+      }
+      return { createdId: dashboardId };
+    } catch (exc) {
+      console.error(exc);
+      return fail(500, { server_error: true });
     }
-    return { createdId: dashboardId };
   },
 
   save: async function ({ request, locals }) {

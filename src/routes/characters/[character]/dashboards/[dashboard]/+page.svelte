@@ -43,8 +43,8 @@
 
   let select: HTMLSelectElement;
 
-  function onChange() {
-    goto(`/characters/${data.params.character}/dashboards/${select.value}`);
+  async function onChange() {
+    await goto(`/characters/${data.params.character}/dashboards/${select.value}`);
   }
 
   let templates: ReturnType<typeof loadTemplates>;
@@ -71,8 +71,14 @@
   const submit: SubmitFunction = async function () {
     disabled = true;
     return async ({ result, update }) => {
-      await update({ reset: false });
-      if (result.type === 'success') toggleModal();
+      if (result.type === 'success') {
+        toggleModal();
+        await update({ reset: false, invalidateAll: false });
+        if (result.data?.createdId)
+          await goto(`/characters/${data.params.character}/dashboards/${result.data?.createdId}`);
+      } else {
+        await update({ reset: false });
+      }
       disabled = false;
     };
   };
@@ -80,7 +86,7 @@
 
 {#if show_modal}
   <Modal bind:disabled on:close={toggleModal}>
-    <form action="?/createDashboard" method="post" use:enhance={submit}>
+    <form action="?/create" method="post" use:enhance={submit}>
       <label class="label" for="templateSelect">Initialize from template</label>
       <select class="select" name="templateId" id="templateSelect">
         <option value="" selected>empty</option>
@@ -192,7 +198,7 @@
         bind:this={menu}
         bind:edited
         bind:edit
-        deleteRedirectUrl={'/characters/' + data.params.character}
+        deleteRedirectUrl={'/characters/' + data.params.character + '/dashboards/empty'}
         bind:removedCards
         bind:removedNumVar
         bind:removedStrVar
@@ -206,16 +212,16 @@
         bind:removedCards
         {edit}
       />
-
-      {#if form?.client_error || form?.server_error}
-        <Modal {disabled} on:close={closeError}>
-          {#if form?.client_error}
-            <ErrorBar text={'Client Error, please try again or contact us!'} />
-          {:else if form?.server_error}
-            <ErrorBar text={'Server Error, please contact us!'} />
-          {/if}
-        </Modal>
-      {/if}
     {/if}
   {/await}
+{/if}
+
+{#if form?.client_error || form?.server_error}
+  <Modal {disabled} on:close={closeError}>
+    {#if form?.client_error}
+      <ErrorBar text={'Client Error, please try again or contact us!'} />
+    {:else if form?.server_error}
+      <ErrorBar text={'Server Error, please contact us!'} />
+    {/if}
+  </Modal>
 {/if}

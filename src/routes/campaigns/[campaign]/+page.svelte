@@ -57,11 +57,13 @@
     <Search fetch_function={load_players}>
       <svelte:fragment slot="results" let:results>
         <form action="?/addPlayer" method="post" use:enhance={submitAdd('player')}>
-          {#each results as player}
-            <Card>
-              <button type="submit" name="playerId" value={player.id}>{player.name}</button>
-            </Card>
-          {/each}
+          <div class="cards">
+            {#each results as player}
+              <Card>
+                <button type="submit" name="playerId" value={player.id}>{player.name}</button>
+              </Card>
+            {/each}
+          </div>
         </form>
       </svelte:fragment>
     </Search>
@@ -73,11 +75,13 @@
     <Search fetch_function={load_wikis}>
       <svelte:fragment slot="results" let:results>
         <form action="?/addWiki" method="post" use:enhance={submitAdd('wiki')}>
-          {#each results as wiki}
-            <Card>
-              <button type="submit" name="wikiId" value={wiki.id}>{wiki.name}</button>
-            </Card>
-          {/each}
+          <div class="cards">
+            {#each results as wiki}
+              <Card>
+                <button type="submit" name="wikiId" value={wiki.id}>{wiki.name}</button>
+              </Card>
+            {/each}
+          </div>
         </form>
       </svelte:fragment>
     </Search>

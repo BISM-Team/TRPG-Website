@@ -59,7 +59,7 @@
         <form action="?/addPlayer" method="post" use:enhance={submitAdd('player')}>
           {#each results as player}
             <Card>
-              <button type="submit" name="playerId" value={player.id} />
+              <button type="submit" name="playerId" value={player.id}>{player.name}</button>
             </Card>
           {/each}
         </form>
@@ -75,7 +75,7 @@
         <form action="?/addWiki" method="post" use:enhance={submitAdd('wiki')}>
           {#each results as wiki}
             <Card>
-              <button type="submit" name="wikiId" value={wiki.id} />
+              <button type="submit" name="wikiId" value={wiki.id}>{wiki.name}</button>
             </Card>
           {/each}
         </form>

@@ -281,7 +281,7 @@
           bind:value={menuDialog.save_as.value}
           class="input"
         />
-        <div class="cards">
+        <div class="cards mt-l">
           {#each templates.filter((template) => menuDialog.save_as && (!menuDialog.save_as.value || template.name
                   .toLowerCase()
                   .includes(menuDialog.save_as.value.trim().toLowerCase()))) as template}
@@ -312,7 +312,7 @@
           bind:value={menuDialog.load_from_template.value}
           class="input"
         />
-        <div class="cards">
+        <div class="cards mt-l">
           {#each templates.filter((template) => menuDialog.load_from_template && (!menuDialog.load_from_template.value || template.name
                   .toLowerCase()
                   .includes(menuDialog.load_from_template.value.trim().toLowerCase()))) as template}
@@ -351,27 +351,19 @@
                 class="show_checkbox checkbox"
                 bind:checked={numVar.show}
               />
-              <input
-                {disabled}
-                type="text"
-                bind:value={numVar.name}
-                class="input"
-                style="width: {numVar.name.length + 1}ch"
-                required
-              />
+              <input {disabled} type="text" bind:value={numVar.name} class="input" required />
               <input
                 {disabled}
                 type="number"
                 id={numVar.id}
                 bind:value={numVar.value}
                 class="input"
-                style="width: {(numVar.value?.toString().length ?? 0) + 4}ch"
                 required
               />
               <button
                 {disabled}
                 type="button"
-                class="btn"
+                class="btn w-auto p-0"
                 on:click={() => {
                   deleteVariable(numVar.id, 'numeric');
                 }}><span class="material-symbols-outlined">delete</span></button
@@ -388,7 +380,7 @@
           >
         </div>
         <h4 class="w3-margin-top h4">String Variables</h4>
-        <div id="variablesContainer">
+        <div class="variablesContainer">
           {#each dashboard.stringVariables as strVar}
             <div class="variable">
               <input
@@ -398,26 +390,18 @@
                 class="show_checkbox checkbox"
                 bind:checked={strVar.show}
               />
-              <input
-                {disabled}
-                type="text"
-                bind:value={strVar.name}
-                class="input"
-                style="width: {strVar.name.length + 1}ch"
-                required
-              />
+              <input {disabled} type="text" bind:value={strVar.name} class="input" required />
               <input
                 {disabled}
                 type="text"
                 id={strVar.id}
                 bind:value={strVar.value}
                 class="input"
-                style="width: {strVar.value.length + 1}ch"
               />
               <button
                 {disabled}
                 type="button"
-                class="btn"
+                class="btn w-auto"
                 on:click={() => {
                   deleteVariable(strVar.id, 'string');
                 }}><span class="material-symbols-outlined">delete</span></button
@@ -463,29 +447,18 @@
     padding: 0.7em 1em;
   }
 
-  .cards {
-    margin-top: 2em;
-    padding: 0;
-  }
-
-  form {
-    padding: 2em 1em;
-  }
-
-  form input {
-    margin: auto;
-  }
-
   .variable {
-    display: flex;
-    flex-direction: row;
+    display: grid;
     align-items: center;
-    justify-content: left;
+    grid-template-columns: 1fr 5fr 5fr 1fr;
+    grid-template-rows: 1fr;
     width: auto;
+    gap: var(--gap-m);
+    margin: var(--gap-l);
   }
 
   .variable > * {
     display: block;
-    margin: 1em;
+    margin: auto;
   }
 </style>

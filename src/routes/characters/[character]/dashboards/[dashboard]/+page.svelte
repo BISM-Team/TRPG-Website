@@ -114,8 +114,8 @@
 <div class="sticky top-0 z-20">
   <Toolbar>
     <svelte:fragment slot="center">
-      <label for="idSelect" class="label">Layout</label>
-      <select class="select" name="id" id="idSelect" bind:this={select} on:change={onChange}>
+      <label for="idSelect" class="my-m label">Layout</label>
+      <select class="mx-s select" name="id" id="idSelect" bind:this={select} on:change={onChange}>
         {#if data.params.dashboard === 'empty'}
           <option value="" selected>-</option>
         {/if}
@@ -128,7 +128,7 @@
           >
         {/each}
       </select>
-      <button class="btn-primary btn" on:click={toggleModal}>+</button>
+      <button class="btn-primary mx-m btn" on:click={toggleModal}>+</button>
     </svelte:fragment>
     <svelte:fragment slot="right">
       {#await data.dashboard then}
@@ -227,3 +227,9 @@
     {/if}
   </Modal>
 {/if}
+
+<style>
+  .line-height-2-75 {
+    line-height: 2.75em;
+  }
+</style>

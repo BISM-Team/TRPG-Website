@@ -226,8 +226,25 @@
 
 {#if menuDialog.show}
   <Modal {disabled} on:close={toggle}>
+    <svelte:fragment slot="center-toolbar">
+      {#if menuDialog.save_as}
+        <h3 class="w3-margin-bottom h3 text-center">Save to Template</h3>
+      {:else if menuDialog.load_from_template}
+        <h3 class="w3-margin-bottom h3 text-center">Load from Template</h3>
+      {:else if menuDialog.settings}
+        <h3 class="w3-margin-bottom h3 text-center">Settings</h3>
+      {:else}
+        <h3 class="w3-margin-bottom h3 text-center">Menu</h3>
+      {/if}
+    </svelte:fragment>
+    <svelte:fragment slot="left-toolbar">
+      {#if menuDialog.save_as || menuDialog.load_from_template || menuDialog.settings}
+        <button {disabled} class="goBackBtn btn" on:click={menuBack}
+          ><span class="material-symbols-outlined">arrow_back</span></button
+        >
+      {/if}
+    </svelte:fragment>
     {#if !menuDialog.save_as && !menuDialog.load_from_template && !menuDialog.settings}
-      <h3 class="w3-margin-bottom h3 text-center">Menu</h3>
       <div class="flex flex-col">
         <button {disabled} id="gotoSaveTo" class="btn" on:click={openSaveTo}
           >Save to template</button
@@ -249,10 +266,6 @@
         {/if}
       </div>
     {:else if menuDialog.save_as}
-      <h3 class="w3-margin-bottom h3 text-center">Save to Template</h3>
-      <button {disabled} class="goBackBtn btn" on:click={menuBack}
-        ><span class="material-symbols-outlined">arrow_back</span></button
-      >
       <form action="?/saveToTemplate" method="POST" use:enhance={submitSaveTo}>
         <input
           type="hidden"
@@ -284,10 +297,6 @@
         </div>
       </form>
     {:else if menuDialog.load_from_template}
-      <h3 class="w3-margin-bottom h3 text-center">Load from Template</h3>
-      <button {disabled} class="goBackBtn btn" on:click={menuBack}
-        ><span class="material-symbols-outlined">arrow_back</span></button
-      >
       <form action="?/loadFromTemplate" method="POST" use:enhance={submitTemplateAction}>
         <input
           type="hidden"
@@ -314,10 +323,6 @@
         </div>
       </form>
     {:else if menuDialog.settings}
-      <h3 class="w3-margin-bottom h3 text-center">Settings</h3>
-      <button {disabled} class="goBackBtn btn" on:click={menuBack}
-        ><span class="material-symbols-outlined">arrow_back</span></button
-      >
       <form action="?/settings" method="POST" use:enhance={submitSettings}>
         <input
           type="hidden"
@@ -455,10 +460,6 @@
 
 <style lang="postcss">
   .goBackBtn {
-    position: absolute;
-    background-color: transparent;
-    top: 0;
-    left: 0;
     padding: 0.7em 1em;
   }
 
@@ -486,9 +487,5 @@
   .variable > * {
     display: block;
     margin: 1em;
-  }
-
-  h3 {
-    margin-bottom: 1em;
   }
 </style>

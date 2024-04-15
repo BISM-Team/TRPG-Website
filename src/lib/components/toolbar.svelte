@@ -1,16 +1,16 @@
 <script lang="ts">
 </script>
 
-<div id="toolbarContainer" class="bg-surface-200-700-token sticky top-0 z-20 px-4 py-4">
-  <div id="left-container" class="flex gap-4">
+<div id="toolbarContainer" class="bg-surface-200-700-token">
+  <div id="left-container" class="flex flex-row">
     <slot name="left" />
   </div>
 
-  <div id="center-container" class="flex gap-4">
+  <div id="center-container" class="flex flex-row">
     <slot name="center" />
   </div>
 
-  <div id="right-container" class="flex gap-4">
+  <div id="right-container" class="flex flex-row">
     <slot name="right" />
   </div>
 </div>
@@ -18,25 +18,29 @@
 <style lang="postcss">
   #toolbarContainer {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    padding: var(--gap-m);
+    grid-template-columns: 1fr 3fr 1fr;
     grid-template-rows: 1fr;
     justify-content: space-between;
   }
 
   #left-container {
     justify-content: left;
+    gap: var(--gap-m);
   }
 
   #center-container {
     justify-content: center;
+    gap: var(--gap-m);
   }
 
   #right-container {
     justify-content: right;
+    gap: var(--gap-m);
   }
 
   #toolbarContainer > div > :global(*) {
     @apply box-content block text-center;
-    width: min-content;
+    width: max-content;
   }
 </style>

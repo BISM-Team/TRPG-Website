@@ -9,20 +9,8 @@
       ?.dashboardId ?? 'empty';
 </script>
 
-<h2 class="h2">{data.character.name}</h2>
+<h1 class="my-xxl h1 mx-auto w-min">{data.character.name}</h1>
 
-<div class="dashboard-link">
+<div class="my-xxl mx-auto w-min">
   <Card link="/characters/{data.params.character}/dashboards/{defaultDashboardId}">Dashboard</Card>
 </div>
-
-<style>
-  h2 {
-    margin: 2em auto;
-    width: min-content;
-  }
-
-  .dashboard-link {
-    margin: 2em auto;
-    width: min-content;
-  }
-</style>

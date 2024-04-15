@@ -112,74 +112,78 @@
   };
 </script>
 
-<Toolbar>
-  <svelte:fragment slot="right">
-    <button {disabled} id="sideBarButton" class="btn mr-auto" on:click={toggleSidebar}>
-      <span class="material-symbols-outlined text-primary-200">menu</span>
-    </button>
-    {#if edit}
-      <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
-        <span class="material-symbols-outlined text-primary-200">delete</span>
+<div class="sticky top-0 z-20">
+  <Toolbar>
+    <svelte:fragment slot="right">
+      <button {disabled} id="sideBarButton" class="btn mr-auto" on:click={toggleSidebar}>
+        <span class="material-symbols-outlined text-primary-200">menu</span>
       </button>
-    {:else}
-      <button {disabled} id="searchButton" on:click={toggleSearchModal}>
-        <span class="material-symbols-outlined text-primary-200">search</span>
-      </button>
-    {/if}
-    <button {disabled} id="editButton" on:click={toggleEdit}>
-      <span class="material-symbols-outlined text-primary-200">{edit ? 'visibility' : 'edit'}</span>
-    </button>
-  </svelte:fragment>
-</Toolbar>
-
-{#if showDeleteModal}
-  <Modal {disabled} on:close={toggleDeleteModal}>
-    <h2 class="w3-padding h2">Do you want to delete this page?</h2>
-    <p>
-      <em>Note that only the content you are allowed to modify will be deleted</em>
-    </p>
-    <form
-      id="deleteConfirmationButtons"
-      class="w3-container"
-      method="post"
-      action="?/delete"
-      use:enhance={handleDelete}
-    >
-      <input type="hidden" name="hash" value={data.hash} />
-      <button {disabled} class="btn-secondary" type="button" on:click={toggleDeleteModal}
-        >Cancel</button
-      >
-      <button {disabled} class="btn-primary" type="submit">Yes</button>
-    </form>
-  </Modal>
-{/if}
-
-{#if showSearchModal}
-  <Modal {disabled} on:close={toggleSearchModal}>
-    <Search fetch_function={load_search}>
-      <svelte:fragment slot="results" let:results>
-        {#each results as page}
-          <a href={'/wikis/' + data.params.wiki + '/pages/' + page} on:click={toggleSearchModal}>
-            <li>{page}</li>
-          </a>
-        {/each}
-      </svelte:fragment>
-      <svelte:fragment slot="not_found" let:searchText>
-        <a
-          data-sveltekit-preload-data="off"
-          data-sveltekit-preload-code="hover"
-          href={'./' + searchText.trim()}
-          on:click={toggleSearchModal}
-          class="text-gray"
+      {#if edit}
+        <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
+          <span class="material-symbols-outlined text-primary-200">delete</span>
+        </button>
+      {:else}
+        <button {disabled} id="searchButton" on:click={toggleSearchModal}>
+          <span class="material-symbols-outlined text-primary-200">search</span>
+        </button>
+      {/if}
+      <button {disabled} id="editButton" on:click={toggleEdit}>
+        <span class="material-symbols-outlined text-primary-200"
+          >{edit ? 'visibility' : 'edit'}</span
         >
-          <li>
-            {searchText.trim()}
-          </li>
-        </a>
-      </svelte:fragment>
-    </Search>
-  </Modal>
-{/if}
+      </button>
+    </svelte:fragment>
+  </Toolbar>
+
+  {#if showDeleteModal}
+    <Modal {disabled} on:close={toggleDeleteModal}>
+      <h2 class="w3-padding h2">Do you want to delete this page?</h2>
+      <p>
+        <em>Note that only the content you are allowed to modify will be deleted</em>
+      </p>
+      <form
+        id="deleteConfirmationButtons"
+        class="w3-container"
+        method="post"
+        action="?/delete"
+        use:enhance={handleDelete}
+      >
+        <input type="hidden" name="hash" value={data.hash} />
+        <button {disabled} class="btn-secondary" type="button" on:click={toggleDeleteModal}
+          >Cancel</button
+        >
+        <button {disabled} class="btn-primary" type="submit">Yes</button>
+      </form>
+    </Modal>
+  {/if}
+
+  {#if showSearchModal}
+    <Modal {disabled} on:close={toggleSearchModal}>
+      <Search fetch_function={load_search}>
+        <svelte:fragment slot="results" let:results>
+          {#each results as page}
+            <a href={'/wikis/' + data.params.wiki + '/pages/' + page} on:click={toggleSearchModal}>
+              <li>{page}</li>
+            </a>
+          {/each}
+        </svelte:fragment>
+        <svelte:fragment slot="not_found" let:searchText>
+          <a
+            data-sveltekit-preload-data="off"
+            data-sveltekit-preload-code="hover"
+            href={'./' + searchText.trim()}
+            on:click={toggleSearchModal}
+            class="text-gray"
+          >
+            <li>
+              {searchText.trim()}
+            </li>
+          </a>
+        </svelte:fragment>
+      </Search>
+    </Modal>
+  {/if}
+</div>
 
 <div class="flex h-full flex-row">
   {#if showSidebar}

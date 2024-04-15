@@ -91,16 +91,18 @@
   </Modal>
 {/if}
 
-<h2 class="h2">{data.campaign.name}</h2>
+<h1 class="my-xxl h1 mx-auto w-min">{data.campaign.name}</h1>
 
-<div class="dashboard-link">
+<div class="my-xxl mx-auto w-min">
   <Card link="/campaigns/{data.params.campaign}/dashboards/{defaultDashboardId}">Dashboard</Card>
 </div>
 
-<div class="section-container">
+<hr />
+
+<div class="section-container my-l mx-xl">
   <h2 class="h2">Wikis</h2>
-  <div class="card-container">
-    <div class="cards">
+  <div class="card-container mt-l gap-l px-s">
+    <div class="cards gap-l py-m px-0">
       {#each data.campaign.wikis as wiki}
         <Card link={'/wikis/' + wiki.id + '/pages/index'}>
           <h3 class="h3 p-2 text-center">{wiki.name}</h3>
@@ -120,36 +122,16 @@
 </div>
 
 <style>
-  h2 {
-    margin: 2em auto;
-    width: min-content;
-  }
-
-  .dashboard-link {
-    margin: 2em auto;
-    width: min-content;
-  }
-
-  .section-container {
-    margin: 3em 1em;
-  }
-
   .card-container {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-top: 3em;
     overflow-x: auto;
-    gap: 2em;
-    padding: 0em 1em;
   }
 
   .cards {
-    margin: 0;
-    padding: 2em 0;
     justify-content: start;
     flex-wrap: nowrap;
-    gap: 3em;
   }
 
   .add-button {

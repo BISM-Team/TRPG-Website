@@ -8,16 +8,14 @@ body {
 }
 
 form button {
-  @apply mx-6 mb-0 mt-2 w-32;
+  @apply m-l p-s w-32;
 }
 
-.cards {
-  @apply mt-16 flex w-full flex-row flex-wrap justify-evenly p-12;
+form label {
+  @apply mt-l mb-s;
 }
-
-.material-symbols-outlined {
-  @apply block;
-  color: inherit;
+form input {
+  @apply mb-l;
 }
 
 :root {
@@ -34,6 +32,10 @@ form button {
     @apply bg-primary-active-token;
   }
 
+  .btn-primary:hover {
+    @apply bg-surface-200-700-token;
+  }
+
   .btn-secondary {
     @apply bg-surface-300-600-token;
   }
@@ -42,6 +44,28 @@ form button {
     @apply bg-surface-200-700-token;
   }
 
+  .gap-xs {
+    gap: var(--gap-xs);
+  }
+  .gap-s {
+    gap: var(--gap-s);
+  }
+  .gap-m {
+    gap: var(--gap-m);
+  }
+  .gap-l {
+    gap: var(--gap-l);
+  }
+  .gap-xl {
+    gap: var(--gap-xl);
+  }
+  .gap-xxl {
+    gap: var(--gap-xxl);
+  }
+
+  .m-xs {
+    margin: var(--gap-xs);
+  }
   .mb-xs {
     margin-bottom: var(--gap-xs);
   }
@@ -63,6 +87,9 @@ form button {
     margin-right: var(--gap-xs);
   }
 
+  .m-s {
+    margin: var(--gap-s);
+  }
   .mb-s {
     margin-bottom: var(--gap-s);
   }
@@ -84,6 +111,9 @@ form button {
     margin-right: var(--gap-s);
   }
 
+  .m-m {
+    margin: var(--gap-m);
+  }
   .mb-m {
     margin-bottom: var(--gap-m);
   }
@@ -105,6 +135,9 @@ form button {
     margin-right: var(--gap-m);
   }
 
+  .m-l {
+    margin: var(--gap-l);
+  }
   .mb-l {
     margin-bottom: var(--gap-l);
   }
@@ -126,6 +159,9 @@ form button {
     margin-right: var(--gap-l);
   }
 
+  .m-xl {
+    margin: var(--gap-xl);
+  }
   .mb-xl {
     margin-bottom: var(--gap-xl);
   }
@@ -147,6 +183,9 @@ form button {
     margin-right: var(--gap-xl);
   }
 
+  .m-xxl {
+    margin: var(--gap-xxl);
+  }
   .mb-xxl {
     margin-bottom: var(--gap-xxl);
   }
@@ -166,6 +205,159 @@ form button {
   .mx-xxl {
     margin-left: var(--gap-xxl);
     margin-right: var(--gap-xxl);
+  }
+
+  .p-xs {
+    padding: var(--gap-xs);
+  }
+  .pb-xs {
+    padding-bottom: var(--gap-xs);
+  }
+  .pt-xs {
+    padding-top: var(--gap-xs);
+  }
+  .pl-xs {
+    padding-left: var(--gap-xs);
+  }
+  .pr-xs {
+    padding-right: var(--gap-xs);
+  }
+  .py-xs {
+    padding-top: var(--gap-xs);
+    padding-bottom: var(--gap-xs);
+  }
+  .px-xs {
+    padding-left: var(--gap-xs);
+    padding-right: var(--gap-xs);
+  }
+
+  .p-s {
+    padding: var(--gap-s);
+  }
+  .pb-s {
+    padding-bottom: var(--gap-s);
+  }
+  .pt-s {
+    padding-top: var(--gap-s);
+  }
+  .pl-s {
+    padding-left: var(--gap-s);
+  }
+  .pr-s {
+    padding-right: var(--gap-s);
+  }
+  .py-s {
+    padding-top: var(--gap-s);
+    padding-bottom: var(--gap-s);
+  }
+  .px-s {
+    padding-left: var(--gap-s);
+    padding-right: var(--gap-s);
+  }
+
+  .p-m {
+    padding: var(--gap-m);
+  }
+  .pb-m {
+    padding-bottom: var(--gap-m);
+  }
+  .pt-m {
+    padding-top: var(--gap-m);
+  }
+  .pl-m {
+    padding-left: var(--gap-m);
+  }
+  .pr-m {
+    padding-right: var(--gap-m);
+  }
+  .py-m {
+    padding-top: var(--gap-m);
+    padding-bottom: var(--gap-m);
+  }
+  .px-m {
+    padding-left: var(--gap-m);
+    padding-right: var(--gap-m);
+  }
+
+  .p-l {
+    padding: var(--gap-l);
+  }
+  .pb-l {
+    padding-bottom: var(--gap-l);
+  }
+  .pt-l {
+    padding-top: var(--gap-l);
+  }
+  .pl-l {
+    padding-left: var(--gap-l);
+  }
+  .pr-l {
+    padding-right: var(--gap-l);
+  }
+  .py-l {
+    padding-top: var(--gap-l);
+    padding-bottom: var(--gap-l);
+  }
+  .px-l {
+    padding-left: var(--gap-l);
+    padding-right: var(--gap-l);
+  }
+
+  .p-xl {
+    padding: var(--gap-xl);
+  }
+  .pb-xl {
+    padding-bottom: var(--gap-xl);
+  }
+  .pt-xl {
+    padding-top: var(--gap-xl);
+  }
+  .pl-xl {
+    padding-left: var(--gap-xl);
+  }
+  .pr-xl {
+    padding-right: var(--gap-xl);
+  }
+  .py-xl {
+    padding-top: var(--gap-xl);
+    padding-bottom: var(--gap-xl);
+  }
+  .px-xl {
+    padding-left: var(--gap-xl);
+    padding-right: var(--gap-xl);
+  }
+
+  .p-xxl {
+    padding: var(--gap-xxl);
+  }
+  .pb-xxl {
+    padding-bottom: var(--gap-xxl);
+  }
+  .pt-xxl {
+    padding-top: var(--gap-xxl);
+  }
+  .pl-xxl {
+    padding-left: var(--gap-xxl);
+  }
+  .pr-xxl {
+    padding-right: var(--gap-xxl);
+  }
+  .py-xxl {
+    padding-top: var(--gap-xxl);
+    padding-bottom: var(--gap-xxl);
+  }
+  .px-xxl {
+    padding-left: var(--gap-xxl);
+    padding-right: var(--gap-xxl);
+  }
+
+  .cards {
+    @apply flex w-full flex-row flex-wrap justify-evenly;
+  }
+
+  .material-symbols-outlined {
+    @apply block;
+    color: inherit;
   }
 }
 

@@ -52,7 +52,9 @@
 
 {#if showSettingsDialog}
   <Modal {disabled} on:close={toggle}>
-    <h3 class="h3 text-center">Card Settings</h3>
+    <svelte:fragment slot="center-toolbar">
+      <h3 class="h3 text-center">Card Settings</h3>
+    </svelte:fragment>
     <form method="post" use:enhance={submitSettings}>
       <label class="label" for="typeInput">Type</label>
       <select

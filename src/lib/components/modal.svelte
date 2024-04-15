@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import Toolbar from './toolbar.svelte';
   const dispatch = createEventDispatcher();
 
   export let disabled: boolean;
@@ -21,11 +22,24 @@
 <svelte:document on:click={clickOutside} on:keyup={keyUp} />
 
 <div bind:this={wrapper} id="modalWrapper">
-  <div id="modalContent" class="w3-container text-center">
-    <button id="closeButton" class="btn" {disabled} on:click={closeModal}
-      ><span class="material-symbols-outlined">close</span></button
-    >
-    <slot />
+  <div id="modalContent" class="bg-surface-100-800-token text-center">
+    <Toolbar>
+      <svelte:fragment slot="left">
+        <slot name="left-toolbar" />
+      </svelte:fragment>
+      <svelte:fragment slot="center">
+        <slot name="center-toolbar" />
+      </svelte:fragment>
+      <svelte:fragment slot="right">
+        <slot name="right-toolbar" />
+        <button id="closeButton" class="btn" {disabled} on:click={closeModal}
+          ><span class="material-symbols-outlined">close</span></button
+        >
+      </svelte:fragment>
+    </Toolbar>
+    <div id="modalActualContent" class="p-xl">
+      <slot />
+    </div>
   </div>
 </div>
 
@@ -50,20 +64,14 @@
 
   #modalContent {
     position: relative;
-    background-color: #fefefe;
     border: 1px solid #888;
-    padding: 1em 2em;
     margin: auto;
     min-height: 20vh;
     overflow: hidden;
   }
 
   #closeButton {
-    position: absolute;
-    background-color: transparent;
-    top: 0;
-    right: 0;
-    padding: 0.7em 1em;
+    padding: 0.7rem 1rem;
   }
 
   #closeButton > span {

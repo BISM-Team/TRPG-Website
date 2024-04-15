@@ -64,7 +64,9 @@
 
 {#if showCreateDialog}
   <Modal {disabled} on:close={toggle}>
-    <h3 class="h3 text-center">Create Card</h3>
+    <svelte:fragment slot="center-toolbar">
+      <h3 class="h3 text-center">Create Card</h3>
+    </svelte:fragment>
     <form method="post" use:enhance={submitCreateCard}>
       <label class="label" for="typeInput">Type</label>
       <select

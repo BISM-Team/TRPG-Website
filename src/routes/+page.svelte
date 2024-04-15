@@ -37,6 +37,9 @@
 
 {#if show_modal.campaign}
   <Modal {disabled} on:close={toggleCreateDialog('campaign')}>
+    <svelte:fragment slot="center-toolbar">
+      <h3 class="h3 text-center">Create Campaign</h3>
+    </svelte:fragment>
     <form action="?/createCampaign" method="post" use:enhance={submitCreate('campaign')}>
       <label class="label" for="nameInput">Name</label>
       <input type="text" name="name" id="nameInput" class="w3-border w3-margin-bottom input" />
@@ -54,6 +57,9 @@
 
 {#if show_modal.character}
   <Modal {disabled} on:close={toggleCreateDialog('character')}>
+    <svelte:fragment slot="center-toolbar">
+      <h3 class="h3 text-center">Create Character</h3>
+    </svelte:fragment>
     <form action="?/createCharacter" method="post" use:enhance={submitCreate('character')}>
       <label class="label" for="nameInput">Name</label>
       <input type="text" name="name" id="nameInput" class="w3-border w3-margin-bottom input" />
@@ -71,6 +77,9 @@
 
 {#if show_modal.wiki}
   <Modal {disabled} on:close={toggleCreateDialog('wiki')}>
+    <svelte:fragment slot="center-toolbar">
+      <h3 class="h3 text-center">Create Wiki</h3>
+    </svelte:fragment>
     <form action="?/createWiki" method="post" use:enhance={submitCreate('wiki')}>
       <label class="label" for="nameInput">Name</label>
       <input type="text" name="name" id="nameInput" class="w3-border w3-margin-bottom input" />
@@ -83,10 +92,10 @@
   </Modal>
 {/if}
 
-<div class="section-container">
+<div class="section-container my-l mx-xl">
   <h2 class="h2">Campaigns</h2>
-  <div class="card-container">
-    <div class="cards">
+  <div class="card-container mt-l gap-l px-s">
+    <div class="cards gap-l py-m px-0">
       {#await data.campaigns}
         <p>Loading...</p>
       {:then campaigns}
@@ -115,10 +124,10 @@
 
 <hr />
 
-<div class="section-container">
+<div class="section-container my-l mx-xl">
   <h2 class="h2">Characters</h2>
-  <div class="card-container">
-    <div class="cards">
+  <div class="card-container mt-l gap-l px-s">
+    <div class="cards py-m gap-l px-0">
       {#await data.characters}
         <p>Loading...</p>
       {:then characters}
@@ -146,10 +155,10 @@
 </div>
 <hr />
 
-<div class="section-container">
+<div class="section-container my-l mx-xl">
   <h2 class="h2">Wikis</h2>
-  <div class="card-container">
-    <div class="cards">
+  <div class="card-container mt-l gap-l px-s">
+    <div class="cards py-m gap-l px-0">
       {#await data.wikis}
         <p>Loading...</p>
       {:then wikis}
@@ -183,29 +192,21 @@
   p {
     line-height: 1.5em;
   }
-  .section-container {
-    margin: 3em 1em;
-  }
 
   .card-container {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-top: 3em;
     overflow-x: auto;
-    gap: 2em;
-    padding: 0em 1em;
   }
 
   .cards {
     margin: 0;
-    padding: 2em 0;
     justify-content: start;
     flex-wrap: nowrap;
-    gap: 3em;
   }
 
   .add-button {
-    padding: 2em 0;
+    padding: var(--gap-m) 0;
   }
 </style>

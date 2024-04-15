@@ -111,62 +111,64 @@
   </Modal>
 {/if}
 
-<Toolbar>
-  <svelte:fragment slot="center">
-    <label for="idSelect" class="label">Layout</label>
-    <select class="select" name="id" id="idSelect" bind:this={select} on:change={onChange}>
-      {#if data.params.dashboard === 'empty'}
-        <option value="" selected>-</option>
-      {/if}
-      {#each data.campaign.Dashboard_Campaign as dashboard_campaign}
-        <option
-          value={dashboard_campaign.dashboardId}
-          selected={dashboard_campaign.dashboardId === data.params.dashboard}
-        >
-          {dashboard_campaign.dashboard.name}</option
-        >
-      {/each}
-    </select>
-    <button class="btn-primary btn" on:click={toggleModal}>+</button>
-  </svelte:fragment>
-  <svelte:fragment slot="right">
-    {#await data.dashboard then}
-      {#if dashboard}
-        {#if edit}
-          <form
-            action="?/save"
-            style="display: none"
-            id="hiddenSaveForm"
-            method="post"
-            use:enhance={save.submitSave}
+<div class="sticky top-0 z-20">
+  <Toolbar>
+    <svelte:fragment slot="center">
+      <label for="idSelect" class="label">Layout</label>
+      <select class="select" name="id" id="idSelect" bind:this={select} on:change={onChange}>
+        {#if data.params.dashboard === 'empty'}
+          <option value="" selected>-</option>
+        {/if}
+        {#each data.campaign.Dashboard_Campaign as dashboard_campaign}
+          <option
+            value={dashboard_campaign.dashboardId}
+            selected={dashboard_campaign.dashboardId === data.params.dashboard}
           >
-            <input type="hidden" name="dashboardId" value={dashboard.id} />
-            <input type="hidden" name="switch" value="false" />
-          </form>
-          <button
-            disabled={disabled || !edited}
-            id="saveButton"
-            type="submit"
-            form="hiddenSaveForm"
+            {dashboard_campaign.dashboard.name}</option
           >
-            <span class="material-symbols-outlined text-primary-200">save</span>
+        {/each}
+      </select>
+      <button class="btn-primary btn" on:click={toggleModal}>+</button>
+    </svelte:fragment>
+    <svelte:fragment slot="right">
+      {#await data.dashboard then}
+        {#if dashboard}
+          {#if edit}
+            <form
+              action="?/save"
+              style="display: none"
+              id="hiddenSaveForm"
+              method="post"
+              use:enhance={save.submitSave}
+            >
+              <input type="hidden" name="dashboardId" value={dashboard.id} />
+              <input type="hidden" name="switch" value="false" />
+            </form>
+            <button
+              disabled={disabled || !edited}
+              id="saveButton"
+              type="submit"
+              form="hiddenSaveForm"
+            >
+              <span class="material-symbols-outlined text-primary-200">save</span>
+            </button>
+            <button {disabled} id="newButton" on:click={create.toggle}>
+              <span class="material-symbols-outlined text-primary-200">add</span>
+            </button>
+          {/if}
+          <button {disabled} id="editButton" on:click={save.toggleEdit}>
+            <span class="material-symbols-outlined text-primary-200"
+              >{edit ? 'visibility' : 'edit'}</span
+            >
           </button>
-          <button {disabled} id="newButton" on:click={create.toggle}>
-            <span class="material-symbols-outlined text-primary-200">add</span>
+          <button {disabled} id="menuButton" on:click={menu.toggle}>
+            <span class="material-symbols-outlined text-primary-200">more_horiz</span>
           </button>
         {/if}
-        <button {disabled} id="editButton" on:click={save.toggleEdit}>
-          <span class="material-symbols-outlined text-primary-200"
-            >{edit ? 'visibility' : 'edit'}</span
-          >
-        </button>
-        <button {disabled} id="menuButton" on:click={menu.toggle}>
-          <span class="material-symbols-outlined text-primary-200">more_horiz</span>
-        </button>
-      {/if}
-    {/await}
-  </svelte:fragment>
-</Toolbar>
+      {/await}
+    </svelte:fragment>
+  </Toolbar>
+</div>
 
 {#if data.dashboard}
   {#await data.dashboard}

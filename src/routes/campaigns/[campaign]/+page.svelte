@@ -44,7 +44,9 @@
   };
 
   const load_wikis: () => Promise<({ name: string } & Record<string, any>)[]> = async () => {
-    const response = await (fetch as typeof kit_fetch)(`/api/wikis/search`);
+    const response = await (fetch as typeof kit_fetch)(
+      `/api/wikis/search?campaignId=${data.params.campaign}`
+    );
     await propagateErrors(response, new URL(window.location.href));
     if (response.ok) {
       const data = await response.json();

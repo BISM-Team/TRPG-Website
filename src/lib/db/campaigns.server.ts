@@ -184,7 +184,6 @@ export async function addWikiToCampaign(user_id: string, campaignId: string, wik
     data: {
       wikis: {
         connect: {
-          campaignId: null,
           id: wikiId,
           Wiki_User: {
             some: {

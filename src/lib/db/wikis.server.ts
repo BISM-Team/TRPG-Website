@@ -1,7 +1,5 @@
 import {
   WikiRole,
-  type Campaign,
-  type Campaign_User,
   type Heading,
   type Page,
   Prisma,
@@ -15,11 +13,15 @@ export async function getWikis(user_id: string) {
   return await db.wiki.findMany({ where: { Wiki_User: { some: { userId: user_id } } } });
 }
 
-export async function getWikisToAdd(user_id: string) {
+export async function getWikisToAdd(user_id: string, campaignId: string) {
   return await db.wiki.findMany({
     where: {
       Wiki_User: { some: { userId: user_id } },
-      campaignId: null
+      campaigns: {
+        none: {
+          id: campaignId
+        }
+      }
     }
   });
 }

@@ -193,7 +193,9 @@
             </form>
           </div>
         {:else}
-          {@html _renderedTree}
+          <div class="rendered-content">
+            {@html _renderedTree}
+          </div>
         {/if}
       {/await}
     </div>
@@ -227,6 +229,12 @@
     position: sticky;
     top: 10%;
     width: fit-content;
+    opacity: 0;
+    @apply transition-[opacity];
+  }
+
+  #toc:hover {
+    opacity: 0.98;
   }
 
   #toc a {
@@ -241,5 +249,41 @@
     width: 30%;
     margin: 0 5%;
     margin-top: 1em;
+  }
+
+  .rendered-content :global(wiki-heading[tag='h1']) {
+    display: block;
+    margin-top: var(--gap-xxl);
+    margin-bottom: var(--gap-xl);
+  }
+
+  .rendered-content :global(wiki-heading[tag='h2']) {
+    display: block;
+    margin-top: var(--gap-xxl);
+    margin-bottom: var(--gap-l);
+  }
+
+  .rendered-content :global(wiki-heading[tag='h3']) {
+    display: block;
+    margin-top: var(--gap-xl);
+    margin-bottom: var(--gap-m);
+  }
+
+  .rendered-content :global(wiki-heading[tag='h4']) {
+    display: block;
+    margin-top: var(--gap-l);
+    margin-bottom: var(--gap-s);
+  }
+
+  .rendered-content :global(wiki-heading[tag='h5']) {
+    display: block;
+    margin-top: var(--gap-m);
+    margin-bottom: var(--gap-xs);
+  }
+
+  .rendered-content :global(p) {
+    display: block;
+    margin-top: var(--gap-m);
+    margin-bottom: var(--gap-xs);
   }
 </style>

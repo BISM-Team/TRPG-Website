@@ -6,7 +6,7 @@
   href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
 />
 
-<div class="dark">
+<div>
   <slot />
 </div>
 
@@ -51,5 +51,29 @@
 
   :global(.material-symbols-outlined) {
     color: inherit;
+  }
+
+  :global(h1) {
+    margin: 0;
+  }
+
+  :global(h2) {
+    margin: 0;
+  }
+
+  :global(h3) {
+    margin: 0;
+  }
+
+  :global(h4) {
+    margin: 0;
+  }
+
+  :global(h5) {
+    margin: 0;
+  }
+
+  :global(p) {
+    margin: 0;
   }
 </style>

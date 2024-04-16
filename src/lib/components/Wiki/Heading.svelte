@@ -24,7 +24,7 @@
 
 <ShadowHead>
   <div class="heading-root">
-    <svelte:element this={tag} {id} class:modifiable style:scroll-margin-top="3em">
+    <svelte:element this={tag} {id} class:modifiable>
       <slot />
     </svelte:element>
     <div class="toolbox">
@@ -33,9 +33,7 @@
       >
       {#if modifiable}
         <div id="visibilityContainer">
-          <button id="visibility" class="btn m-auto"
-            ><span class="material-symbols-outlined">visibility</span></button
-          >
+          <button class="btn"><span class="material-symbols-outlined">visibility</span></button>
           <div id="popup">
             {#each _viewers as viewer}
               <div class="m-3">
@@ -53,6 +51,7 @@
 <style lang="postcss">
   .heading-root {
     @apply flex flex-row gap-x-8;
+    align-items: center;
   }
 
   .toolbox {

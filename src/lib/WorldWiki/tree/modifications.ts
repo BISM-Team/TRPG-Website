@@ -1,11 +1,11 @@
-import { includes } from "$lib/utils";
-import type { Root } from "mdast";
-import type { AdvancedHeading } from "./heading";
+import { includes } from '$lib/utils';
+import type { Root } from 'mdast';
+import type { AdvancedHeading } from './heading';
 
 export function getHeadingModifiers(node: AdvancedHeading) {
   if (node.attributes && node.attributes.modifiers) {
-    return node.attributes.modifiers.split(";").map((modifier: string) => {
-      return modifier;
+    return node.attributes.modifiers.split(';').map((modifier: string) => {
+      return modifier.trim();
     });
   } else return [];
 }
@@ -17,12 +17,10 @@ export function getHeadingModifiability(
 ): boolean {
   if (user_id === gm_id) return true;
   if (node.attributes && node.attributes.modifiers) {
-    const modifiers: string[] = node.attributes.modifiers
-      .split(";")
-      .map((modifier: string) => {
-        return modifier;
-      });
-    return includes(modifiers, user_id) || includes(modifiers, "all");
+    const modifiers: string[] = node.attributes.modifiers.split(';').map((modifier: string) => {
+      return modifier.trim();
+    });
+    return includes(modifiers, user_id) || includes(modifiers, 'all');
   } else return false;
 }
 
@@ -35,7 +33,7 @@ export function isNodeModifiable(
   let current_depth = 7;
   for (let i = index; 0 <= i && current_depth > 1; i -= 1) {
     const child = tree.children[i];
-    if (child.type === "heading") {
+    if (child.type === 'heading') {
       const heading = child as AdvancedHeading;
       if (child.depth >= current_depth) {
         continue;
@@ -48,3 +46,4 @@ export function isNodeModifiable(
   }
   return false;
 }
+

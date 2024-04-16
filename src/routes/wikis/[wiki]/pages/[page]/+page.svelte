@@ -114,10 +114,12 @@
 
 <div class="sticky top-0 z-20">
   <Toolbar>
-    <svelte:fragment slot="right">
+    <svelte:fragment slot="left">
       <button {disabled} id="sideBarButton" class="btn mr-auto" on:click={toggleSidebar}>
         <span class="material-symbols-outlined text-primary-200">menu</span>
       </button>
+    </svelte:fragment>
+    <svelte:fragment slot="right">
       {#if edit}
         <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
           <span class="material-symbols-outlined text-primary-200">delete</span>

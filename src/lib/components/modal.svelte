@@ -22,7 +22,7 @@
 <svelte:document on:click={clickOutside} on:keyup={keyUp} />
 
 <div bind:this={wrapper} id="modalWrapper">
-  <div id="modalContent" class="bg-surface-100-800-token text-center">
+  <div id="modalContent" class="bg-surface-100-800-token border-surface-400-500-token text-center">
     <Toolbar>
       <svelte:fragment slot="left">
         <slot name="left-toolbar" />
@@ -64,7 +64,7 @@
 
   #modalContent {
     position: relative;
-    border: 1px solid #888;
+    border-width: 1px;
     margin: auto;
     min-height: 20vh;
     overflow: hidden;

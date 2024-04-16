@@ -18,13 +18,13 @@
 </script>
 
 {#if link}
-  <a href={link} class="card card-hover block p-4">
+  <a href={link} class="p-l card card-hover block">
     {#if $$slots['card-header']}
       <div class="card-header">
         <slot name="card-header" />
       </div>
     {/if}
-    <div class="p-4">
+    <div class="p-l">
       <slot />
     </div>
   </a>
@@ -34,14 +34,14 @@
     type={button.type}
     name={button.name}
     value={button.value}
-    class="card card-hover block p-4"
+    class="p-l card card-hover block"
   >
     {#if $$slots['card-header']}
       <div class="card-header">
         <slot name="card-header" />
       </div>
     {/if}
-    <div class="p-4">
+    <div class="p-l">
       <slot />
     </div>
   </button>

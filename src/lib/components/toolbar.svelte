@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<div id="toolbarContainer" class="bg-surface-200-700-token">
+<div id="toolbarContainer" class="bg-surface-200-700-token shadow-sm">
   <div id="left-container" class="flex flex-row">
     <slot name="left" />
   </div>
@@ -26,16 +26,19 @@
 
   #left-container {
     justify-content: left;
+    align-items: center;
     gap: var(--gap-m);
   }
 
   #center-container {
     justify-content: center;
+    align-items: center;
     gap: var(--gap-m);
   }
 
   #right-container {
     justify-content: right;
+    align-items: center;
     gap: var(--gap-m);
   }
 

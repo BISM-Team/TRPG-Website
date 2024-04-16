@@ -101,7 +101,7 @@
       {:then campaigns}
         {#each campaigns as campaign}
           <Card link={'/campaigns/' + campaign.id}>
-            <h3 class="h3 p-2 text-center">{campaign.name}</h3>
+            <h3 class="p-m h3 text-center">{campaign.name}</h3>
           </Card>
         {:else}
           {#if data.auth}
@@ -115,7 +115,7 @@
     {#if data.auth}
       <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('campaign')}>
-          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
+          <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
         </Card>
       </div>
     {/if}
@@ -133,7 +133,7 @@
       {:then characters}
         {#each characters as character}
           <Card link={'/characters/' + character.id}>
-            <h3 class="h3 p-2 text-center">{character.name}</h3>
+            <h3 class="p-m h3 text-center">{character.name}</h3>
           </Card>
         {:else}
           {#if data.auth}
@@ -147,7 +147,7 @@
     {#if data.auth}
       <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('character')}>
-          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
+          <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
         </Card>
       </div>
     {/if}
@@ -164,7 +164,7 @@
       {:then wikis}
         {#each wikis as wiki}
           <Card link={'/wikis/' + wiki.id + '/pages/index'}>
-            <h3 class="h3 p-2 text-center">{wiki.name}</h3>
+            <h3 class="p-m h3 text-center">{wiki.name}</h3>
           </Card>
         {:else}
           {#if data.auth}
@@ -178,7 +178,7 @@
     {#if data.auth}
       <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('wiki')}>
-          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
+          <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
         </Card>
       </div>
     {/if}

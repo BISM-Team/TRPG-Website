@@ -227,9 +227,3 @@
     {/if}
   </Modal>
 {/if}
-
-<style>
-  .line-height-2-75 {
-    line-height: 2.75em;
-  }
-</style>

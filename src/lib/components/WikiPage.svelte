@@ -125,7 +125,12 @@
       <form class="my-m p-m" method="post" action={saveAction} use:enhance={handleSave}>
         <input type="hidden" name="hash" value={page.hash} class="input" />
         <input type="hidden" name="pre" value={stringified.pre} class="input" />
-        <textarea id="textArea" name="actual" value={stringified.actual} class="textarea" />
+        <textarea
+          id="textArea"
+          name="actual"
+          value={stringified.actual}
+          class="textarea bg-surface-200-700-token border-surface-400-500-token"
+        />
         <input type="hidden" name="post" value={stringified.post} class="input" />
         <br />
         <div class="buttonContainer block text-center">
@@ -144,9 +149,9 @@
   {:else}
     {#if toc && !heading}
       <div id="toc_container">
-        <div id="toc" class="card">
+        <div id="toc" class="p-l card bg-surface-200-700-token">
           {#each page.headings as heading}
-            <a class="my-m p-m block transition-[text-decoration]" href="#{heading.id}">
+            <a class="m-s p-m block transition-[text-decoration]" href="#{heading.id}">
               <span class="text-gray">{addHash('', heading.level).trim()}</span>
               {heading.text}
             </a>
@@ -206,9 +211,8 @@
     height: 74vh;
     padding: 12px 20px;
     box-sizing: border-box;
-    border: 2px solid #ccc;
+    border-width: 2px;
     border-radius: 4px;
-    background-color: #f8f8f8;
     resize: none;
   }
 
@@ -222,9 +226,7 @@
   #toc {
     position: sticky;
     top: 10%;
-    background-color: white;
     width: fit-content;
-    padding: 0.5em;
   }
 
   #toc a {

@@ -22,31 +22,33 @@
   }
 </script>
 
-<ShadowHead />
-
-<div class="heading-root">
-  <svelte:element this={tag} {id} class:modifiable>
-    <slot />
-  </svelte:element>
-  <div class="toolbox">
-    <button class="btn" on:click={copyRef}
-      ><span class="material-symbols-outlined">tag</span></button
-    >
-    {#if modifiable}
-      <div id="visibility-container">
-        <button class="btn"><span class="material-symbols-outlined">visibility</span></button>
-        <div class="popup">
-          {#each _viewers as viewer}
-            <div class="m-3">
-              <p>{viewer}</p>
-            </div>
-          {/each}
+<ShadowHead>
+  <div class="heading-root">
+    <svelte:element this={tag} {id} class:modifiable style:scroll-margin-top="3em">
+      <slot />
+    </svelte:element>
+    <div class="toolbox">
+      <button class="btn" on:click={copyRef}
+        ><span class="material-symbols-outlined">tag</span></button
+      >
+      {#if modifiable}
+        <div id="visibilityContainer">
+          <button id="visibility" class="btn m-auto"
+            ><span class="material-symbols-outlined">visibility</span></button
+          >
+          <div id="popup">
+            {#each _viewers as viewer}
+              <div class="m-3">
+                <p>{viewer}</p>
+              </div>
+            {/each}
+          </div>
         </div>
-      </div>
-      <button class="btn"><span class="material-symbols-outlined">edit</span></button>
-    {/if}
+        <button class="btn"><span class="material-symbols-outlined">edit</span></button>
+      {/if}
+    </div>
   </div>
-</div>
+</ShadowHead>
 
 <style lang="postcss">
   .heading-root {
@@ -55,6 +57,7 @@
 
   .toolbox {
     @apply flex flex-row justify-center;
+    align-items: center;
   }
 
   .toolbox .btn {
@@ -62,7 +65,7 @@
   }
 
   .toolbox > * {
-    @apply opacity-0 transition-[opacity];
+    @apply z-50 opacity-0 transition-[opacity];
     visibility: hidden;
   }
 
@@ -74,14 +77,14 @@
     @apply opacity-100;
   }
 
-  #visibility-container > .popup {
+  #visibilityContainer > #popup {
     @apply bg-surface-200-700-token absolute m-2 px-8 py-2 opacity-0 shadow-xl transition-[opacity];
+    transform: translateX(-40%);
     visibility: hidden;
-    transform: translate(-40%, 15%);
   }
 
-  #visibility-container:hover > .popup {
-    opacity: 0.9;
+  #visibilityContainer:hover > #popup {
     visibility: visible;
+    opacity: 0.95;
   }
 </style>

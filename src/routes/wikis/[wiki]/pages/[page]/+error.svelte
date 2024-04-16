@@ -35,7 +35,7 @@
     <span />
   {:else if actualStatus === 404}
     <h2 class="m-xxl h2">Page not yet created</h2>
-    <p class="mt-l mb-m">Do you want to create it?</p>
+    <p class="mt-l mb-m">Would you like to create it?</p>
     <form id="btnContainer" method="post" action="?/create" use:enhance={createPage}>
       <button {disabled} class="btn-secondary" type="button" on:click={goBack}>No</button>
       <button {disabled} class="btn-primary" type="submit">Yes</button>

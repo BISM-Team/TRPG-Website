@@ -106,7 +106,6 @@ export function customHeadings(options?: { user_id: string; gm_id: string } | vo
       const advHeading = node as AdvancedHeading;
       const node_data_ref = node.data || (node.data = { hProperties: {} });
       node_data_ref.hName = 'wiki-heading';
-      console.log(advHeading.attributes);
       node_data_ref.hProperties = {
         id: advHeading.attributes?.id,
         tag: 'h' + node.depth,

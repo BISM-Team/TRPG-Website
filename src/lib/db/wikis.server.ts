@@ -186,7 +186,6 @@ export async function modifyPage(
       connect: heading.modifiers.map((modifier) => ({ id: modifier }))
     }
   }));
-  console.log(JSON.stringify(_headings, null, 1));
   return await db.page.update({
     where: {
       name_wikiId: { name: name, wikiId: wiki.id },

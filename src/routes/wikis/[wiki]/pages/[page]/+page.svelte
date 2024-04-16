@@ -5,7 +5,7 @@
   import Modal from '$lib/components/modal.svelte';
   import Toolbar from '$lib/components/toolbar.svelte';
   import SideBarEntry from './sideBarEntry.svelte';
-  import { slide } from 'svelte/transition';
+  import { fade, slide } from 'svelte/transition';
   import WikiPage from '$lib/components/WikiPage.svelte';
   import { parseSource } from '$lib/WorldWiki/tree/tree';
   import { addHash } from '$lib/WorldWiki/tree/heading';
@@ -20,7 +20,16 @@
   let disabled = false;
   let showDeleteModal = false;
   let showSearchModal = false;
-  let showSidebar = true;
+  let showSidebar = false;
+  let sidebar_wrapper: HTMLElement;
+
+  function clickOutside(event: MouseEvent) {
+    if (event.target == sidebar_wrapper) showSidebar = false;
+  }
+
+  function keyUp(ev: KeyboardEvent) {
+    if (ev.key === 'Escape') showSidebar = false;
+  }
 
   function toggleEdit() {
     edit = !edit;
@@ -115,21 +124,21 @@
 <div class="sticky top-0 z-20">
   <Toolbar>
     <svelte:fragment slot="left">
-      <button {disabled} id="sideBarButton" class="btn mr-auto" on:click={toggleSidebar}>
+      <button {disabled} id="sideBarButton" class="btn" on:click={toggleSidebar}>
         <span class="material-symbols-outlined text-primary-200">menu</span>
       </button>
     </svelte:fragment>
     <svelte:fragment slot="right">
       {#if edit}
-        <button {disabled} id="deleteButton" on:click={toggleDeleteModal}>
+        <button {disabled} id="deleteButton" class="mx-m px-s" on:click={toggleDeleteModal}>
           <span class="material-symbols-outlined text-primary-200">delete</span>
         </button>
       {:else}
-        <button {disabled} id="searchButton" on:click={toggleSearchModal}>
+        <button {disabled} id="searchButton" class="mx-m px-s" on:click={toggleSearchModal}>
           <span class="material-symbols-outlined text-primary-200">search</span>
         </button>
       {/if}
-      <button {disabled} id="editButton" on:click={toggleEdit}>
+      <button {disabled} id="editButton" class="mx-m px-s" on:click={toggleEdit}>
         <span class="material-symbols-outlined text-primary-200"
           >{edit ? 'visibility' : 'edit'}</span
         >
@@ -164,8 +173,12 @@
       <Search fetch_function={load_search}>
         <svelte:fragment slot="results" let:results>
           {#each results as page}
-            <a href={'/wikis/' + data.params.wiki + '/pages/' + page} on:click={toggleSearchModal}>
-              <li>{page}</li>
+            <a
+              href={'/wikis/' + data.params.wiki + '/pages/' + page.name}
+              on:click={toggleSearchModal}
+              class="search-link m-s p-m block"
+            >
+              <li>{page.name}</li>
             </a>
           {/each}
         </svelte:fragment>
@@ -175,7 +188,7 @@
             data-sveltekit-preload-code="hover"
             href={'./' + searchText.trim()}
             on:click={toggleSearchModal}
-            class="text-gray"
+            class="search-link m-s p-m block opacity-50"
           >
             <li>
               {searchText.trim()}
@@ -187,15 +200,20 @@
   {/if}
 </div>
 
+<svelte:document on:click={clickOutside} on:keyup={keyUp} />
+
 <div class="flex h-full flex-row">
   {#if showSidebar}
-    <div
-      class="sidebarContainer bg-surface-300-600-token h-full p-2"
-      transition:slide={{ axis: 'x' }}
-    >
-      {#each data.wiki.wikiTree.children as child}
-        <SideBarEntry node={child} />
-      {/each}
+    <div id="sidebarWrapper" transition:fade bind:this={sidebar_wrapper}>
+      <div
+        id="sidebarContainer"
+        class="p-m bg-surface-300-600-token"
+        transition:slide={{ axis: 'x' }}
+      >
+        {#each data.wiki.wikiTree.children as child}
+          <SideBarEntry node={child} />
+        {/each}
+      </div>
     </div>
   {/if}
   <WikiPage
@@ -219,3 +237,30 @@
       : null}
   />
 </div>
+
+<style>
+  #sidebarWrapper {
+    position: fixed; /* Stay in place */
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    z-index: 50; /* Sit on top */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  }
+
+  #sidebarContainer {
+    position: relative;
+    height: 100vh;
+    overflow-y: auto;
+    opacity: 1 !important;
+  }
+
+  .search-link:hover {
+    text-decoration: underline;
+  }
+</style>

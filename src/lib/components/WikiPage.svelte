@@ -251,6 +251,11 @@
     margin-top: 1em;
   }
 
+  .rendered-content {
+    padding-left: 6vw;
+    padding-right: 6vw;
+  }
+
   .rendered-content :global(wiki-heading[tag='h1']) {
     display: block;
     margin-top: var(--gap-xxl);

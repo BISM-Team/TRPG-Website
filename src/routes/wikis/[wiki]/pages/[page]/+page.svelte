@@ -176,7 +176,7 @@
             <a
               href={'/wikis/' + data.params.wiki + '/pages/' + page.name}
               on:click={toggleSearchModal}
-              class="search-link m-s p-m block"
+              class="search-link p-m block"
             >
               <li>{page.name}</li>
             </a>
@@ -188,10 +188,10 @@
             data-sveltekit-preload-code="hover"
             href={'./' + searchText.trim()}
             on:click={toggleSearchModal}
-            class="search-link m-s p-m block opacity-50"
+            class="search-link p-m block opacity-50"
           >
             <li>
-              {searchText.trim()}
+              + {searchText.trim()}
             </li>
           </a>
         </svelte:fragment>
@@ -219,7 +219,7 @@
   <WikiPage
     bind:disabled
     bind:edit
-    toc={true}
+    toc={false}
     page={data}
     {handleSave}
     {addHeading}
@@ -238,7 +238,7 @@
   />
 </div>
 
-<style>
+<style lang="postcss">
   #sidebarWrapper {
     position: fixed; /* Stay in place */
     display: flex;
@@ -260,7 +260,11 @@
     opacity: 1 !important;
   }
 
+  .search-link {
+    @apply transition;
+  }
+
   .search-link:hover {
-    text-decoration: underline;
+    @apply bg-surface-300-600-token;
   }
 </style>

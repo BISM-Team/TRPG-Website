@@ -111,14 +111,14 @@
           {/if}
         {/each}
       {/await}
+      {#if data.auth}
+        <div class="add-button">
+          <Card on:buttonClick={toggleCreateDialog('campaign')}>
+            <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
+          </Card>
+        </div>
+      {/if}
     </div>
-    {#if data.auth}
-      <div class="add-button">
-        <Card on:buttonClick={toggleCreateDialog('campaign')}>
-          <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
-        </Card>
-      </div>
-    {/if}
   </div>
 </div>
 
@@ -143,38 +143,36 @@
           {/if}
         {/each}
       {/await}
+      {#if data.auth}
+        <div class="add-button">
+          <Card on:buttonClick={toggleCreateDialog('character')}>
+            <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
+          </Card>
+        </div>
+      {/if}
     </div>
-    {#if data.auth}
-      <div class="add-button">
-        <Card on:buttonClick={toggleCreateDialog('character')}>
-          <h3 class="p-m h3"><span class="material-symbols-outlined">Add</span></h3>
-        </Card>
-      </div>
-    {/if}
   </div>
 </div>
 <hr />
 
 <div class="section-container my-l mx-xl">
   <h2 class="h2">Wikis</h2>
-  <div class="card-container mt-l gap-l px-s">
-    <div class="cards py-m gap-l px-0">
-      {#await data.wikis}
-        <p>Loading...</p>
-      {:then wikis}
-        {#each wikis as wiki}
-          <Card link={'/wikis/' + wiki.id + '/pages/index'}>
-            <h3 class="p-m h3 text-center">{wiki.name}</h3>
-          </Card>
+  <div class="cards mt-l py-m gap-l px-s">
+    {#await data.wikis}
+      <p>Loading...</p>
+    {:then wikis}
+      {#each wikis as wiki}
+        <Card link={'/wikis/' + wiki.id + '/pages/index'}>
+          <h3 class="p-m h3 text-center">{wiki.name}</h3>
+        </Card>
+      {:else}
+        {#if data.auth}
+          <p>No wikis yet! Create or participate in a wiki</p>
         {:else}
-          {#if data.auth}
-            <p>No wikis yet! Create or participate in a wiki</p>
-          {:else}
-            <p>Please login to view and create your wikis</p>
-          {/if}
-        {/each}
-      {/await}
-    </div>
+          <p>Please login to view and create your wikis</p>
+        {/if}
+      {/each}
+    {/await}
     {#if data.auth}
       <div class="add-button">
         <Card on:buttonClick={toggleCreateDialog('wiki')}>
@@ -193,20 +191,15 @@
     line-height: 1.5em;
   }
 
-  .card-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  .cards {
+    margin: 0;
+    margin-top: var(--gap-m);
+    justify-content: start;
+    flex-wrap: nowrap;
     overflow-x: auto;
   }
 
-  .cards {
-    margin: 0;
-    justify-content: start;
-    flex-wrap: nowrap;
-  }
-
   .add-button {
-    padding: var(--gap-m) 0;
+    margin-left: auto;
   }
 </style>

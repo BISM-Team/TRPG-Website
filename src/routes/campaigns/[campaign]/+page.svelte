@@ -80,7 +80,7 @@
     <Search fetch_function={load_wikis}>
       <svelte:fragment slot="results" let:results>
         <form action="?/addWiki" method="post" use:enhance={submitAdd('wiki')}>
-          <div class="cards">
+          <div class="search-cards">
             {#each results as wiki}
               <Card>
                 <button type="submit" name="wikiId" value={wiki.id}>{wiki.name}</button>
@@ -93,9 +93,9 @@
   </Modal>
 {/if}
 
-<h1 class="my-xxl h1 mx-auto w-min">{data.campaign.name}</h1>
+<h1 class="my-xxl h1 mx-auto w-fit">{data.campaign.name}</h1>
 
-<div class="my-xxl mx-auto w-min">
+<div class="my-xxl mx-auto w-fit">
   <Card link="/campaigns/{data.params.campaign}/dashboards/{defaultDashboardId}">Dashboard</Card>
 </div>
 
@@ -112,14 +112,14 @@
       {:else}
         <p>No wikis yet! Add one!</p>
       {/each}
+      {#if data.auth}
+        <div class="add-button">
+          <Card on:buttonClick={toggleAddDialog('wiki')}>
+            <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
+          </Card>
+        </div>
+      {/if}
     </div>
-    {#if data.auth}
-      <div class="add-button">
-        <Card on:buttonClick={toggleAddDialog('wiki')}>
-          <h3 class="h3 p-2"><span class="material-symbols-outlined">Add</span></h3>
-        </Card>
-      </div>
-    {/if}
   </div>
 </div>
 
@@ -137,6 +137,10 @@
   }
 
   .add-button {
-    padding: 2em 0;
+    margin-left: auto;
+  }
+
+  form button {
+    width: initial;
   }
 </style>

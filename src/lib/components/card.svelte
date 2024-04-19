@@ -19,9 +19,11 @@
 
 {#if links.length > 0}
   <div class="p-l card card-hover relative block">
-    <div class="link-overlay">
+    <div class="link-overlay bg-surface-400-500-token">
       {#each links as link}
-        <a href={link.href}><span class="material-symbols-outlined">{link.icon_name}</span></a>
+        <a href={link.href} class="hover:bg-surface-300-600-token"
+          ><span class="material-symbols-outlined">{link.icon_name}</span></a
+        >
       {/each}
     </div>
     {#if $$slots['card-header']}
@@ -72,12 +74,11 @@
     width: 100%;
     height: 100%;
     border-radius: var(--theme-rounded-container);
-    background-color: transparent;
     display: flex;
     flex-direction: row;
     align-items: center;
     opacity: 0;
-    @apply bg-surface-400-500-token transition-opacity;
+    @apply transition-opacity;
   }
 
   .link-overlay:hover {
@@ -105,7 +106,6 @@
   }
 
   .link-overlay a:hover {
-    @apply bg-surface-300-600-token;
   }
 
   .link-overlay a span {

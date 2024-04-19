@@ -288,7 +288,7 @@
 
   .rendered-content :global(p) {
     display: block;
-    margin-top: var(--gap-m);
-    margin-bottom: var(--gap-xs);
+    margin-top: var(--gap-xs);
+    margin-bottom: var(--gap-m);
   }
 </style>

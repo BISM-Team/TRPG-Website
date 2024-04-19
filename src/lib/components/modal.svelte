@@ -67,7 +67,8 @@
     border-width: 1px;
     margin: auto;
     min-height: 20vh;
-    overflow: hidden;
+    overflow: auto;
+    max-height: 100%;
   }
 
   #closeButton {

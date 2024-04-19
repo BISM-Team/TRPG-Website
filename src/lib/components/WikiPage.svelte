@@ -295,4 +295,9 @@
   .rendered-content :global(a) {
     text-decoration: underline;
   }
+
+  .rendered-content :global(li) {
+    list-style-type: initial;
+    list-style-position: inside;
+  }
 </style>

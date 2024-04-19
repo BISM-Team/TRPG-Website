@@ -202,7 +202,7 @@
 
 <svelte:document on:click={clickOutside} on:keyup={keyUp} />
 
-<div class="flex h-full flex-row">
+<div class="relative flex h-full flex-row">
   {#if showSidebar}
     <div id="sidebarWrapper" transition:fade bind:this={sidebar_wrapper}>
       <div
@@ -240,12 +240,12 @@
 
 <style lang="postcss">
   #sidebarWrapper {
-    position: fixed; /* Stay in place */
+    position: absolute; /* should be 'static' but works idk */
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: flex-start;
-    z-index: 50; /* Sit on top */
+    z-index: 10; /* Sit on top */
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
@@ -255,7 +255,7 @@
 
   #sidebarContainer {
     position: relative;
-    height: 100vh;
+    height: 100%;
     overflow-y: auto;
     opacity: 1 !important;
   }

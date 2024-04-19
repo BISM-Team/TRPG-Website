@@ -12,5 +12,12 @@
 <h1 class="my-xxl h1 mx-auto w-fit">{data.character.name}</h1>
 
 <div class="my-xxl mx-auto w-fit">
-  <Card link="/characters/{data.params.character}/dashboards/{defaultDashboardId}">Dashboard</Card>
+  <Card
+    links={[
+      {
+        href: '/characters/' + data.params.character + '/dashboards/' + defaultDashboardId,
+        icon_name: 'play_arrow'
+      }
+    ]}>Dashboard</Card
+  >
 </div>

@@ -82,8 +82,8 @@
         <form action="?/addWiki" method="post" use:enhance={submitAdd('wiki')}>
           <div class="search-cards">
             {#each results as wiki}
-              <Card>
-                <button type="submit" name="wikiId" value={wiki.id}>{wiki.name}</button>
+              <Card button={{ type: 'submit', name: 'wikiId', value: wiki.id }}>
+                {wiki.name}
               </Card>
             {/each}
           </div>
@@ -96,7 +96,14 @@
 <h1 class="my-xxl h1 mx-auto w-fit">{data.campaign.name}</h1>
 
 <div class="my-xxl mx-auto w-fit">
-  <Card link="/campaigns/{data.params.campaign}/dashboards/{defaultDashboardId}">Dashboard</Card>
+  <Card
+    links={[
+      {
+        href: '/campaigns/' + data.params.campaign + '/dashboards/' + defaultDashboardId,
+        icon_name: 'play_arrow'
+      }
+    ]}>Dashboard</Card
+  >
 </div>
 
 <hr />
@@ -106,8 +113,13 @@
   <div class="card-container mt-l gap-l px-s">
     <div class="cards gap-l py-m px-0">
       {#each data.campaign.wikis as wiki}
-        <Card link={'/wikis/' + wiki.id + '/pages/index'}>
-          <h3 class="h3 p-2 text-center">{wiki.name}</h3>
+        <Card
+          links={[
+            { href: '/wikis/' + wiki.id + '/pages/index', icon_name: 'menu_book' },
+            { href: '/wikis/' + wiki.id, icon_name: 'info' }
+          ]}
+        >
+          <h3 class="p-m h3 text-center">{wiki.name}</h3>
         </Card>
       {:else}
         <p>No wikis yet! Add one!</p>
@@ -138,9 +150,5 @@
 
   .add-button {
     margin-left: auto;
-  }
-
-  form button {
-    width: initial;
   }
 </style>

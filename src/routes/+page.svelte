@@ -100,7 +100,12 @@
         <p>Loading...</p>
       {:then campaigns}
         {#each campaigns as campaign}
-          <Card link={'/campaigns/' + campaign.id}>
+          <Card
+            links={[
+              { href: '/campaigns/' + campaign.id + '/dashboards/empty', icon_name: 'play_arrow' },
+              { href: '/campaigns/' + campaign.id, icon_name: 'info' }
+            ]}
+          >
             <h3 class="p-m h3 text-center">{campaign.name}</h3>
           </Card>
         {:else}
@@ -132,7 +137,15 @@
         <p>Loading...</p>
       {:then characters}
         {#each characters as character}
-          <Card link={'/characters/' + character.id}>
+          <Card
+            links={[
+              {
+                href: '/characters/' + character.id + '/dashboards/empty',
+                icon_name: 'play_arrow'
+              },
+              { href: '/characters/' + character.id, icon_name: 'info' }
+            ]}
+          >
             <h3 class="p-m h3 text-center">{character.name}</h3>
           </Card>
         {:else}
@@ -162,7 +175,12 @@
       <p>Loading...</p>
     {:then wikis}
       {#each wikis as wiki}
-        <Card link={'/wikis/' + wiki.id + '/pages/index'}>
+        <Card
+          links={[
+            { href: '/wikis/' + wiki.id + '/pages/index', icon_name: 'menu_book' },
+            { href: '/wikis/' + wiki.id, icon_name: 'info' }
+          ]}
+        >
           <h3 class="p-m h3 text-center">{wiki.name}</h3>
         </Card>
       {:else}

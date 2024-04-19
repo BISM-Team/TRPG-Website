@@ -1,16 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getWiki, getWikiWithCreatorInfo } from '$lib/db/wikis.server';
+import { getWikiWithCreatorInfo } from '$lib/db/wikis.server';
 import { error } from '@sveltejs/kit';
 import { getLogin } from '$lib/utils.server';
-
-function flattenTree(tree: PrismaJson.WikiTreeNode) {
-  let result: string[] = [tree.name];
-  tree.children.forEach((child) => {
-    result = result.concat(flattenTree(child));
-  });
-  return result;
-}
 
 function filterNode(
   user_id: string,

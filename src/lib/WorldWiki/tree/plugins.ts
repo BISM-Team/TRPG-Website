@@ -126,7 +126,7 @@ export function tagsDirectiveToLinks() {
         for (let n = 0; n < tags.length; ++n) {
           const link: Link = {
             type: 'link',
-            url: tags[n],
+            url: encodeURI(tags[n]),
             children: [{ type: 'text', value: tags[n] }]
           };
           parent.children.push(link as any);

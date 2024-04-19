@@ -1,6 +1,6 @@
 import { getTags, isTagsDirective, makeTagHeadingDirective } from './tags';
-import type { Campaign, Heading, Wiki } from '@prisma/client';
-import { getPage, getWiki, modifyPage, updateWiki } from '$lib/db/wikis.server';
+import type { Heading, Wiki } from '@prisma/client';
+import { getPage, modifyPage, updateWiki } from '$lib/db/wikis.server';
 import { allowed_page_names_regex_whole_word } from '../constants';
 import { parseSource } from './tree';
 import inject from 'mdast-util-inject';
@@ -8,14 +8,13 @@ import { createId } from '@paralleldrive/cuid2';
 import { error } from '@sveltejs/kit';
 import { getFirstHeadingIndexAfter, searchHeadingIndex, getHeadingsDb } from './heading';
 import type { List, ListItem, Root } from 'mdast';
-import { logWholeObject } from '$lib/utils';
 
 async function createTagSection(
   tag_heading: string,
   tree: Root,
   attributes?: { id?: string; viewers?: string; modifiers?: string }
 ) {
-  inject('', tree, await parseSource(makeTagHeadingDirective(tag_heading, attributes)));
+  inject('', tree, await parseSource(makeTagHeadingDirective(tag_heading, attributes)), false);
 }
 
 // finds searched tag or the last list contained in the span of indexes
@@ -67,7 +66,7 @@ function makeTagListItem(tag: string): ListItem {
         children: [
           {
             type: 'link',
-            url: tag,
+            url: encodeURI(tag),
             children: [
               {
                 type: 'text',
@@ -101,10 +100,10 @@ async function delete_tag(tag_section_name: string, tree: Root, tag: string) {
   }
 }
 
-async function inject_tag(tag_section_name: string, tree: Root, tag: string) {
+async function inject_tag(tag_section_name: string, tree: Root, tag: string, user_id: string) {
   let index = searchHeadingIndex(tree, tag_section_name);
   if (index === -1) {
-    await createTagSection(tag_section_name, tree);
+    await createTagSection(tag_section_name, tree, { viewers: user_id, modifiers: user_id });
     index = searchHeadingIndex(tree, tag_section_name);
   }
   let last_index = getFirstHeadingIndexAfter(tree, index);
@@ -116,15 +115,21 @@ async function inject_tag(tag_section_name: string, tree: Root, tag: string) {
     (tree.children[list_index] as List).children.push(makeTagListItem(tag));
     return true;
   } else if (list_item_index === -1) {
-    if (!inject(tag_section_name, tree, await parseSource(` - [${tag}](${tag})`)))
-      error(500, 'inject failed for unknonw reasons');
+    if (!inject(tag_section_name, tree, await parseSource(` - [${tag}](${encodeURI(tag)})`), false))
+      error(500, 'inject failed for unknown reasons');
     else return true;
   }
 }
 
-async function update_tag(tag_section_id: string, tree: Root, prev_name: string, new_name: string) {
+async function update_tag(
+  tag_section_id: string,
+  tree: Root,
+  prev_name: string,
+  new_name: string,
+  user_id: string
+) {
   const deletion = await delete_tag(tag_section_id, tree, prev_name);
-  const addition = await inject_tag(tag_section_id, tree, new_name);
+  const addition = await inject_tag(tag_section_id, tree, new_name, user_id);
   return deletion || addition;
   // TODO update instead of remove and inject again
 }
@@ -273,7 +278,7 @@ export async function handleTags(
       deletedTag.modifiers = headings[0].modifiers;
       insertTagInto(deletedTag, splitted_tag[0], wiki);
 
-      if (await inject_tag(splitted_tag[1] || page.headings[0].text, page.tree, nextPage))
+      if (await inject_tag(splitted_tag[1] || page.headings[0].text, page.tree, nextPage, user_id))
         page.modified = true;
     } else {
       const page = await getPageAndCache(page_cache, splitted_tag[0], wiki);
@@ -298,7 +303,8 @@ export async function handleTags(
           splitted_tag[1] || page.headings[0].text,
           page.tree,
           previousPage,
-          nextPage
+          nextPage,
+          user_id
         )
       )
         page.modified = true;

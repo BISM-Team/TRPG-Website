@@ -176,7 +176,7 @@
             <a
               href={'/wikis/' + data.params.wiki + '/pages/' + page.name}
               on:click={toggleSearchModal}
-              class="search-link p-m block"
+              class="p-m block transition hover:bg-surface-300-600-token"
             >
               <li>{page.name}</li>
             </a>
@@ -188,7 +188,7 @@
             data-sveltekit-preload-code="hover"
             href={'./' + searchText.trim()}
             on:click={toggleSearchModal}
-            class="search-link p-m block opacity-50"
+            class="p-m block opacity-50 transition hover:bg-surface-300-600-token"
           >
             <li>
               + {searchText.trim()}
@@ -258,13 +258,5 @@
     height: 100vh;
     overflow-y: auto;
     opacity: 1 !important;
-  }
-
-  .search-link {
-    @apply transition;
-  }
-
-  .search-link:hover {
-    @apply bg-surface-300-600-token;
   }
 </style>

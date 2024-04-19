@@ -291,4 +291,8 @@
     margin-top: var(--gap-xs);
     margin-bottom: var(--gap-m);
   }
+
+  .rendered-content :global(a) {
+    text-decoration: underline;
+  }
 </style>

@@ -1,6 +1,3 @@
-<script lang="ts">
-</script>
-
 <div id="toolbarContainer" class="bg-surface-200-700-token shadow-sm">
   <div id="left-container" class="flex flex-row">
     <slot name="left" />

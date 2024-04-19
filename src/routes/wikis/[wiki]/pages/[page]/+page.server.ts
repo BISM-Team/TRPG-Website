@@ -26,7 +26,7 @@ export const actions: Actions = {
     if (!wiki || !allowed_page_names_regex_whole_word.test(params.page))
       return fail(400, { invalid_wiki_id_or_page_name: true });
 
-    const tree = await parseSource(`# ${params.page}`, user.id);
+    const tree = await parseSource(`# ${params.page} \n\n:tags[]`, user.id);
     try {
       const headings = getHeadingsDb(tree, params.page, wiki.id);
       await handleTags(

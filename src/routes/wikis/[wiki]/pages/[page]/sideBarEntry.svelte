@@ -7,7 +7,7 @@
 
 {#if node.name.toLowerCase().trim() !== 'unsorted' || node.children.length}
   <div class="entryContainer">
-    <div class="entry btn">
+    <div class="entry btn hover:bg-surface-300-600-token">
       <div class="page_name py-l px-m">
         {#if node.name.toLowerCase().trim() !== 'unsorted'}
           <a href={node.name}>{capitalizeFirstLetter(node.name)}</a>
@@ -51,6 +51,7 @@
     font-size: medium;
     margin: 0;
     padding: 0;
+    border-radius: 0.5em;
   }
 
   .expand {
